@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
+
 project(codex_broker)
 
 include_directories(AFTER, ../cppzmq)
