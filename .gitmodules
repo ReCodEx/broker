@@ -1,0 +1,6 @@
+[submodule "vendor/cppzmq"]
+	path = vendor/cppzmq
+	url = https://github.com/zeromq/cppzmq.git
+[submodule "vendor/googletest"]
+	path = vendor/googletest
+	url = https://github.com/google/googletest.git

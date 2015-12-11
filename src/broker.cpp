@@ -40,7 +40,7 @@ void broker::start_brokering ()
 		if (items[1].revents & ZMQ_POLLIN) {
 			message.rebuild();
 			workers.recv(&message, 0);
-			std::string type((char*) message.data(), message.size());
+			std::string type((char *) message.data(), message.size());
 
 			if (type == "init") {
 				process_worker_init(message);
