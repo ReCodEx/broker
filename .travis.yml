@@ -1,0 +1,22 @@
+sudo: required
+dist: trusty
+language: cpp
+
+before_install:
+  - sudo apt-get update -qq
+  # Install ZeroMQ
+  - sudo apt-get install -y libzmq3-dev libzmq3
+  # Install Boost
+  - sudo apt-get install -y libboost-all-dev
+  # Install yaml-cpp
+  - sudo apt-get install -y libyaml-cpp0.5 libyaml-cpp-dev
+
+install:
+  - git submodule update --init
+
+script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - tests/run_tests

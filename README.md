@@ -1,4 +1,5 @@
 # TaskBroker
+[![Build Status](https://travis-ci.org/ReCodEx/TaskBroker.svg?branch=master)](https://travis-ci.org/ReCodEx/BasicWorker)
 
 ## How to run it
 
