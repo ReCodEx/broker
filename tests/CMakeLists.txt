@@ -10,6 +10,7 @@ include_directories(${LIBS_DIR}/googlemock/include)
 # The main test executable
 add_executable(run_tests
         broker.cpp
+        broker_config.cpp
         ${SRC_DIR}/broker.cpp
         ${SRC_DIR}/broker_config.cpp
         ${SRC_DIR}/task_router.cpp)
