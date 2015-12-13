@@ -8,6 +8,7 @@ broker::broker (const broker_config &config):
 void broker::start_brokering ()
 {
 	char addr[64];
+	bool terminate = false;
 
 	snprintf(addr, sizeof(addr), "tcp://*:%d", config.get_client_port());
 	clients.bind(addr);
@@ -20,10 +21,14 @@ void broker::start_brokering ()
 			{(void *) workers, 0, ZMQ_POLLIN, 0}
 	};
 
-	while (true) {
+	while (!terminate) {
 		zmq::message_t message;
 
-		zmq::poll(items, 2, -1);
+		try {
+			zmq::poll(items, 2, -1);
+		} catch (zmq::error_t) {
+			terminate = true;
+		}
 
 		/* Received a message from the frontend */
 		if (items[0].revents & ZMQ_POLLIN) {
