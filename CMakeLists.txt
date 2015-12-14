@@ -16,6 +16,7 @@ set(SOURCE_FILES
 )
 
 add_executable(codex_broker ${SOURCE_FILES})
+target_link_libraries(codex_broker yaml-cpp)
 target_link_libraries(codex_broker -lzmq)
 
 # Include Google Test libraries and then our very own unit tests
