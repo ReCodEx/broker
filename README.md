@@ -3,9 +3,8 @@
 
 ## How to run it
 
-- Install ZeroMQ, version at least 4.0. Package name should be `libzmq3-dev`
-- Install dependencies with `git submodule update --init`
-- Install CMake, GNU Make, G++ > 5
-- Build as `cmake . && make`
-- Run `./basic-broker`
+- Install dependencies according to [common](https://github.com/ReCodEx/GlobalWiki/wiki/System-configuration#common) configuration
+- Download `zmq.hpp` and Google test framework using `git submodule update --init`
+- Build with cmake: `mkdir build && cd build && cmake .. && make`
+- Run `./basic-worker`
 
