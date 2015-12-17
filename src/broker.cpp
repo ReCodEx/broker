@@ -7,14 +7,10 @@ broker::broker (const broker_config &config):
 
 void broker::start_brokering ()
 {
-	char addr[64];
 	bool terminate = false;
 
-	snprintf(addr, sizeof(addr), "tcp://*:%d", config.get_client_port());
-	clients.bind(addr);
-
-	snprintf(addr, sizeof(addr), "tcp://*:%d", config.get_worker_port());
-	workers.bind(addr);
+	clients.bind(std::string("tcp://*:") + std::to_string(config.get_client_port()));
+	workers.bind(std::string("tcp://*:") + std::to_string(config.get_worker_port()));
 
 	zmq_pollitem_t items[] = {
 			{(void *) clients, 0, ZMQ_POLLIN, 0},
