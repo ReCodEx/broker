@@ -3,4 +3,8 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 codex_broker
+doc/
+build/
+.idea/*.xml
+.idea/*.iml
 				
