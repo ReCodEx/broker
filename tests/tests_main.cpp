@@ -1,11 +1,5 @@
-#include <iostream>
-#include <yaml-cpp/yaml.h>
-#include <memory>
+#include "gtest/gtest.h"
 #include "spdlog/spdlog.h"
-
-#include "task_router.hpp"
-#include "broker_config.hpp"
-#include "broker.hpp"
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #define BOOST_NO_CXX11_SCOPED_ENUMS
@@ -14,9 +8,6 @@
 namespace fs = boost::filesystem;
 
 
-/**
- * Function for global initialization of used resources.
- */
 void init()
 {
 	//Params which will be configured - will be implemented later
@@ -61,26 +52,15 @@ void init()
 	}
 }
 
-int main (int argc, char **argv)
-{
-	try {
+
+int main(int argc, char **argv) {
+	try{
 		init();
 	} catch(...) {
 		return 1;
 	}
+	testing::InitGoogleTest(&argc, argv);
+	auto result = RUN_ALL_TESTS();
 
-	YAML::Node yaml;
-
-	try {
-		yaml = YAML::LoadFile("config.yml");
-	} catch (YAML::Exception) {
-		std::cerr << "Error loading config file" << std::endl;
-	}
-
-	broker_config config(yaml);
-	broker broker(config);
-
-	broker.start_brokering();
-
-	return 0;
+	return result;
 }

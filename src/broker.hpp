@@ -3,7 +3,8 @@
 
 
 #include <zmq.hpp>
-
+#include <memory>
+#include "spdlog/spdlog.h"
 #include "broker_config.hpp"
 #include "task_router.hpp"
 
@@ -16,6 +17,7 @@ private:
 	zmq::socket_t workers;
 
 	task_router router;
+	std::shared_ptr<spdlog::logger> logger_;
 
 	void process_worker_init (zmq::message_t &message);
 public:

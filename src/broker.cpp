@@ -3,13 +3,16 @@
 broker::broker (const broker_config &config):
 	config(config), context(1), clients(context, ZMQ_ROUTER), workers(context, ZMQ_DEALER)
 {
+	logger_ = spdlog::get("logger");
 }
 
 void broker::start_brokering ()
 {
 	bool terminate = false;
 
+	logger_->debug() << "Binding clients to tcp://*:" + std::to_string(config.get_client_port());
 	clients.bind(std::string("tcp://*:") + std::to_string(config.get_client_port()));
+	logger_->debug() << "Binding workers to tcp://*:" + std::to_string(config.get_worker_port());
 	workers.bind(std::string("tcp://*:") + std::to_string(config.get_worker_port()));
 
 	zmq_pollitem_t items[] = {
@@ -22,7 +25,8 @@ void broker::start_brokering ()
 
 		try {
 			zmq::poll(items, 2, -1);
-		} catch (zmq::error_t) {
+		} catch (zmq::error_t &e) {
+			logger_->emerg() << "Terminating to poll... " << e.what();
 			terminate = true;
 		}
 
@@ -31,6 +35,7 @@ void broker::start_brokering ()
 			message.rebuild();
 			workers.recv(&message, 0);
 			std::string type((char*) message.data(), message.size());
+			logger_->debug() << "Received message '" << type << "' from frontend";
 
 			if (type == "eval") {
 				// TODO
@@ -42,6 +47,7 @@ void broker::start_brokering ()
 			message.rebuild();
 			workers.recv(&message, 0);
 			std::string type((char *) message.data(), message.size());
+			logger_->debug() << "Received message '" << type << "' from backend";
 
 			if (type == "init") {
 				process_worker_init(message);
