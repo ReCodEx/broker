@@ -1,7 +1,7 @@
 #include "broker.hpp"
 
 broker::broker (const broker_config &config):
-	config(config), context(1), clients(context, ZMQ_ROUTER), workers(context, ZMQ_DEALER)
+	config(config), context(1), clients(context, ZMQ_ROUTER), workers(context, ZMQ_ROUTER)
 {
 	logger_ = spdlog::get("logger");
 }
@@ -45,30 +45,40 @@ void broker::start_brokering ()
 		/* Received a message from the backend */
 		if (items[1].revents & ZMQ_POLLIN) {
 			message.rebuild();
+
+			workers.recv(&message, 0);
+			std::string identity((char *) message.data(), message.size());
+
 			workers.recv(&message, 0);
 			std::string type((char *) message.data(), message.size());
+
 			logger_->debug() << "Received message '" << type << "' from backend";
 
 			if (type == "init") {
-				process_worker_init(message);
+				process_worker_init(identity, message);
+			}
+
+			while (message.more()) {
+				workers.recv(&message, 0);
 			}
 		}
+
 	}
 }
 
-void broker::process_worker_init (zmq::message_t &message)
+void broker::process_worker_init (const std::string &id, zmq::message_t &message)
 {
-	worker worker;
+	task_router::headers_t headers;
 
 	while (message.more()) {
-		message.rebuild();
 		workers.recv(&message, 0);
+		std::string header((char *) message.data(), message.size());
 
-		std::string header((char *) message.data(), message.size()); // TODO fix
 		size_t pos = header.find('=');
 		size_t value_size = header.size() - (pos + 1);
-		worker.headers.emplace(header.substr(0, pos), header.substr(pos + 1, value_size));
+
+		headers.emplace(header.substr(0, pos), header.substr(pos + 1, value_size));
 	}
 
-	router.add_worker(worker);
+	router.add_worker(task_router::worker_ptr(new worker(id, headers)));
 }
