@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <yaml-cpp/yaml.h>
 
-#include "../src/broker_config.hpp"
+#include "../src/broker_config.h"
 
 TEST(broker_config, config_basic)
 {

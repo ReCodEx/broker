@@ -1,4 +1,4 @@
-#include "broker_config.hpp"
+#include "broker_config.h"
 
 broker_config::broker_config ()
 {

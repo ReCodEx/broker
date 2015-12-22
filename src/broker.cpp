@@ -1,4 +1,4 @@
-#include "broker.hpp"
+#include "broker.h"
 
 broker::broker (const broker_config &config):
 	config(config), context(1), clients(context, ZMQ_ROUTER), workers(context, ZMQ_ROUTER)

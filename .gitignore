@@ -7,4 +7,5 @@ doc/
 build/
 .idea/*.xml
 .idea/*.iml
+*.user
 				

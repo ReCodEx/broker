@@ -3,9 +3,9 @@
 #include <memory>
 #include "spdlog/spdlog.h"
 
-#include "task_router.hpp"
-#include "broker_config.hpp"
-#include "broker.hpp"
+#include "task_router.h"
+#include "broker_config.h"
+#include "broker.h"
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #define BOOST_NO_CXX11_SCOPED_ENUMS

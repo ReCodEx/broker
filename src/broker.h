@@ -5,8 +5,8 @@
 #include <zmq.hpp>
 #include <memory>
 #include "spdlog/spdlog.h"
-#include "broker_config.hpp"
-#include "task_router.hpp"
+#include "broker_config.h"
+#include "task_router.h"
 
 class broker {
 private:

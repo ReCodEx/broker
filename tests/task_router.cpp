@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "../src/task_router.hpp"
+#include "../src/task_router.h"
 
 using namespace testing;
 

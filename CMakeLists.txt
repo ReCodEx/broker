@@ -13,11 +13,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(SOURCE_FILES
         src/main.cpp
         src/task_router.cpp
-        src/task_router.hpp
+        src/task_router.h
         src/broker_config.cpp
-        src/broker_config.hpp
+        src/broker_config.h
         src/broker.cpp
-        src/broker.hpp
+        src/broker.h
 )
 
 add_executable(codex_broker ${SOURCE_FILES})
