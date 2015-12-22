@@ -9,6 +9,9 @@
 /* Forward declaration */
 struct worker;
 
+/**
+ * Service that stores information about worker machines and routes tasks to them
+ */
 class task_router {
 public:
 	typedef std::multimap<std::string, std::string> headers_t;
@@ -19,11 +22,18 @@ private:
 public:
 	task_router ();
 	void add_worker (worker_ptr worker);
+	worker_ptr find_worker (const headers_t &headers);
 };
 
+/**
+ * A structure that contains data about a worker machine
+ */
 struct worker {
-	const std::string &identity;
-	const task_router::headers_t &headers;
+	/** A unique identifier of the worker */
+	const std::string identity;
+
+	/** Headers that describe the worker's capabilities */
+	const task_router::headers_t headers;
 
 	worker (std::string id, task_router::headers_t headers): identity(id), headers(headers)
 	{

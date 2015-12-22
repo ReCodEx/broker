@@ -20,6 +20,7 @@ private:
 	std::shared_ptr<spdlog::logger> logger_;
 
 	void process_worker_init (const std::string &identity, zmq::message_t &message);
+	void process_client_eval (const std::string &identity, zmq::message_t &message);
 public:
 	broker (const broker_config &config);
 

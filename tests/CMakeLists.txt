@@ -12,6 +12,7 @@ add_executable(run_tests
     tests_main.cpp
     broker.cpp
     broker_config.cpp
+    task_router.cpp
     ${SRC_DIR}/broker.cpp
     ${SRC_DIR}/broker_config.cpp
     ${SRC_DIR}/task_router.cpp)
