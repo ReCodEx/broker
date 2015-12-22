@@ -17,7 +17,7 @@ namespace fs = boost::filesystem;
 /**
  * Function for global initialization of used resources.
  */
-void init()
+std::shared_ptr<spdlog::logger> init_logger ()
 {
 	//Params which will be configured - will be implemented later
 	std::string log_path = "/tmp/recodex_log/";
@@ -49,12 +49,11 @@ void init()
 		auto file_logger = std::make_shared<spdlog::logger>("logger", rotating_sink);
 		//Set logging level to debug
 		file_logger->set_level(log_level);
-		//Register logger for global usage
-		spdlog::register_logger(file_logger);
 		//Print header to log
 		file_logger->emerg() << "------------------------------";
-		file_logger->emerg() << "   Started ReCodEx broker";
+		file_logger->emerg() << "    Started ReCodEx broker";
 		file_logger->emerg() << "------------------------------";
+		return file_logger;
 	} catch(spdlog::spdlog_ex &e) {
 		std::cerr << "Logger: " << e.what() << std::endl;
 		throw;
@@ -63,12 +62,6 @@ void init()
 
 int main (int argc, char **argv)
 {
-	try {
-		init();
-	} catch(...) {
-		return 1;
-	}
-
 	YAML::Node yaml;
 
 	try {
@@ -77,8 +70,15 @@ int main (int argc, char **argv)
 		std::cerr << "Error loading config file" << std::endl;
 	}
 
+	std::shared_ptr<spdlog::logger> logger = nullptr;
+	try {
+		logger = init_logger();
+	} catch(...) {
+		return 1;
+	}
+
 	broker_config config(yaml);
-	broker broker(config);
+	broker broker(config, logger);
 
 	broker.start_brokering();
 

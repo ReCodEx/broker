@@ -1,9 +1,17 @@
 #include "task_router.h"
 
 
-task_router::task_router ()
+task_router::task_router (std::shared_ptr<spdlog::logger> logger)
 {
-	logger_ = spdlog::get("logger");
+	if(logger != nullptr) {
+		logger_ = logger;
+	} else {
+		//Create logger manually to avoid global registration of logger
+		auto sink = std::make_shared<spdlog::sinks::stderr_sink_st>();
+		logger_ = std::make_shared<spdlog::logger>("task_router_nolog", sink);
+		//Set loglevel to 'off' cause no logging
+		logger_->set_level(spdlog::level::off);
+	}
 }
 
 void task_router::add_worker (worker_ptr worker)

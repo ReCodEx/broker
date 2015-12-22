@@ -20,7 +20,7 @@ private:
 	std::vector<worker_ptr> workers;
 	std::shared_ptr<spdlog::logger> logger_;
 public:
-	task_router ();
+	task_router (std::shared_ptr<spdlog::logger> logger = nullptr);
 	void add_worker (worker_ptr worker);
 	worker_ptr find_worker (const headers_t &headers);
 };

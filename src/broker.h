@@ -10,19 +10,19 @@
 
 class broker {
 private:
-	const broker_config &config;
+	const broker_config &config_;
 
-	zmq::context_t context;
-	zmq::socket_t clients;
-	zmq::socket_t workers;
+	zmq::context_t context_;
+	zmq::socket_t clients_;
+	zmq::socket_t workers_;
 
-	task_router router;
+	task_router router_;
 	std::shared_ptr<spdlog::logger> logger_;
 
 	void process_worker_init (const std::string &identity, zmq::message_t &message);
 	void process_client_eval (const std::string &identity, zmq::message_t &message);
 public:
-	broker (const broker_config &config);
+	broker (const broker_config &config, std::shared_ptr<spdlog::logger> logger = nullptr);
 
 	void start_brokering ();
 
