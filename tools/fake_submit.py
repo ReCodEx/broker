@@ -1,4 +1,4 @@
-#!/usr/bin/env/python3
+#!/usr/bin/env python3
 
 # Send a fake submit to the ReCodEx broker
 # usage:
