@@ -106,8 +106,24 @@ void broker::process_client_eval (const std::string &identity, zmq::message_t &m
 	task_router::headers_t headers;
 	std::string response("reject");
 
-	while (message.more()) {
+	clients_.recv(&message, 0);
+	std::string job_id((char *) message.data(), message.size());
+
+	// Load headers terminated by an empty frame
+	while (true) {
 		clients_.recv(&message, 0);
+
+		// End of headers
+		if (message.size() == 0) {
+			break;
+		}
+
+		// Unexpected end of message - do nothing and return
+		if (!message.more()) {
+			return;
+		}
+
+		// Parse header, save it and continue
 		std::string header((char *) message.data(), message.size());
 
 		size_t pos = header.find('=');
@@ -121,13 +137,28 @@ void broker::process_client_eval (const std::string &identity, zmq::message_t &m
 	if (worker != nullptr) {
 		response = "accept";
 
+		// The first sent frame specifies the identity od the worker
 		workers_.send(
 			worker->identity.c_str(),
 			worker->identity.length(),
 			ZMQ_SNDMORE
 		);
-		workers_.send("", 0, ZMQ_SNDMORE);
+
+		// Send the "eval" command
 		workers_.send("eval", 4, 0);
+
+		// Send the Job ID
+		workers_.send(
+			job_id.c_str(),
+			job_id.length(),
+			ZMQ_SNDMORE
+		);
+
+		// Forward remaining messages to the worker without actually understanding them
+		while (message.more()) {
+			clients_.recv(&message, 0);
+			workers_.send(message, message.more() ? ZMQ_SNDMORE : 0);
+		}
 	}
 
 	clients_.send((void *) identity.c_str(), identity.length(), ZMQ_SNDMORE);
