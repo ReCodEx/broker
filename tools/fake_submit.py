@@ -27,6 +27,7 @@ broker.connect("tcp://localhost:{}".format(config['client_port']))
 
 broker.send_multipart(
     [b"eval"] +
+    [b"job_5487"] +
     ["{}={}".format(k, v).encode() for k, v in headers.items()] +
     [b""] +
     [b"http://localhost:9999/submission_archives/example.tar.gz"] +
