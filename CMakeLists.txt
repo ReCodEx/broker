@@ -16,8 +16,8 @@ set(SOURCE_FILES
         src/task_router.h
         src/broker_config.cpp
         src/broker_config.h
-        src/broker.cpp
         src/broker.h
+        src/connection_proxy.h
 )
 
 add_executable(codex_broker ${SOURCE_FILES})

@@ -6,6 +6,7 @@
 #include "task_router.h"
 #include "broker_config.h"
 #include "broker.h"
+#include "connection_proxy.h"
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #define BOOST_NO_CXX11_SCOPED_ENUMS
@@ -78,7 +79,7 @@ int main (int argc, char **argv)
 	}
 
 	broker_config config(yaml);
-	broker broker(config, logger);
+	broker<connection_proxy> broker(config, std::make_shared<connection_proxy>(), logger);
 
 	broker.start_brokering();
 
