@@ -16,6 +16,7 @@ join = os.path.join
 
 port = 9999
 tmp = tempfile.TemporaryDirectory()
+os.chdir(tmp.name)
 
 archive_dir = join(tmp.name, "submit_archives")
 os.makedirs(archive_dir)
@@ -29,10 +30,6 @@ os.makedirs(result_dir)
 job_id = 0
 
 class FileServerHandler(http.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.path = join(path, self.path)
-        super().do_GET()
-
     def do_POST(self):
         form = cgi.FieldStorage(
             fp = self.rfile,
