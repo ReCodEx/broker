@@ -27,7 +27,7 @@ for arg in argv_it:
 # Send the submission to our fake file server
 reply = requests.post(
     "http://localhost:{0}".format(fsrv_port),
-    {f.encode(): open(f, "r").read()}
+    {f.encode(): open(f, "r").read() for f in files}
 )
 job_id = reply.text
 
