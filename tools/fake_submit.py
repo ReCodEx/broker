@@ -10,28 +10,44 @@
 import zmq
 import yaml
 import sys
+import requests
 
+fsrv_port = 9999
 headers = {}
+files = []
 argv_it = iter(sys.argv)
 
+# Load arguments
 for arg in argv_it:
     if arg.startswith("--"):
         headers[arg[2:]] = next(argv_it)
+    else:
+        files.append(arg)
 
+# Send the submission to our fake file server
+reply = requests.post(
+    "http://localhost:{0}".format(fsrv_port),
+    {f.encode(): open(f, "r").read()}
+)
+job_id = reply.text
+
+# Sniff out the brokers port
 with open("config.yml") as config_file:
     config = yaml.load(config_file)
 
+# Connect to the broker
 context = zmq.Context()
 broker = context.socket(zmq.REQ)
 broker.connect("tcp://localhost:{}".format(config['client_port']))
 
+# Send the request
 broker.send_multipart(
     [b"eval"] +
-    [b"job_5487"] +
+    [str(job_id).encode()] +
     ["{}={}".format(k, v).encode() for k, v in headers.items()] +
     [b""] +
-    [b"http://localhost:9999/submission_archives/example.tar.gz"] +
-    [b"http://localhost:9999/results/example/"]
+    ["http://localhost:{0}/submission_archives/{1}.tar.gz".format(fsrv_port, job_id).encode()] +
+    ["http://localhost:{0}/results/example/".format(fsrv_port).encode()]
 )
 
 result = broker.recv()
