@@ -104,6 +104,11 @@ private:
 					message.more() ? ZMQ_SNDMORE : 0
 				);
 			}
+		} else {
+			// Receive and ignore any remaining messages
+			while (message.more()) {
+				sockets_->recv_clients(message);
+			}
 		}
 
 		sockets_->send_clients_id(identity);
