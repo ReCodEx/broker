@@ -47,6 +47,10 @@ class FileServerHandler(http.SimpleHTTPRequestHandler):
 
         # Save received files
         for name in form.keys():
+            dirname = os.path.dirname(name)
+            if dirname != "":
+                os.makedirs(join(job_dir, dirname), exist_ok = True)
+            
             with open(join(job_dir, name), "w") as f:
                 f.write(form[name].value)
 

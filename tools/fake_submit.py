@@ -2,43 +2,52 @@
 
 # Send a fake submit to the ReCodEx broker
 # usage:
-#       $ python fake_submit.py --header1 val1 --header2 val2
-# The script assumes that there is a config.yml file in its 
-# working directory. If you don't want to supply your own file,
-# run the script in the examples directory.
+#       $ python fake_submit.py --header1 val1 --header2 val2 submit_directory
 
 import zmq
 import yaml
+import os
 import sys
 import requests
+from glob import iglob
 
 fsrv_port = 9999
+broker_port = 9658
+
+submit_dir = ""
 headers = {}
-files = []
 argv_it = iter(sys.argv)
 
 # Load arguments
+script_name = next(argv_it)
+
 for arg in argv_it:
-    if arg.startswith("--"):
+    if arg.startswith("--") and len(arg) > 2:
         headers[arg[2:]] = next(argv_it)
     else:
-        files.append(arg)
+        submit_dir = arg
+
+if submit_dir == "":
+    sys.exit("no directory to submit was specified")
+
+# Make an iterator for the submitted files
+files = (
+    os.path.relpath(f, submit_dir) 
+    for f in iglob(submit_dir + "/**", recursive = True)
+    if os.path.isfile(f)
+)
 
 # Send the submission to our fake file server
 reply = requests.post(
     "http://localhost:{0}".format(fsrv_port),
-    {f.encode(): open(f, "r").read() for f in files}
+    {f.encode(): open(os.path.join(submit_dir, f), "rb").read() for f in files}
 )
 job_id = reply.text
-
-# Sniff out the brokers port
-with open("config.yml") as config_file:
-    config = yaml.load(config_file)
 
 # Connect to the broker
 context = zmq.Context()
 broker = context.socket(zmq.REQ)
-broker.connect("tcp://localhost:{}".format(config['client_port']))
+broker.connect("tcp://localhost:{}".format(broker_port))
 
 # Send the request
 broker.send_multipart(
