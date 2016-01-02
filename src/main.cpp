@@ -78,8 +78,10 @@ int main (int argc, char **argv)
 		return 1;
 	}
 
-	broker_config config(yaml);
-	broker<connection_proxy> broker(config, std::make_shared<connection_proxy>(), logger);
+	auto config = std::make_shared<broker_config>(yaml);
+	auto router = std::make_shared<task_router>();
+	auto sockets = std::make_shared<connection_proxy>();
+	broker<connection_proxy> broker(config, sockets, router, logger);
 
 	broker.start_brokering();
 

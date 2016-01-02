@@ -27,11 +27,9 @@ struct message_receiver {
 template <typename proxy>
 class broker {
 private:
-	const broker_config &config_;
-
+	std::shared_ptr<const broker_config> config_;
 	std::shared_ptr<proxy> sockets_;
-
-	task_router router_;
+	std::shared_ptr<task_router> router_;
 	std::shared_ptr<spdlog::logger> logger_;
 
 	/**
@@ -51,7 +49,7 @@ private:
 			headers.emplace(header.substr(0, pos), header.substr(pos + 1, value_size));
 		}
 
-		router_.add_worker(task_router::worker_ptr(new worker(identity, headers)));
+		router_->add_worker(task_router::worker_ptr(new worker(identity, headers)));
 	}
 
 	/**
@@ -85,7 +83,7 @@ private:
 			 ++it;
 		}
 
-		task_router::worker_ptr worker = router_.find_worker(headers);
+		task_router::worker_ptr worker = router_->find_worker(headers);
 
 		if (worker != nullptr) {
 			std::vector<std::string> request = {"eval", job_id};
@@ -104,10 +102,11 @@ private:
 
 public:
 	broker (
-		const broker_config &config,
+		std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
+		std::shared_ptr<task_router> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr
-	) : config_(config), sockets_(sockets)
+	) : config_(config), sockets_(sockets), router_(router)
 	{
 		if (logger != nullptr) {
 			logger_ = logger;
@@ -126,12 +125,12 @@ public:
 	 */
 	void start_brokering ()
 	{
-		logger_->debug() << "Binding clients to tcp://*:" + std::to_string(config_.get_client_port());
-		logger_->debug() << "Binding workers to tcp://*:" + std::to_string(config_.get_worker_port());
+		logger_->debug() << "Binding clients to tcp://*:" + std::to_string(config_->get_client_port());
+		logger_->debug() << "Binding workers to tcp://*:" + std::to_string(config_->get_worker_port());
 
 		sockets_->bind(
-			std::string("tcp://*:") + std::to_string(config_.get_client_port()),
-			std::string("tcp://*:") + std::to_string(config_.get_worker_port())
+			std::string("tcp://*:") + std::to_string(config_->get_client_port()),
+			std::string("tcp://*:") + std::to_string(config_->get_worker_port())
 		);
 
 		while (true) {
