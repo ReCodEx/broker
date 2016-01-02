@@ -9,6 +9,9 @@
 #include "broker_config.h"
 #include "task_router.h"
 
+/**
+ * Contains type definitions used by the proxy poll function
+ */
 struct message_receiver {
 	enum type {
 		CLIENT = 0,
@@ -18,6 +21,9 @@ struct message_receiver {
 	typedef std::bitset<2> set;
 };
 
+/**
+ * Receives requests from clients and forwards them to workers
+ */
 template <typename proxy>
 class broker {
 private:
@@ -28,6 +34,11 @@ private:
 	task_router router_;
 	std::shared_ptr<spdlog::logger> logger_;
 
+	/**
+	 * Process an "init" request from a worker.
+	 * That means storing the identity and headers of the worker
+	 * so that we can forward jobs to it.
+	 */
 	void process_worker_init (const std::string &identity, const std::vector<std::string> &message)
 	{
 		task_router::headers_t headers;
@@ -43,6 +54,9 @@ private:
 		router_.add_worker(task_router::worker_ptr(new worker(identity, headers)));
 	}
 
+	/**
+	 * Process an "eval" request from a client
+	 */
 	void process_client_eval (const std::string &identity, const std::vector<std::string> &message)
 	{
 		std::string job_id = message.at(1);
@@ -106,6 +120,10 @@ public:
 		}
 	}
 
+	/**
+	 * Bind to sockets and start receiving and routing requests.
+	 * Blocks execution until the underlying ZeroMQ context is terminated.
+	 */
 	void start_brokering ()
 	{
 		logger_->debug() << "Binding clients to tcp://*:" + std::to_string(config_.get_client_port());
