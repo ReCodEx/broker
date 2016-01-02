@@ -14,15 +14,11 @@ public:
 class mock_connection_proxy {
 public:
 	MOCK_METHOD2(bind, void(const std::string &, const std::string &));
-	MOCK_METHOD2(poll, void(message_receiver::set &, int));
-	MOCK_METHOD2(recv_workers_id, void(zmq::message_t &, std::string &));
-	MOCK_METHOD1(recv_workers, void(zmq::message_t &));
-	MOCK_METHOD2(recv_clients_id, void(zmq::message_t &, std::string &));
-	MOCK_METHOD1(recv_clients, void(zmq::message_t &));
-	MOCK_METHOD1(send_workers_id, void(const std::string &));
-	MOCK_METHOD3(send_workers, void(const void *, size_t, int));
-	MOCK_METHOD1(send_clients_id, void(const std::string &));
-	MOCK_METHOD3(send_clients, void(const void *, size_t, int));
+	MOCK_METHOD3(poll, void(message_receiver::set &, int, bool *));
+	MOCK_METHOD3(recv_workers, bool(std::string &, std::vector<std::string> &, bool *));
+	MOCK_METHOD3(recv_clients, bool(std::string &, std::vector<std::string> &, bool *));
+	MOCK_METHOD2(send_workers, bool(const std::string &, const std::vector<std::string> &));
+	MOCK_METHOD2(send_clients, bool(const std::string &, const std::vector<std::string> &));
 };
 
 TEST(broker, bind)
@@ -43,7 +39,7 @@ TEST(broker, bind)
 		std::string addr_2 = "tcp://*:4321";
 
 		EXPECT_CALL(*sockets, bind(StrEq(addr_1), StrEq(addr_2)));
-		EXPECT_CALL(*sockets, poll(_, _)).WillOnce(Throw(zmq::error_t()));
+		EXPECT_CALL(*sockets, poll(_, _, _)).WillOnce(SetArgPointee<2>(true));
 	}
 
 	broker<mock_connection_proxy> broker(config, sockets);
@@ -58,11 +54,6 @@ ACTION(ClearFlags)
 ACTION_P(SetFlag, flag)
 {
 	((message_receiver::set &) arg0).set(flag, true);
-}
-
-ACTION_P(SetMsg, msg)
-{
-	((zmq::message_t &) arg0).copy(msg);
 }
 
 /*

@@ -43,88 +43,166 @@ public:
 	 * Block execution until a message arrives to either socket.
 	 * @param result If a message arrived to a socket, the corresponding bit field is set to true
 	 */
-	void poll (message_receiver::set &result, int timeout)
+	void poll (message_receiver::set &result, int timeout, bool *terminate = nullptr)
 	{
 		result.reset();
-		zmq::poll(items_, 2, timeout);
+
+		try {
+			zmq::poll(items_, 2, timeout);
+		} catch (zmq::error_t) {
+			if (terminate != nullptr) {
+				*terminate = true;
+				return;
+			}
+		}
 
 		if (items_[0].revents & ZMQ_POLLIN) {
-			result.set(message_receiver::type::CLIENT, true);
+			result.set(message_receiver::CLIENT, true);
 		}
 
 		if (items_[1].revents & ZMQ_POLLIN) {
-			result.set(message_receiver::type::WORKER, true);
+			result.set(message_receiver::WORKER, true);
 		}
-	}
-
-	/**
-	 * Receive an identity string from a worker connection
-	 */
-	void recv_workers_id (zmq::message_t &msg, std::string &id)
-	{
-		workers_.recv(&msg, 0);
-		id = std::string((char *) msg.data(), msg.size());
 	}
 
 	/**
 	 * Receive a message frame from the worker socket
 	 */
-	void recv_workers (zmq::message_t &msg)
+	bool recv_workers (std::string &identity, std::vector<std::string> &target, bool *terminate = nullptr)
 	{
-		workers_.recv(&msg, 0);
-	}
+		zmq::message_t msg;
+		target.clear();
+		bool retval;
 
-	/**
-	 * Receive an identity string from a client connection
-	 */
-	void recv_clients_id (zmq::message_t &msg, std::string &id)
-	{
-		clients_.recv(&msg, 0);
-		id = std::string((char *) msg.data(), msg.size());
-		clients_.recv(&msg, 0);
+		retval = workers_.recv(&msg, 0);
+
+		if (!retval) {
+			return false;
+		}
+
+		identity = std::string(static_cast<char *>(msg.data()), msg.size());
+
+		while (msg.more()) {
+			try {
+				retval = workers_.recv(&msg, 0);
+			} catch (zmq::error_t) {
+				if (terminate != nullptr) {
+					*terminate = true;
+				}
+				retval = false;
+			}
+
+			if (!retval) {
+				return false;
+			}
+
+			target.emplace_back(static_cast<char *>(msg.data()), msg.size());
+		}
+
+		return true;
 	}
 
 	/**
 	 * Receive a message frame from the client socket
 	 */
-	void recv_clients (zmq::message_t &msg)
+	bool recv_clients (std::string &identity, std::vector<std::string> &target, bool *terminate = nullptr)
 	{
-		clients_.recv(&msg, 0);
+		zmq::message_t msg;
+		target.clear();
+		bool retval;
+
+		retval = clients_.recv(&msg, 0);
+
+		if (!retval) {
+			return false;
+		}
+
+		identity = std::string(static_cast<char *>(msg.data()), msg.size());
+
+		retval = clients_.recv(&msg, 0); // Empty frame
+
+		if (!retval) {
+			return false;
+		}
+
+		while (msg.more()) {
+			try {
+				retval = clients_.recv(&msg, 0);
+			} catch (zmq::error_t) {
+				if (terminate != nullptr) {
+					*terminate = true;
+				}
+				retval = false;
+			}
+
+			if (!retval) {
+				return false;
+			}
+
+			target.emplace_back(static_cast<char *>(msg.data()), msg.size());
+		}
+
+		return true;
 	}
 
 	/**
-	 * Send an identity string to the worker socket.
-	 * This is used to specify which worker should receive the following frames
+	 * Send a message through the worker socket
 	 */
-	void send_workers_id (const std::string &id)
+	bool send_workers (const std::string &identity, const std::vector<std::string> &msg)
 	{
-		workers_.send(id.data(), id.size(), ZMQ_SNDMORE);
+		bool retval;
+		retval = workers_.send(identity.c_str(), identity.size(), ZMQ_SNDMORE) >= 0;
+
+		if (!retval) {
+			return false;
+		}
+
+		for (auto it = std::begin(msg); it != std::end(msg); ++it) {
+			retval = workers_.send(
+				it->c_str(),
+				it->size(),
+				std::next(it) != std::end(msg) ? ZMQ_SNDMORE : 0
+			) >= 0;
+
+			if (!retval) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
-	 * Send a message frame through the worker socket
+	 * Send a message through the client socket
 	 */
-	void send_workers (const void *data, size_t size, int flags)
+	bool send_clients (const std::string &identity, const std::vector<std::string> &msg)
 	{
-		workers_.send(data, size, flags);
-	}
+		bool retval;
+		retval = clients_.send(identity.c_str(), identity.size(), ZMQ_SNDMORE) >= 0;
 
-	/**
-	 * Send an identity string to the client socket.
-	 * This is used to specify which client should receive the following frames
-	 */
-	void send_clients_id (const std::string &id)
-	{
-		clients_.send(id.data(), id.size(), ZMQ_SNDMORE);
-		clients_.send("", 0, ZMQ_SNDMORE);
-	}
+		if (!retval) {
+			return false;
+		}
 
-	/**
-	 * Send a message frame through the client socket
-	 */
-	void send_clients (const void *data, size_t size, int flags)
-	{
-		clients_.send(data, size, flags);
+		retval = clients_.send("", 0, ZMQ_SNDMORE) >= 0; // Empty frame
+
+		if (!retval) {
+			return false;
+		}
+
+		for (auto it = std::begin(msg); it != std::end(msg); ++it) {
+			retval = clients_.send(
+				it->c_str(),
+				it->size(),
+				std::next(it) != std::end(msg) ? ZMQ_SNDMORE : 0
+			) >= 0;
+
+			if (!retval) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 };
 
