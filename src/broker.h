@@ -12,7 +12,7 @@
 /**
  * Contains type definitions used by the proxy poll function
  */
-struct message_receiver {
+struct message_origin {
 	enum type {
 		CLIENT = 0,
 		WORKER = 1
@@ -135,7 +135,7 @@ public:
 
 		while (true) {
 			bool terminate = false;
-			message_receiver::set result;
+			message_origin::set result;
 
 			sockets_->poll(result, -1, &terminate);
 
@@ -144,7 +144,7 @@ public:
 			}
 
 			// Received a message from the frontend
-			if (result.test(message_receiver::CLIENT)) {
+			if (result.test(message_origin::CLIENT)) {
 				std::string identity;
 				std::vector<std::string> message;
 
@@ -163,7 +163,7 @@ public:
 			}
 
 			// Received a message from the backend
-			if (result.test(message_receiver::WORKER)) {
+			if (result.test(message_origin::WORKER)) {
 				std::string identity;
 				std::vector<std::string> message;
 

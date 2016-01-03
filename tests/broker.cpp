@@ -20,7 +20,7 @@ public:
 class mock_connection_proxy {
 public:
 	MOCK_METHOD2(bind, void(const std::string &, const std::string &));
-	MOCK_METHOD3(poll, void(message_receiver::set &, int, bool *));
+	MOCK_METHOD3(poll, void(message_origin::set &, int, bool *));
 	MOCK_METHOD3(recv_workers, bool(std::string &, std::vector<std::string> &, bool *));
 	MOCK_METHOD3(recv_clients, bool(std::string &, std::vector<std::string> &, bool *));
 	MOCK_METHOD2(send_workers, bool(const std::string &, const std::vector<std::string> &));
@@ -55,12 +55,12 @@ TEST(broker, bind)
 
 ACTION(ClearFlags)
 {
-	((message_receiver::set &) arg0).reset();
+	((message_origin::set &) arg0).reset();
 }
 
 ACTION_P(SetFlag, flag)
 {
-	((message_receiver::set &) arg0).set(flag, true);
+	((message_origin::set &) arg0).set(flag, true);
 }
 
 TEST(broker, worker_init)
@@ -77,7 +77,7 @@ TEST(broker, worker_init)
 	EXPECT_CALL(*sockets, poll(_, _, _))
 		.InSequence(s1)
 		.WillOnce(DoAll(
-			ClearFlags(), SetFlag(message_receiver::WORKER)
+			ClearFlags(), SetFlag(message_origin::WORKER)
 		));
 
 	EXPECT_CALL(*sockets, recv_workers(_, _, _))

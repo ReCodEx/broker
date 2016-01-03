@@ -43,7 +43,7 @@ public:
 	 * Block execution until a message arrives to either socket.
 	 * @param result If a message arrived to a socket, the corresponding bit field is set to true
 	 */
-	void poll (message_receiver::set &result, int timeout, bool *terminate = nullptr)
+	void poll (message_origin::set &result, int timeout, bool *terminate = nullptr)
 	{
 		result.reset();
 
@@ -57,11 +57,11 @@ public:
 		}
 
 		if (items_[0].revents & ZMQ_POLLIN) {
-			result.set(message_receiver::CLIENT, true);
+			result.set(message_origin::CLIENT, true);
 		}
 
 		if (items_[1].revents & ZMQ_POLLIN) {
-			result.set(message_receiver::WORKER, true);
+			result.set(message_origin::WORKER, true);
 		}
 	}
 

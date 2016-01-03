@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 /* Forward declaration */
 struct worker;
