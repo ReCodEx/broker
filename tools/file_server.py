@@ -45,6 +45,8 @@ os.makedirs(task_dir)
 
 # Read and store the supplementary task files
 if task_source:
+    print("Loading files from {0}...".format(os.path.realpath(task_source)))
+
     for taskfile_name in iglob(task_source + "/**", recursive = True):
         if os.path.isfile(taskfile_name):
             with open(taskfile_name, "rb") as taskfile:
@@ -55,6 +57,9 @@ if task_source:
 
                 with open(join(path, destfile_name), "wb") as destfile:
                     destfile.write(content)
+
+                rel = os.path.relpath(taskfile_name, task_source)
+                print("{0}: {1}".format(destfile_name, rel))
 
 # An id for new jobs
 job_id = 0
