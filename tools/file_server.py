@@ -22,7 +22,6 @@ join = os.path.join
 
 port = 9999
 tmp = tempfile.TemporaryDirectory()
-os.chdir(tmp.name)
 
 # Read command line arguments
 argv_iter = iter(sys.argv)
@@ -44,20 +43,24 @@ os.makedirs(result_dir)
 task_dir = join(tmp.name, "tasks")
 os.makedirs(task_dir)
 
-# Read the supplementary task files
+# Read and store the supplementary task files
 if task_source:
-    for f in iglob(task_source + "/**", recursive = True):
-        if os.path.isfile(f):
-            with open(f, "rb") as fobj:
-                content = fobj.read()
-                dest = hashlib.sha1(content).hexdigest()
-                path = join(task_dir, dest[0])
+    for taskfile_name in iglob(task_source + "/**", recursive = True):
+        if os.path.isfile(taskfile_name):
+            with open(taskfile_name, "rb") as taskfile:
+                content = taskfile.read()
+                destfile_name = hashlib.sha1(content).hexdigest()
+                path = join(task_dir, destfile_name[0])
+                os.makedirs(path, exist_ok = True)
 
-                with open(join(path, dest), "wb") as destobj:
-                    destobj.write(content)
+                with open(join(path, destfile_name), "wb") as destfile:
+                    destfile.write(content)
 
 # An id for new jobs
 job_id = 0
+
+# Change to the temporary directory
+os.chdir(tmp.name)
 
 class FileServerHandler(http.SimpleHTTPRequestHandler):
     def do_POST(self):
