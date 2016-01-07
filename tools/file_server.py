@@ -3,14 +3,20 @@
 # A minimal HTTP server that temporarily saves submitted files
 # in a temporary folder and serves them back to workers
 # usage:
-#       $ python file_server.py
+#       $ python file_server.py [tasks_dir]
+# 
+# If "files_dir" is specified, the server scans this directory
+# on startup and stores its files in the "tasks" hash storage
 
 import http.server as http
 import socketserver
 import cgi
 import os
+import sys
 import tempfile
 import tarfile
+import hashlib
+from glob import iglob
 
 join = os.path.join
 
@@ -18,6 +24,14 @@ port = 9999
 tmp = tempfile.TemporaryDirectory()
 os.chdir(tmp.name)
 
+# Read command line arguments
+argv_iter = iter(sys.argv)
+task_source = ""
+
+for arg in argv_iter:
+    task_source = arg
+
+# Make the file structure of the file server
 archive_dir = join(tmp.name, "submit_archives")
 os.makedirs(archive_dir)
 
@@ -27,6 +41,22 @@ os.makedirs(submit_dir)
 result_dir = join(tmp.name, "results")
 os.makedirs(result_dir)
 
+task_dir = join(tmp.name, "tasks")
+os.makedirs(task_dir)
+
+# Read the supplementary task files
+if task_source:
+    for f in iglob(task_source + "/**", recursive = True):
+        if os.path.isfile(f):
+            with open(f, "rb") as fobj:
+                content = fobj.read()
+                dest = hashlib.sha1(content).hexdigest()
+                path = join(task_dir, dest[0])
+
+                with open(join(path, dest), "wb") as destobj:
+                    destobj.write(content)
+
+# An id for new jobs
 job_id = 0
 
 class FileServerHandler(http.SimpleHTTPRequestHandler):
