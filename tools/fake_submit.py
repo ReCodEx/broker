@@ -9,14 +9,13 @@ import yaml
 import os
 import sys
 import requests
-from glob import iglob
 
 fsrv_port = 9999
 broker_port = 9658
 
 submit_dir = ""
 headers = {}
-argv_it = iter(sys.argv)
+argv_it = iter(sys.argv[1:])
 
 # Load arguments
 script_name = next(argv_it)
@@ -30,17 +29,16 @@ for arg in argv_it:
 if submit_dir == "":
     sys.exit("no directory to submit was specified")
 
-# Make an iterator for the submitted files
-files = (
-    os.path.relpath(f, submit_dir) 
-    for f in iglob(submit_dir + "/**", recursive = True)
-    if os.path.isfile(f)
-)
+# An iterator for the submitted files
+def walk_submit ():
+    for root, dirs, files in os.walk(submit_dir):
+        for name in files:
+            yield os.path.relpath(os.path.join(root, name), submit_dir)
 
 # Send the submission to our fake file server
 reply = requests.post(
     "http://localhost:{0}".format(fsrv_port),
-    {f.encode(): open(os.path.join(submit_dir, f), "rb").read() for f in files}
+    {f.encode(): open(os.path.join(submit_dir, f), "rb").read() for f in walk_submit()}
 )
 job_id = reply.text
 

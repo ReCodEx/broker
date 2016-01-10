@@ -16,7 +16,6 @@ import sys
 import tempfile
 import tarfile
 import hashlib
-from glob import iglob
 
 join = os.path.join
 
@@ -24,7 +23,7 @@ port = 9999
 tmp = tempfile.TemporaryDirectory()
 
 # Read command line arguments
-argv_iter = iter(sys.argv)
+argv_iter = iter(sys.argv[1:])
 task_source = ""
 
 for arg in argv_iter:
@@ -43,11 +42,17 @@ os.makedirs(result_dir)
 task_dir = join(tmp.name, "tasks")
 os.makedirs(task_dir)
 
+# An iterator for the supplementary task files
+def walk_files ():
+    for root, dirs, files in os.walk(task_source):
+        for name in files:
+            yield os.path.join(root, name)
+
 # Read and store the supplementary task files
 if task_source:
     print("Loading files from {0}...".format(os.path.realpath(task_source)))
 
-    for taskfile_name in iglob(task_source + "/**", recursive = True):
+    for taskfile_name in walk_files():
         if os.path.isfile(taskfile_name):
             with open(taskfile_name, "rb") as taskfile:
                 content = taskfile.read()
