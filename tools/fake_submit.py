@@ -32,16 +32,27 @@ def walk_submit ():
             yield os.path.relpath(os.path.join(root, name), submit_dir)
 
 # Send the submission to our fake file server
-reply = requests.post(
-    "http://localhost:{0}".format(fsrv_port),
-    {f.encode(): open(os.path.join(submit_dir, f), "rb").read() for f in walk_submit()}
-)
+try:
+    reply = requests.post(
+        "http://localhost:{0}".format(fsrv_port),
+        {
+            f.encode(): open(os.path.join(submit_dir, f), "rb").read() 
+            for f in walk_submit()
+        }
+    )
+except:
+    sys.exit("Error sending files to the file server")
+
 job_id = reply.text
 
 # Connect to the broker
 context = zmq.Context()
 broker = context.socket(zmq.REQ)
-broker.connect("tcp://localhost:{}".format(broker_port))
+
+try:
+    broker.connect("tcp://localhost:{}".format(broker_port))
+except:
+    sys.exit("Error connecting to the broker")
 
 # Send the request
 broker.send_multipart(
