@@ -60,7 +60,7 @@ broker.send_multipart(
     [str(job_id).encode()] +
     ["{}={}".format(k, v).encode() for k, v in headers.items()] +
     [b""] +
-    ["http://localhost:{0}/submission_archives/{1}.tar.gz".format(fsrv_port, job_id).encode()] +
+    ["http://localhost:{0}/submit_archives/{1}.tar.gz".format(fsrv_port, job_id).encode()] +
     ["http://localhost:{0}/results/example/".format(fsrv_port).encode()]
 )
 
