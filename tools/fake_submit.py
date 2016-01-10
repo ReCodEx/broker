@@ -5,7 +5,6 @@
 #       $ python fake_submit.py --header1 val1 --header2 val2 submit_directory
 
 import zmq
-import yaml
 import os
 import sys
 import requests
@@ -16,9 +15,6 @@ broker_port = 9658
 submit_dir = ""
 headers = {}
 argv_it = iter(sys.argv[1:])
-
-# Load arguments
-script_name = next(argv_it)
 
 for arg in argv_it:
     if arg.startswith("--") and len(arg) > 2:
