@@ -74,6 +74,11 @@ os.chdir(tmp.name)
 
 class FileServerHandler(http.SimpleHTTPRequestHandler):
     def do_POST(self):
+        """
+        Handler for POST requests
+        Saves submitted files and makes a submit archive
+        """
+
         form = cgi.FieldStorage(
             fp = self.rfile,
             headers = self.headers,
@@ -108,6 +113,24 @@ class FileServerHandler(http.SimpleHTTPRequestHandler):
 
         # Return the job id assigned to submitted files
         self.wfile.write(str(job_id).encode())
+
+    def do_PUT(self):
+        """
+        Handler for PUT requests
+        Just stores a result file
+        """
+        path_parts = self.path[1:].split("/")
+
+        if len(path_parts) != 2 or path_parts[0] != os.path.basename(result_dir):
+            self.send_response(403)
+            self.end_headers()
+            return
+
+        length = int(self.headers["Content-Length"])
+        with open(join(result_dir, path_parts[1]), "wb") as dest_file:
+            dest_file.write(self.rfile.read(length))
+
+        self.send_response(201)
 
 server = socketserver.TCPServer(("", port), FileServerHandler)
 
