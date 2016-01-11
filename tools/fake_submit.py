@@ -61,7 +61,7 @@ broker.send_multipart(
     ["{}={}".format(k, v).encode() for k, v in headers.items()] +
     [b""] +
     ["http://localhost:{0}/submit_archives/{1}.tar.gz".format(fsrv_port, job_id).encode()] +
-    ["http://localhost:{0}/results/example/".format(fsrv_port).encode()]
+    ["http://localhost:{0}/results/".format(fsrv_port).encode()]
 )
 
 result = broker.recv()
