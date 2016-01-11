@@ -130,7 +130,8 @@ class FileServerHandler(http.SimpleHTTPRequestHandler):
         with open(join(result_dir, path_parts[1]), "wb") as dest_file:
             dest_file.write(self.rfile.read(length))
 
-        self.send_response(201)
+        self.send_response(200)
+        self.end_headers()
 
 server = socketserver.TCPServer(("", port), FileServerHandler)
 
