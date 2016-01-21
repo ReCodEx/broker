@@ -136,4 +136,10 @@ class FileServerHandler(http.SimpleHTTPRequestHandler):
 server = socketserver.TCPServer(("", port), FileServerHandler)
 
 print("Serving files from {0} at port {1}...".format(tmp.name, port))
-server.serve_forever()
+
+try:
+    server.serve_forever()
+except KeyboardInterrupt:
+    print("Interrupted by user", file = sys.stderr)
+    sys.exit(0)
+
