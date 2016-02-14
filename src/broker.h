@@ -4,8 +4,8 @@
 
 #include <memory>
 #include <bitset>
+#include <spdlog/spdlog.h>
 
-#include "spdlog/spdlog.h"
 #include "broker_config.h"
 #include "task_router.h"
 

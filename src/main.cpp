@@ -1,7 +1,7 @@
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 #include <memory>
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 #include "task_router.h"
 #include "broker_config.h"
