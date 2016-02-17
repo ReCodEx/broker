@@ -1,35 +1,34 @@
 #include "task_router.h"
 
 
-task_router::task_router (std::shared_ptr<spdlog::logger> logger)
+task_router::task_router(std::shared_ptr<spdlog::logger> logger)
 {
-	if(logger != nullptr) {
+	if (logger != nullptr) {
 		logger_ = logger;
 	} else {
-		//Create logger manually to avoid global registration of logger
+		// Create logger manually to avoid global registration of logger
 		auto sink = std::make_shared<spdlog::sinks::stderr_sink_st>();
 		logger_ = std::make_shared<spdlog::logger>("task_router_nolog", sink);
-		//Set loglevel to 'off' cause no logging
+		// Set loglevel to 'off' cause no logging
 		logger_->set_level(spdlog::level::off);
 	}
 }
 
-void task_router::add_worker (worker_ptr worker)
+void task_router::add_worker(worker_ptr worker)
 {
 	logger_->debug() << "Adding new worker";
 	workers.push_back(worker);
 }
 
-task_router::worker_ptr task_router::find_worker (const task_router::headers_t &headers)
+task_router::worker_ptr task_router::find_worker(const task_router::headers_t &headers)
 {
-	for (auto &worker: workers) {
+	for (auto &worker : workers) {
 		bool worker_suitable = true;
 
-		for (auto &header: headers) {
+		for (auto &header : headers) {
 			bool header_satisfied = false;
 
-			auto range = worker->headers
-				.equal_range(header.first);
+			auto range = worker->headers.equal_range(header.first);
 
 
 			for (auto &worker_header = range.first; worker_header != range.second; ++worker_header) {

@@ -13,10 +13,7 @@
  * Contains type definitions used by the proxy poll function
  */
 struct message_origin {
-	enum type {
-		CLIENT = 0,
-		WORKER = 1
-	};
+	enum type { CLIENT = 0, WORKER = 1 };
 
 	typedef std::bitset<2> set;
 };
@@ -24,8 +21,8 @@ struct message_origin {
 /**
  * Receives requests from clients and forwards them to workers
  */
-template <typename proxy>
-class broker {
+template <typename proxy> class broker
+{
 private:
 	std::shared_ptr<const broker_config> config_;
 	std::shared_ptr<proxy> sockets_;
@@ -37,7 +34,7 @@ private:
 	 * That means storing the identity and headers of the worker
 	 * so that we can forward jobs to it.
 	 */
-	void process_worker_init (const std::string &identity, const std::vector<std::string> &message)
+	void process_worker_init(const std::string &identity, const std::vector<std::string> &message)
 	{
 		task_router::headers_t headers;
 
@@ -55,7 +52,7 @@ private:
 	/**
 	 * Process an "eval" request from a client
 	 */
-	void process_client_eval (const std::string &identity, const std::vector<std::string> &message)
+	void process_client_eval(const std::string &identity, const std::vector<std::string> &message)
 	{
 		std::string job_id = message.at(1);
 		task_router::headers_t headers;
@@ -80,7 +77,7 @@ private:
 			size_t value_size = it->size() - (pos + 1);
 
 			headers.emplace(it->substr(0, pos), it->substr(pos + 1, value_size));
-			 ++it;
+			++it;
 		}
 
 		task_router::worker_ptr worker = router_->find_worker(headers);
@@ -101,20 +98,19 @@ private:
 	}
 
 public:
-	broker (
-		std::shared_ptr<const broker_config> config,
+	broker(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
 		std::shared_ptr<task_router> router,
-		std::shared_ptr<spdlog::logger> logger = nullptr
-	) : config_(config), sockets_(sockets), router_(router)
+		std::shared_ptr<spdlog::logger> logger = nullptr)
+		: config_(config), sockets_(sockets), router_(router)
 	{
 		if (logger != nullptr) {
 			logger_ = logger;
 		} else {
-			//Create logger manually to avoid global registration of logger
+			// Create logger manually to avoid global registration of logger
 			auto sink = std::make_shared<spdlog::sinks::stderr_sink_st>();
 			logger_ = std::make_shared<spdlog::logger>("broker_nolog", sink);
-			//Set loglevel to 'off' cause no logging
+			// Set loglevel to 'off' cause no logging
 			logger_->set_level(spdlog::level::off);
 		}
 	}
@@ -123,15 +119,13 @@ public:
 	 * Bind to sockets and start receiving and routing requests.
 	 * Blocks execution until the underlying ZeroMQ context is terminated.
 	 */
-	void start_brokering ()
+	void start_brokering()
 	{
 		logger_->debug() << "Binding clients to tcp://*:" + std::to_string(config_->get_client_port());
 		logger_->debug() << "Binding workers to tcp://*:" + std::to_string(config_->get_worker_port());
 
-		sockets_->bind(
-			std::string("tcp://*:") + std::to_string(config_->get_client_port()),
-			std::string("tcp://*:") + std::to_string(config_->get_worker_port())
-		);
+		sockets_->bind(std::string("tcp://*:") + std::to_string(config_->get_client_port()),
+			std::string("tcp://*:") + std::to_string(config_->get_worker_port()));
 
 		while (true) {
 			bool terminate = false;
@@ -180,7 +174,6 @@ public:
 					process_worker_init(identity, message);
 				}
 			}
-
 		}
 
 		logger_->emerg() << "Terminating to poll... ";
@@ -188,4 +181,4 @@ public:
 };
 
 
-#endif //CODEX_BROKER_BROKER_HPP
+#endif // CODEX_BROKER_BROKER_HPP

@@ -1,10 +1,10 @@
 #include "broker_config.h"
 
-broker_config::broker_config ()
+broker_config::broker_config()
 {
 }
 
-broker_config::broker_config (YAML::Node &config)
+broker_config::broker_config(YAML::Node &config)
 {
 	if (!config.IsMap()) {
 		throw config_error("The configuration is not a YAML map");
@@ -23,13 +23,12 @@ broker_config::broker_config (YAML::Node &config)
 	worker_port = config["worker_port"].as<uint16_t>(0);
 }
 
-uint16_t broker_config::get_client_port () const
+uint16_t broker_config::get_client_port() const
 {
 	return client_port;
 }
 
-uint16_t broker_config::get_worker_port () const
+uint16_t broker_config::get_worker_port() const
 {
 	return worker_port;
 }
-
