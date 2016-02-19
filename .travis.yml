@@ -19,4 +19,4 @@ script:
   - cd build
   - cmake ..
   - make
-  - tests/run_tests
+  - ctest --output-on-failure

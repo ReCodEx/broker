@@ -16,9 +16,9 @@ set(LIBS
 )
 
 function(add_test_suite name)
-	set(TEST_FILES ${TEST_FILES} ${ARGN} PARENT_SCOPE)
 	add_executable(run_test_${name} ${ARGN})
 	target_link_libraries(run_test_${name} ${LIBS})
+	add_test(${name} run_test_${name})
 endfunction()
 
 add_test_suite(broker_config
@@ -36,8 +36,3 @@ add_test_suite(broker
 	${SRC_DIR}/broker_config.cpp
 	${SRC_DIR}/task_router.cpp
 )
-
-# The main test executable
-list(REMOVE_DUPLICATES TEST_FILES)
-add_executable(run_tests ${TEST_FILES})
-target_link_libraries(run_tests ${LIBS})

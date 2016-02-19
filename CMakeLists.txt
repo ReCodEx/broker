@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
 project(codex_broker)
+enable_testing()
 
 # ZeroMQ C++ bindings headers
 include_directories(AFTER, vendor/cppzmq)
