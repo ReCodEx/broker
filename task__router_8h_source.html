@@ -117,41 +117,44 @@ $(document).ready(function(){initNavTree('task__router_8h_source.html','');});
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment">/* Forward declaration */</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">struct </span><a class="code" href="structworker.html">worker</a>;</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;</div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classtask__router.html">   15</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtask__router.html">task_router</a> {</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="keyword">typedef</span> std::multimap&lt;std::string, std::string&gt; headers_t;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keyword">typedef</span> std::shared_ptr&lt;worker&gt; worker_ptr;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    std::vector&lt;worker_ptr&gt; workers;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    std::shared_ptr&lt;spdlog::logger&gt; logger_;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="classtask__router.html">task_router</a> (std::shared_ptr&lt;spdlog::logger&gt; logger = <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> add_worker (worker_ptr <a class="code" href="structworker.html">worker</a>);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keyword">virtual</span> worker_ptr find_worker (<span class="keyword">const</span> headers_t &amp;headers);</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;};</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="structworker.html">   31</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structworker.html">worker</a> {</div>
-<div class="line"><a name="l00033"></a><span class="lineno"><a class="line" href="structworker.html#aed980ba4c56fc4f395e71ae6cf689b04">   33</a></span>&#160;    <span class="keyword">const</span> std::string <a class="code" href="structworker.html#aed980ba4c56fc4f395e71ae6cf689b04">identity</a>;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="structworker.html#a715f2f63af9f83c8c3d9a1c6bead7cae">   36</a></span>&#160;    <span class="keyword">const</span> task_router::headers_t <a class="code" href="structworker.html#a715f2f63af9f83c8c3d9a1c6bead7cae">headers</a>;</div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classtask__router.html">   15</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtask__router.html">task_router</a></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;{</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keyword">typedef</span> std::multimap&lt;std::string, std::string&gt; headers_t;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keyword">typedef</span> std::shared_ptr&lt;worker&gt; worker_ptr;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    std::vector&lt;worker_ptr&gt; workers;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    std::shared_ptr&lt;spdlog::logger&gt; logger_;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <a class="code" href="classtask__router.html">task_router</a>(std::shared_ptr&lt;spdlog::logger&gt; logger = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> add_worker(worker_ptr <a class="code" href="structworker.html">worker</a>);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keyword">virtual</span> worker_ptr find_worker(<span class="keyword">const</span> headers_t &amp;headers);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;};</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="structworker.html">   34</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structworker.html">worker</a> {</div>
+<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="structworker.html#aed980ba4c56fc4f395e71ae6cf689b04">   36</a></span>&#160;    <span class="keyword">const</span> std::string <a class="code" href="structworker.html#aed980ba4c56fc4f395e71ae6cf689b04">identity</a>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <a class="code" href="structworker.html">worker</a> (std::string <span class="keywordtype">id</span>, task_router::headers_t headers): identity(id), headers(headers)</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    }</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;};</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#endif //CODEX_BROKER_ROUTER_H</span></div>
-<div class="ttc" id="structworker_html_aed980ba4c56fc4f395e71ae6cf689b04"><div class="ttname"><a href="structworker.html#aed980ba4c56fc4f395e71ae6cf689b04">worker::identity</a></div><div class="ttdeci">const std::string identity</div><div class="ttdef"><b>Definition:</b> <a href="task__router_8h_source.html#l00033">task_router.h:33</a></div></div>
+<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="structworker.html#a715f2f63af9f83c8c3d9a1c6bead7cae">   39</a></span>&#160;    <span class="keyword">const</span> task_router::headers_t <a class="code" href="structworker.html#a715f2f63af9f83c8c3d9a1c6bead7cae">headers</a>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <a class="code" href="structworker.html">worker</a>(std::string <span class="keywordtype">id</span>, task_router::headers_t headers) : identity(id), headers(headers)</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    {</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    }</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;};</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#endif // CODEX_BROKER_ROUTER_H</span></div>
+<div class="ttc" id="structworker_html_aed980ba4c56fc4f395e71ae6cf689b04"><div class="ttname"><a href="structworker.html#aed980ba4c56fc4f395e71ae6cf689b04">worker::identity</a></div><div class="ttdeci">const std::string identity</div><div class="ttdef"><b>Definition:</b> <a href="task__router_8h_source.html#l00036">task_router.h:36</a></div></div>
 <div class="ttc" id="classtask__router_html"><div class="ttname"><a href="classtask__router.html">task_router</a></div><div class="ttdef"><b>Definition:</b> <a href="task__router_8h_source.html#l00015">task_router.h:15</a></div></div>
-<div class="ttc" id="structworker_html"><div class="ttname"><a href="structworker.html">worker</a></div><div class="ttdef"><b>Definition:</b> <a href="task__router_8h_source.html#l00031">task_router.h:31</a></div></div>
-<div class="ttc" id="structworker_html_a715f2f63af9f83c8c3d9a1c6bead7cae"><div class="ttname"><a href="structworker.html#a715f2f63af9f83c8c3d9a1c6bead7cae">worker::headers</a></div><div class="ttdeci">const task_router::headers_t headers</div><div class="ttdef"><b>Definition:</b> <a href="task__router_8h_source.html#l00036">task_router.h:36</a></div></div>
+<div class="ttc" id="structworker_html"><div class="ttname"><a href="structworker.html">worker</a></div><div class="ttdef"><b>Definition:</b> <a href="task__router_8h_source.html#l00034">task_router.h:34</a></div></div>
+<div class="ttc" id="structworker_html_a715f2f63af9f83c8c3d9a1c6bead7cae"><div class="ttname"><a href="structworker.html#a715f2f63af9f83c8c3d9a1c6bead7cae">worker::headers</a></div><div class="ttdeci">const task_router::headers_t headers</div><div class="ttdef"><b>Definition:</b> <a href="task__router_8h_source.html#l00039">task_router.h:39</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><b>task_router.h</b></li>
-    <li class="footer">Generated on Sat Jan 9 2016 23:08:19 for ReCodEx - Task Broker by
+    <li class="footer">Generated on Fri Feb 19 2016 18:37:05 for ReCodEx - Task Broker by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.10 </li>
   </ul>

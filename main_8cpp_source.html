@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('main_8cpp_source.html','');});
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &lt;yaml-cpp/yaml.h&gt;</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;spdlog/spdlog.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;spdlog/spdlog.h&gt;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;task_router.h&quot;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &quot;broker_config.h&quot;</span></div>
@@ -123,9 +123,9 @@ $(document).ready(function(){initNavTree('main_8cpp_source.html','');});
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span>fs = boost::filesystem;</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;std::shared_ptr&lt;spdlog::logger&gt; init_logger ()</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;std::shared_ptr&lt;spdlog::logger&gt; init_logger()</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;{</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="comment">//Params which will be configured - will be implemented later</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="comment">// Params which will be configured - will be implemented later</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    std::string log_path = <span class="stringliteral">&quot;/tmp/recodex_log/&quot;</span>;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    std::string log_basename = <span class="stringliteral">&quot;broker&quot;</span>;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    std::string log_suffix = <span class="stringliteral">&quot;log&quot;</span>;</div>
@@ -133,40 +133,40 @@ $(document).ready(function(){initNavTree('main_8cpp_source.html','');});
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">int</span> log_file_size = 1024 * 1024;</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keywordtype">int</span> log_files_count = 3;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="comment">//Set up logger</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="comment">//Try to create target directory for logs</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="comment">// Set up logger</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="comment">// Try to create target directory for logs</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keyword">auto</span> path = fs::path(log_path);</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordflow">try</span> {</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        <span class="keywordflow">if</span>(!fs::is_directory(path)) {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        <span class="keywordflow">if</span> (!fs::is_directory(path)) {</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;            fs::create_directories(path);</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        }</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    } <span class="keywordflow">catch</span>(fs::filesystem_error &amp;e) {</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    } <span class="keywordflow">catch</span> (fs::filesystem_error &amp;e) {</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Logger: &quot;</span> &lt;&lt; e.what() &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        <span class="keywordflow">throw</span>;</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    }</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="comment">//Create and register logger</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="comment">// Create and register logger</span></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">try</span> {</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="comment">//Create multithreaded rotating file sink. Max filesize is 1024 * 1024 and we save 5 newest files.</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <span class="keyword">auto</span> rotating_sink = std::make_shared&lt;spdlog::sinks::rotating_file_sink_mt&gt;((path / log_basename).<span class="keywordtype">string</span>(),</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;                                log_suffix, log_file_size, log_files_count, <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="comment">//Set queue size for asynchronous logging. It must be a power of 2.</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="comment">// Create multithreaded rotating file sink. Max filesize is 1024 * 1024 and we save 5 newest files.</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        <span class="keyword">auto</span> rotating_sink = std::make_shared&lt;spdlog::sinks::rotating_file_sink_mt&gt;(</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            (path / log_basename).<span class="keywordtype">string</span>(), log_suffix, log_file_size, log_files_count, <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        <span class="comment">// Set queue size for asynchronous logging. It must be a power of 2.</span></div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        spdlog::set_async_mode(1048576);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="comment">//Make log with name &quot;logger&quot;</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="comment">// Make log with name &quot;logger&quot;</span></div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        <span class="keyword">auto</span> file_logger = std::make_shared&lt;spdlog::logger&gt;(<span class="stringliteral">&quot;logger&quot;</span>, rotating_sink);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="comment">//Set logging level to debug</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        <span class="comment">// Set logging level to debug</span></div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        file_logger-&gt;set_level(log_level);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="comment">//Print header to log</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="comment">// Print header to log</span></div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        file_logger-&gt;emerg() &lt;&lt; <span class="stringliteral">&quot;------------------------------&quot;</span>;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        file_logger-&gt;emerg() &lt;&lt; <span class="stringliteral">&quot;    Started ReCodEx broker&quot;</span>;</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        file_logger-&gt;emerg() &lt;&lt; <span class="stringliteral">&quot;------------------------------&quot;</span>;</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        <span class="keywordflow">return</span> file_logger;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    } <span class="keywordflow">catch</span>(spdlog::spdlog_ex &amp;e) {</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    } <span class="keywordflow">catch</span> (spdlog::spdlog_ex &amp;e) {</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Logger: &quot;</span> &lt;&lt; e.what() &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="keywordflow">throw</span>;</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    }</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;}</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">int</span> main (<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv)</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv)</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;{</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    YAML::Node yaml;</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
@@ -179,7 +179,7 @@ $(document).ready(function(){initNavTree('main_8cpp_source.html','');});
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    std::shared_ptr&lt;spdlog::logger&gt; logger = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordflow">try</span> {</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        logger = init_logger();</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    } <span class="keywordflow">catch</span>(...) {</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    } <span class="keywordflow">catch</span> (...) {</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        <span class="keywordflow">return</span> 1;</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    }</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
@@ -192,15 +192,15 @@ $(document).ready(function(){initNavTree('main_8cpp_source.html','');});
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;}</div>
-<div class="ttc" id="classbroker_html_a67884c9be2dd745ad906d3f8b6fcc16a"><div class="ttname"><a href="classbroker.html#a67884c9be2dd745ad906d3f8b6fcc16a">broker::start_brokering</a></div><div class="ttdeci">void start_brokering()</div><div class="ttdef"><b>Definition:</b> <a href="broker_8h_source.html#l00126">broker.h:126</a></div></div>
-<div class="ttc" id="classbroker_html"><div class="ttname"><a href="classbroker.html">broker</a></div><div class="ttdef"><b>Definition:</b> <a href="broker_8h_source.html#l00028">broker.h:28</a></div></div>
+<div class="ttc" id="classbroker_html_a67884c9be2dd745ad906d3f8b6fcc16a"><div class="ttname"><a href="classbroker.html#a67884c9be2dd745ad906d3f8b6fcc16a">broker::start_brokering</a></div><div class="ttdeci">void start_brokering()</div><div class="ttdef"><b>Definition:</b> <a href="broker_8h_source.html#l00122">broker.h:122</a></div></div>
+<div class="ttc" id="classbroker_html"><div class="ttname"><a href="classbroker.html">broker</a></div><div class="ttdef"><b>Definition:</b> <a href="broker_8h_source.html#l00024">broker.h:24</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><b>main.cpp</b></li>
-    <li class="footer">Generated on Sat Jan 9 2016 23:08:19 for ReCodEx - Task Broker by
+    <li class="footer">Generated on Fri Feb 19 2016 18:37:05 for ReCodEx - Task Broker by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.10 </li>
   </ul>
