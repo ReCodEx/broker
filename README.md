@@ -6,5 +6,5 @@
 - Install dependencies according to [common](https://github.com/ReCodEx/GlobalWiki/wiki/System-configuration#common) configuration
 - Download `zmq.hpp` and Google test framework using `git submodule update --init`
 - Build with cmake: `mkdir build && cd build && cmake .. && make`
-- Run `./basic-worker`
+- Run `./recodex-broker`
 
