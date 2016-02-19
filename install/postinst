@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Create 'recodex' user if not exist
+id -u recodex > /dev/null 2>&1
+if [ $? -eq 1 ]
+then
+	useradd --system --shell /sbin/nologin recodex
+fi
+
+# Change owner of config files
+chown -R recodex:recodex /etc/recodex
+

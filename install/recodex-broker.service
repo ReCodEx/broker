@@ -1,0 +1,23 @@
+# ReCodEx broker systemd configuration file
+#
+# This file should be placed in /etc/systemd/system/ directory
+# For starting broker, following should be met:
+# 	- config file with name 'config.yml' in conf directory
+#	- run 'systemctl start recodex-broker.service
+
+[Unit]
+Description=Recodex Broker
+Documentation=http://recodex.github.io/TaskBroker/,https://github.com/ReCodEx/GlobalWiki/wiki
+DefaultDependencies=true
+
+[Service]
+Type=simple
+StandardInput=null
+StandardOutput=null
+StandardError=journal
+User=recodex
+Group=recodex
+ExecStart=/usr/bin/recodex-broker -c /etc/recodex/broker/config.yml
+
+[Install]
+WantedBy=multi-user.target
