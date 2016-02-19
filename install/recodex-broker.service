@@ -7,7 +7,7 @@
 
 [Unit]
 Description=Recodex Broker
-Documentation=http://recodex.github.io/TaskBroker/,https://github.com/ReCodEx/GlobalWiki/wiki
+Documentation=http://recodex.github.io/broker/,https://github.com/ReCodEx/GlobalWiki/wiki
 DefaultDependencies=true
 
 [Service]
