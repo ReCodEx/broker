@@ -2,17 +2,21 @@
 #include <yaml-cpp/yaml.h>
 #include <memory>
 #include <spdlog/spdlog.h>
+#include <vector>
+
+#define BOOST_FILESYSTEM_NO_DEPRECATED
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 
 #include "task_router.h"
 #include "broker_config.h"
 #include "broker.h"
 #include "connection_proxy.h"
 
-#define BOOST_FILESYSTEM_NO_DEPRECATED
-#define BOOST_NO_CXX11_SCOPED_ENUMS
-#include <boost/filesystem.hpp>
 
 namespace fs = boost::filesystem;
+namespace opts = boost::program_options;
 
 
 /**
@@ -61,12 +65,54 @@ std::shared_ptr<spdlog::logger> init_logger()
 	}
 }
 
+struct cmd_options
+{
+	std::string config_filename;
+};
+
+void parse_options(const std::vector<std::string> &args, cmd_options &options)
+{
+	// Declare the supported options.
+	opts::options_description desc("Allowed options for IsoEval");
+	desc.add_options()("help,h", "Writes this help message to stderr")(
+		"config,c", opts::value<std::string>(), "Set path to the configuration file");
+
+	opts::variables_map vm;
+	try {
+		store(opts::command_line_parser(args).options(desc).run(), vm);
+		notify(vm);
+	} catch (std::exception &e) {
+		std::cerr << ("Error loading command line options: " + std::string(e.what()));
+		exit(1);
+	}
+
+
+	// Evaluate all information from command line
+	if (vm.count("help")) {
+		std::cout << desc << std::endl;
+		exit(1);
+	}
+
+	if (vm.count("config")) {
+		options.config_filename = vm["config"].as<std::string>();
+	} else {
+		options.config_filename = "config.yml";
+	}
+
+	return;
+}
+
 int main(int argc, char **argv)
 {
+	std::vector<std::string> args(argv, argv + argc);
+	cmd_options options;
+
+	parse_options(args, options);
+
 	YAML::Node yaml;
 
 	try {
-		yaml = YAML::LoadFile("config.yml");
+		yaml = YAML::LoadFile(options.config_filename);
 	} catch (YAML::Exception) {
 		std::cerr << "Error loading config file" << std::endl;
 	}

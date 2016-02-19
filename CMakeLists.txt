@@ -14,13 +14,13 @@ include_directories(AFTER, vendor/spdlog/include)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-        src/main.cpp
-        src/task_router.cpp
-        src/task_router.h
-        src/broker_config.cpp
-        src/broker_config.h
-        src/broker.h
-        src/connection_proxy.h
+	src/main.cpp
+	src/task_router.cpp
+	src/task_router.h
+	src/broker_config.cpp
+	src/broker_config.h
+	src/broker.h
+	src/connection_proxy.h
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
@@ -28,6 +28,7 @@ target_link_libraries(${EXEC_NAME} yaml-cpp)
 target_link_libraries(${EXEC_NAME} -lzmq)
 target_link_libraries(${EXEC_NAME} -lboost_system)
 target_link_libraries(${EXEC_NAME} -lboost_filesystem)
+target_link_libraries(${EXEC_NAME} -lboost_program_options)
 
 # Include Google Test libraries and then our very own unit tests
 add_subdirectory(vendor/googletest EXCLUDE_FROM_ALL)
