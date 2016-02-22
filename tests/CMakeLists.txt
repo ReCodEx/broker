@@ -23,7 +23,7 @@ endfunction()
 
 add_test_suite(broker_config
 	broker_config.cpp
-	${SRC_DIR}/broker_config.cpp
+	${SRC_DIR}/config/broker_config.cpp
 )
 
 add_test_suite(task_router
@@ -33,6 +33,6 @@ add_test_suite(task_router
 
 add_test_suite(broker
 	broker.cpp
-	${SRC_DIR}/broker_config.cpp
+	${SRC_DIR}/config/broker_config.cpp
 	${SRC_DIR}/task_router.cpp
 )

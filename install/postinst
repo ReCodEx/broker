@@ -1,5 +1,8 @@
 #!/bin/sh
 
+CONF_DIR=/etc/recodex
+LOG_DIR=/var/log/recodex
+
 # Create 'recodex' user if not exist
 id -u recodex > /dev/null 2>&1
 if [ $? -eq 1 ]
@@ -7,6 +10,10 @@ then
 	useradd --system --shell /sbin/nologin recodex
 fi
 
+# Create default logging directory and set proper permission
+mkdir -p ${LOG_DIR}
+chown -R recodex:recodex ${LOG_DIR}
+
 # Change owner of config files
-chown -R recodex:recodex /etc/recodex
+chown -R recodex:recodex ${CONF_DIR}
 

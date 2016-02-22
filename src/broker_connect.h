@@ -6,7 +6,7 @@
 #include <bitset>
 #include <spdlog/spdlog.h>
 
-#include "broker_config.h"
+#include "config/broker_config.h"
 #include "task_router.h"
 
 /**
@@ -21,7 +21,7 @@ struct message_origin {
 /**
  * Receives requests from clients and forwards them to workers
  */
-template <typename proxy> class broker
+template <typename proxy> class broker_connect
 {
 private:
 	std::shared_ptr<const broker_config> config_;
@@ -98,7 +98,7 @@ private:
 	}
 
 public:
-	broker(std::shared_ptr<const broker_config> config,
+	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
 		std::shared_ptr<task_router> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)

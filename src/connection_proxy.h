@@ -3,7 +3,7 @@
 
 #include <zmq.hpp>
 
-#include "broker.h"
+#include "broker_connect.h"
 
 /**
  * A trivial wrapper for the ZeroMQ sockets used by the broker,

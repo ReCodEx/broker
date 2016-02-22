@@ -1,2 +1,8 @@
 client_port: 9658
 worker_port: 9657
+logger:
+    file: "/var/log/recodex/broker"  # w/o suffix - actual names will be worker.log, worker.1.log, ...
+    level: "debug"  # level of logging - one of "debug", "warn", "emerg"
+    max-size: 1048576  # 1 MB; max size of file before log rotation
+    rotations: 3  # number of rotations kept
+

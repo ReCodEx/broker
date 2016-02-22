@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "../src/broker.h"
+#include "../src/broker_connect.h"
 
 using namespace testing;
 
@@ -49,7 +49,7 @@ TEST(broker, bind)
 		EXPECT_CALL(*sockets, poll(_, _, _)).WillOnce(SetArgPointee<2>(true));
 	}
 
-	broker<mock_connection_proxy> broker(config, sockets, router);
+	broker_connect<mock_connection_proxy> broker(config, sockets, router);
 	broker.start_brokering();
 }
 
@@ -103,6 +103,6 @@ TEST(broker, worker_init)
 		.InSequence(s1)
 		.WillOnce(SetArgPointee<2>(true));
 
-	broker<mock_connection_proxy> broker(config, sockets, router);
+	broker_connect<mock_connection_proxy> broker(config, sockets, router);
 	broker.start_brokering();
 }
