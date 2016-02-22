@@ -30,7 +30,6 @@ task_router::worker_ptr task_router::find_worker(const task_router::headers_t &h
 
 			auto range = worker->headers.equal_range(header.first);
 
-
 			for (auto &worker_header = range.first; worker_header != range.second; ++worker_header) {
 				if (worker_header->second == header.second) {
 					header_satisfied = true;
@@ -45,6 +44,17 @@ task_router::worker_ptr task_router::find_worker(const task_router::headers_t &h
 		}
 
 		if (worker_suitable) {
+			return worker;
+		}
+	}
+
+	return nullptr;
+}
+
+task_router::worker_ptr task_router::find_worker_by_identity (const std::string &identity)
+{
+	for (auto &worker: workers) {
+		if (worker->identity == identity) {
 			return worker;
 		}
 	}

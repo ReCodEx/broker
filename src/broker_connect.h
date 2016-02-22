@@ -50,6 +50,25 @@ private:
 	}
 
 	/**
+	 * Process a "done" message from a worker.
+	 */
+	void process_worker_done(const std::string &identity, const std::vector<std::string> &message)
+	{
+		task_router::worker_ptr worker = router_->find_worker_by_identity(identity);
+
+		if (worker == nullptr) {
+			return;
+		}
+
+		if (worker->request_queue.empty()) {
+			worker->free = true;
+		} else {
+			sockets_->send_workers(worker->identity, worker->request_queue.front());
+			worker->request_queue.pop();
+		}
+	}
+
+	/**
 	 * Process an "eval" request from a client
 	 */
 	void process_client_eval(const std::string &identity, const std::vector<std::string> &message)
@@ -90,7 +109,15 @@ private:
 				request.push_back(*it);
 			}
 
-			sockets_->send_workers(worker->identity, request);
+			if (worker->free) {
+				// If the worker isn't doing anything, just forward the request
+				worker->free = false;
+				sockets_->send_workers(worker->identity, request);
+			} else {
+				// If the worker is occupied, queue the request
+				worker->request_queue.push(request);
+			}
+
 			sockets_->send_clients(identity, std::vector<std::string>{"accept"});
 		} else {
 			sockets_->send_clients(identity, std::vector<std::string>{"reject"});
@@ -172,6 +199,8 @@ public:
 
 				if (type == "init") {
 					process_worker_init(identity, message);
+				} else if (type == "done") {
+					process_worker_done(identity, message);
 				}
 			}
 		}

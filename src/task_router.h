@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <queue>
 #include <memory>
 #include <spdlog/spdlog.h>
 
@@ -17,6 +18,7 @@ class task_router
 public:
 	typedef std::multimap<std::string, std::string> headers_t;
 	typedef std::shared_ptr<worker> worker_ptr;
+	typedef std::vector<std::string> request_t;
 
 private:
 	std::vector<worker_ptr> workers;
@@ -26,6 +28,7 @@ public:
 	task_router(std::shared_ptr<spdlog::logger> logger = nullptr);
 	virtual void add_worker(worker_ptr worker);
 	virtual worker_ptr find_worker(const headers_t &headers);
+	worker_ptr find_worker_by_identity(const std::string &identity);
 };
 
 /**
@@ -38,7 +41,13 @@ struct worker {
 	/** Headers that describe the worker's capabilities */
 	const task_router::headers_t headers;
 
-	worker(std::string id, task_router::headers_t headers) : identity(id), headers(headers)
+	/** False if the worker is processing a request */
+	bool free;
+
+	/** A queue of requests to be processed by the worker */
+	std::queue<task_router::request_t> request_queue;
+
+	worker(std::string id, task_router::headers_t headers) : identity(id), headers(headers), free(true)
 	{
 	}
 };
