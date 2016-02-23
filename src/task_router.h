@@ -28,7 +28,7 @@ public:
 	task_router(std::shared_ptr<spdlog::logger> logger = nullptr);
 	virtual void add_worker(worker_ptr worker);
 	virtual worker_ptr find_worker(const headers_t &headers);
-	worker_ptr find_worker_by_identity(const std::string &identity);
+	virtual worker_ptr find_worker_by_identity(const std::string &identity);
 };
 
 /**
@@ -47,7 +47,7 @@ struct worker {
 	/** A queue of requests to be processed by the worker */
 	std::queue<task_router::request_t> request_queue;
 
-	worker(std::string id, task_router::headers_t headers) : identity(id), headers(headers), free(true)
+	worker(const std::string &id, const task_router::headers_t &headers) : identity(id), headers(headers), free(true)
 	{
 	}
 };
