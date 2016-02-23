@@ -1,5 +1,6 @@
 #include "task_router.h"
 
+#include <algorithm>
 
 task_router::task_router(std::shared_ptr<spdlog::logger> logger)
 {
@@ -60,4 +61,14 @@ task_router::worker_ptr task_router::find_worker_by_identity (const std::string 
 	}
 
 	return nullptr;
+}
+
+void task_router::deprioritize_worker (task_router::worker_ptr worker)
+{
+	auto it = std::find(std::begin(workers), std::end(workers), worker);
+
+	if (it != std::end(workers) && (it + 1) != std::end(workers)) {
+		workers.erase(it);
+		workers.push_back(worker);
+	}
 }

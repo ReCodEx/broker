@@ -119,6 +119,7 @@ private:
 			}
 
 			sockets_->send_clients(identity, std::vector<std::string>{"accept"});
+			router_->deprioritize_worker(worker);
 		} else {
 			sockets_->send_clients(identity, std::vector<std::string>{"reject"});
 		}

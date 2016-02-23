@@ -14,6 +14,7 @@ public:
 class mock_task_router : public task_router {
 public:
 	MOCK_METHOD1(add_worker, void(task_router::worker_ptr));
+	MOCK_METHOD1(deprioritize_worker, void(task_router::worker_ptr));
 	MOCK_METHOD1(find_worker, task_router::worker_ptr(const task_router::headers_t &));
 	MOCK_METHOD1(find_worker_by_identity, task_router::worker_ptr(const std::string &));
 };
@@ -125,7 +126,7 @@ TEST(broker, queuing)
 	EXPECT_CALL(*router, find_worker_by_identity(worker->identity))
 		.WillRepeatedly(Return(worker));
 
-	Sequence s1, s2;
+	Sequence s1, s2, s3;
 
 	EXPECT_CALL(*sockets, bind(_, _))
 		.InSequence(s1, s2);
@@ -138,7 +139,7 @@ TEST(broker, queuing)
 		));
 
 	EXPECT_CALL(*sockets, recv_clients(_, _, _))
-		.InSequence(s2)
+		.InSequence(s2, s3)
 		.WillOnce(DoAll(
 			SetArgReferee<0>(client_id),
 			SetArgReferee<1>(std::vector<std::string>{
@@ -150,6 +151,9 @@ TEST(broker, queuing)
 				"2"
 			})
 		));
+
+	EXPECT_CALL(*router, deprioritize_worker(worker))
+		.InSequence(s3);
 
 	// Let the worker process it
 	EXPECT_CALL(*sockets, send_workers(StrEq(worker->identity), ElementsAre("eval", "job1", "1", "2")))
@@ -166,7 +170,7 @@ TEST(broker, queuing)
 		));
 
 	EXPECT_CALL(*sockets, recv_clients(_, _, _))
-		.InSequence(s2)
+		.InSequence(s2, s3)
 		.WillOnce(DoAll(
 			SetArgReferee<0>(client_id),
 			SetArgReferee<1>(std::vector<std::string>{
@@ -178,6 +182,9 @@ TEST(broker, queuing)
 				"4"
 			})
 		));
+
+	EXPECT_CALL(*router, deprioritize_worker(worker))
+		.InSequence(s3);
 
 	// The worker is busy, but we don't want to keep the client waiting
 	EXPECT_CALL(*sockets, send_clients(StrEq(client_id), ElementsAre("accept")))

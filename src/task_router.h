@@ -29,6 +29,11 @@ public:
 	virtual void add_worker(worker_ptr worker);
 	virtual worker_ptr find_worker(const headers_t &headers);
 	virtual worker_ptr find_worker_by_identity(const std::string &identity);
+
+	/**
+	 * Reduce the priority of a worker so that it's less likely to be found by subsequent finds
+	 */
+	virtual void deprioritize_worker(worker_ptr worker);
 };
 
 /**
