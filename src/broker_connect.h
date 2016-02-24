@@ -161,11 +161,14 @@ public:
 	 */
 	void start_brokering()
 	{
-		logger_->debug() << "Binding clients to tcp://*:" + std::to_string(config_->get_client_port());
-		logger_->debug() << "Binding workers to tcp://*:" + std::to_string(config_->get_worker_port());
+		auto clients_endpoint =
+			"tcp://" + config_->get_client_address() + ":" + std::to_string(config_->get_client_port());
+		auto workers_endpoint =
+			"tcp://" + config_->get_worker_address() + ":" + std::to_string(config_->get_worker_port());
+		logger_->debug() << "Binding clients to " + clients_endpoint;
+		logger_->debug() << "Binding workers to " + workers_endpoint;
 
-		sockets_->bind(std::string("tcp://*:") + std::to_string(config_->get_client_port()),
-			std::string("tcp://*:") + std::to_string(config_->get_worker_port()));
+		sockets_->bind(clients_endpoint, workers_endpoint);
 
 		while (true) {
 			bool terminate = false;

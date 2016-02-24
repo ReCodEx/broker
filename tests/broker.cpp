@@ -7,7 +7,9 @@ using namespace testing;
 
 class mock_broker_config : public broker_config {
 public:
+	MOCK_CONST_METHOD0(get_client_address, const std::string &());
 	MOCK_CONST_METHOD0(get_client_port, uint16_t());
+	MOCK_CONST_METHOD0(get_worker_address, const std::string &());
 	MOCK_CONST_METHOD0(get_worker_port, uint16_t());
 };
 
@@ -34,9 +36,16 @@ TEST(broker, bind)
 	auto config = std::make_shared<mock_broker_config>();
 	auto sockets = std::make_shared<mock_connection_proxy>();
 	auto router = std::make_shared<mock_task_router>();
+	const std::string address = "*";
+
+	EXPECT_CALL(*config, get_client_address())
+		.WillRepeatedly(ReturnRef(address));
 
 	EXPECT_CALL(*config, get_client_port())
 		.WillRepeatedly(Return(1234));
+
+	EXPECT_CALL(*config, get_worker_address())
+		.WillRepeatedly(ReturnRef(address));
 
 	EXPECT_CALL(*config, get_worker_port())
 		.WillRepeatedly(Return(4321));
@@ -70,8 +79,21 @@ TEST(broker, worker_init)
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto router = std::make_shared<StrictMock<mock_task_router>>();
+	const std::string address = "*";
 
 	Sequence s1, s2;
+
+	EXPECT_CALL(*config, get_client_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_client_port())
+		.WillRepeatedly(Return(1234));
+
+	EXPECT_CALL(*config, get_worker_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_worker_port())
+		.WillRepeatedly(Return(4321));
 
 	EXPECT_CALL(*sockets, bind(_, _))
 		.InSequence(s1, s2);
@@ -115,10 +137,23 @@ TEST(broker, queuing)
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto router = std::make_shared<StrictMock<mock_task_router>>();
+	const std::string address = "*";
 
 	std::string client_id = "client_foo";
 	task_router::headers_t headers = {{"env", "c"}};
 	task_router::worker_ptr worker = std::make_shared<struct worker>("identity1", headers);
+
+	EXPECT_CALL(*config, get_client_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_client_port())
+		.WillRepeatedly(Return(1234));
+
+	EXPECT_CALL(*config, get_worker_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_worker_port())
+		.WillRepeatedly(Return(4321));
 
 	EXPECT_CALL(*router, find_worker(Eq(headers)))
 		.WillRepeatedly(Return(worker));

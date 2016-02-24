@@ -7,8 +7,12 @@
 TEST(broker_config, config_basic)
 {
 	auto yaml = YAML::Load(
-		"client_port: 8452\n"
-		"worker_port: 5482\n"
+		"clients:\n"
+		"    address: 192.168.5.5\n"
+		"    port: 8452\n"
+		"workers:\n"
+		"    address: 10.0.1.2\n"
+		"    port: 5482\n"
 		"logger:\n"
 		"    file: /var/log/isoeval\n"
 		"    level: emerg\n"
@@ -25,7 +29,9 @@ TEST(broker_config, config_basic)
 	expected_log.log_file_size = 2048576;
 	expected_log.log_files_count = 5;
 
+	ASSERT_EQ("192.168.5.5", config.get_client_address());
 	ASSERT_EQ(8452, config.get_client_port());
+	ASSERT_EQ("10.0.1.2", config.get_worker_address());
 	ASSERT_EQ(5482, config.get_worker_port());
 	ASSERT_EQ(expected_log, config.get_log_config());
 }
@@ -33,7 +39,8 @@ TEST(broker_config, config_basic)
 TEST(broker_config, invalid_port_1)
 {
 	auto yaml = YAML::Load(
-		"client_port: foo\n"
+		"clients:\n"
+		"    port: foo\n"
 	);
 
 	ASSERT_THROW(broker_config config(yaml), config_error);
@@ -42,7 +49,8 @@ TEST(broker_config, invalid_port_1)
 TEST(broker_config, invalid_port_2)
 {
 	auto yaml = YAML::Load(
-		"client_port: 999999\n"
+		"clients:\n"
+		"    port: 999999\n"
 	);
 
 	ASSERT_THROW(broker_config config(yaml), config_error);

@@ -1,8 +1,14 @@
-client_port: 9658
-worker_port: 9657
+# Address and port for clients (frontend)
+clients:
+    address: "*"
+    port: 9658
+# Address and port for workers
+workers:
+    address: "*"
+    port: 9657
 logger:
-    file: "/var/log/recodex/broker"  # w/o suffix - actual names will be worker.log, worker.1.log, ...
-    level: "debug"  # level of logging - one of "debug", "warn", "emerg"
+    file: "/var/log/recodex/broker"  # w/o suffix - actual names will be broker.log, broker.1.log, ...
+    level: "debug"  # level of logging
     max-size: 1048576  # 1 MB; max size of file before log rotation
     rotations: 3  # number of rotations kept
 

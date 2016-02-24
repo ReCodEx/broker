@@ -22,18 +22,23 @@ class broker_config
 public:
 	/** A default constructor */
 	broker_config();
-
 	/**
 	 * A constructor that loads the configuration from a YAML document
 	 * @param config The input document
 	 */
 	broker_config(const YAML::Node &config);
-
+	/**
+	 * Return IP address for client connections (from frontend)
+	 */
+	virtual const std::string &get_client_address() const;
 	/**
 	 * Get the port to listen for incoming tasks
 	 */
 	virtual uint16_t get_client_port() const;
-
+	/**
+	 * Return IP address for worker connections
+	 */
+	virtual const std::string &get_worker_address() const;
 	/**
 	 * Get the port for communication with workers
 	 */
@@ -45,10 +50,14 @@ public:
 	const log_config &get_log_config() const;
 
 private:
+	/** Client socket address (from frontend) */
+	std::string client_address_ = "*"; // '*' is any address
 	/** Client socket port (from frontend) */
-	uint16_t client_port = 0;
+	uint16_t client_port_ = 0;
+	/** Server socket address (to workers) */
+	std::string worker_address_ = "*"; // '*' is any address
 	/** Server socket port (to workers) */
-	uint16_t worker_port = 0;
+	uint16_t worker_port_ = 0;
 	/** Configuration of logger */
 	log_config log_config_;
 };

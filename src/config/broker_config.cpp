@@ -11,15 +11,25 @@ broker_config::broker_config(const YAML::Node &config)
 			throw config_error("The configuration is not a YAML map");
 		}
 
-		if (!config["client_port"].IsScalar()) {
-			throw config_error("Client port is not scalar");
+		// load client address and port
+		if (config["clients"] && config["clients"].IsMap()) {
+			if (config["clients"]["address"] && config["clients"]["address"].IsScalar()) {
+				client_address_ = config["clients"]["address"].as<std::string>();
+			} // no throw... can be omitted
+			if (config["clients"]["port"] && config["clients"]["port"].IsScalar()) {
+				client_port_ = config["clients"]["port"].as<uint16_t>();
+			} // no throw... can be omitted
 		}
-		client_port = config["client_port"].as<uint16_t>(0);
 
-		if (!config["worker_port"].IsScalar()) {
-			throw config_error("Worker port is not scalar");
+		// load worker address and port
+		if (config["workers"] && config["workers"].IsMap()) {
+			if (config["workers"]["address"] && config["workers"]["address"].IsScalar()) {
+				worker_address_ = config["workers"]["address"].as<std::string>();
+			} // no throw... can be omitted
+			if (config["workers"]["port"] && config["workers"]["port"].IsScalar()) {
+				worker_port_ = config["workers"]["port"].as<uint16_t>();
+			} // no throw... can be omitted
 		}
-		worker_port = config["worker_port"].as<uint16_t>(0);
 
 		// load logger
 		if (config["logger"] && config["logger"].IsMap()) {
@@ -43,14 +53,24 @@ broker_config::broker_config(const YAML::Node &config)
 	}
 }
 
+const std::string &broker_config::get_client_address() const
+{
+	return client_address_;
+}
+
 uint16_t broker_config::get_client_port() const
 {
-	return client_port;
+	return client_port_;
+}
+
+const std::string &broker_config::get_worker_address() const
+{
+	return worker_address_;
 }
 
 uint16_t broker_config::get_worker_port() const
 {
-	return worker_port;
+	return worker_port_;
 }
 
 const log_config &broker_config::get_log_config() const
