@@ -53,7 +53,7 @@ uint16_t broker_config::get_worker_port() const
 	return worker_port;
 }
 
-const log_config &broker_config::get_log_config()
+const log_config &broker_config::get_log_config() const
 {
 	return log_config_;
 }

@@ -5,6 +5,7 @@
 #include <memory>
 #include <bitset>
 #include <spdlog/spdlog.h>
+#include <sstream>
 
 #include "config/broker_config.h"
 #include "task_router.h"
@@ -47,6 +48,9 @@ private:
 		}
 
 		router_->add_worker(task_router::worker_ptr(new worker(identity, headers)));
+		std::stringstream ss;
+		std::copy(message.begin(), message.end(), std::ostream_iterator<std::string>(ss, ","));
+		logger_->debug() << "Added new worker '" << identity << "' with headers: " << ss.str();
 	}
 
 	/**
@@ -57,14 +61,17 @@ private:
 		task_router::worker_ptr worker = router_->find_worker_by_identity(identity);
 
 		if (worker == nullptr) {
+			logger_->warn() << "Got 'done' message from nonexisting worker";
 			return;
 		}
 
 		if (worker->request_queue.empty()) {
 			worker->free = true;
+			logger_->debug() << "Worker '" << identity << "' is now free";
 		} else {
 			sockets_->send_workers(worker->identity, worker->request_queue.front());
 			worker->request_queue.pop();
+			logger_->debug() << "New job sent to worker '" << identity << "'";
 		}
 	}
 
@@ -88,6 +95,7 @@ private:
 
 			// Unexpected end of message - do nothing and return
 			if (std::next(it) == std::end(message)) {
+				logger_->warn() << "Unexpected end of message from frontend. Skipped.";
 				return;
 			}
 
@@ -103,6 +111,7 @@ private:
 
 		if (worker != nullptr) {
 			std::vector<std::string> request = {"eval", job_id};
+			logger_->debug() << "Got 'eval' request for job '" << job_id << "'";
 
 			// Forward remaining messages to the worker without actually understanding them
 			for (; it != std::end(message); ++it) {
@@ -113,15 +122,18 @@ private:
 				// If the worker isn't doing anything, just forward the request
 				worker->free = false;
 				sockets_->send_workers(worker->identity, request);
+				logger_->debug() << "Request '" << job_id << "' sent to worker '" << worker->identity << "'";
 			} else {
 				// If the worker is occupied, queue the request
 				worker->request_queue.push(request);
+				logger_->debug() << "Request '" << job_id << "' saved to queue for worker '" << worker->identity << "'";
 			}
 
 			sockets_->send_clients(identity, std::vector<std::string>{"accept"});
 			router_->deprioritize_worker(worker);
 		} else {
 			sockets_->send_clients(identity, std::vector<std::string>{"reject"});
+			logger_->warn() << "Request '" << job_id << "' rejected. No worker available.";
 		}
 	}
 

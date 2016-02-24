@@ -1,3 +1,6 @@
+#include <vector>
+#include <iostream>
+#include <string>
 #include "broker_core.h"
 
 

@@ -4,6 +4,7 @@
 
 task_router::task_router(std::shared_ptr<spdlog::logger> logger)
 {
+	// TODO: logger currently not used here. Can be removed?
 	if (logger != nullptr) {
 		logger_ = logger;
 	} else {
@@ -17,7 +18,6 @@ task_router::task_router(std::shared_ptr<spdlog::logger> logger)
 
 void task_router::add_worker(worker_ptr worker)
 {
-	logger_->debug() << "Adding new worker";
 	workers.push_back(worker);
 }
 
@@ -52,9 +52,9 @@ task_router::worker_ptr task_router::find_worker(const task_router::headers_t &h
 	return nullptr;
 }
 
-task_router::worker_ptr task_router::find_worker_by_identity (const std::string &identity)
+task_router::worker_ptr task_router::find_worker_by_identity(const std::string &identity)
 {
-	for (auto &worker: workers) {
+	for (auto &worker : workers) {
 		if (worker->identity == identity) {
 			return worker;
 		}
@@ -63,7 +63,7 @@ task_router::worker_ptr task_router::find_worker_by_identity (const std::string 
 	return nullptr;
 }
 
-void task_router::deprioritize_worker (task_router::worker_ptr worker)
+void task_router::deprioritize_worker(task_router::worker_ptr worker)
 {
 	auto it = std::find(std::begin(workers), std::end(workers), worker);
 

@@ -1,5 +1,5 @@
-#ifndef CODEX_BROKER_BROKER_CONFIG_HPP
-#define CODEX_BROKER_BROKER_CONFIG_HPP
+#ifndef CODEX_BROKER_CONFIG_H
+#define CODEX_BROKER_CONFIG_H
 
 #include <iostream>
 #include <string>
@@ -42,7 +42,8 @@ public:
 	 * Get wrapper for logger configuration.
 	 * @return constant reference to log_config structure
 	 */
-	const log_config &get_log_config();
+	const log_config &get_log_config() const;
+
 private:
 	/** Client socket port (from frontend) */
 	uint16_t client_port = 0;
@@ -50,7 +51,6 @@ private:
 	uint16_t worker_port = 0;
 	/** Configuration of logger */
 	log_config log_config_;
-
 };
 
 
@@ -69,4 +69,4 @@ public:
 	}
 };
 
-#endif // CODEX_BROKER_BROKER_CONFIG_HPP
+#endif // CODEX_BROKER_CONFIG_H

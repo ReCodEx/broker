@@ -90,4 +90,3 @@ public:
 };
 
 #endif // CODEX_BROKER_LOG_CONFIG_H
-
