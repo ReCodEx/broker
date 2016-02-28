@@ -129,7 +129,12 @@ void broker_core::broker_init()
 	logger_->info() << "Initializing broker connection...";
 	task_router_ = std::make_shared<task_router>();
 	sockets_ = std::make_shared<connection_proxy>();
-	broker_ = std::make_shared<broker_connect<connection_proxy>>(config_, sockets_, task_router_, logger_);
+
+	std::shared_ptr<commands_holder<connection_proxy>> worker_cmds =
+		std::make_shared<worker_commands<connection_proxy>>(sockets_, task_router_, logger_);
+	std::shared_ptr<commands_holder<connection_proxy>> client_cmds =
+		std::make_shared<client_commands<connection_proxy>>(sockets_, task_router_, logger_);
+	broker_ = std::make_shared<broker_connect<connection_proxy>>(config_, sockets_, worker_cmds, client_cmds, logger_);
 	logger_->info() << "Broker connection initialized.";
 
 	return;

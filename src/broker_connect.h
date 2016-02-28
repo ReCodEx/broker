@@ -9,6 +9,7 @@
 
 #include "config/broker_config.h"
 #include "task_router.h"
+#include "commands/commands_base.h"
 
 /**
  * Contains type definitions used by the proxy poll function
@@ -27,122 +28,17 @@ template <typename proxy> class broker_connect
 private:
 	std::shared_ptr<const broker_config> config_;
 	std::shared_ptr<proxy> sockets_;
-	std::shared_ptr<task_router> router_;
+	std::shared_ptr<commands_holder<proxy>> worker_cmds_;
+	std::shared_ptr<commands_holder<proxy>> client_cmds_;
 	std::shared_ptr<spdlog::logger> logger_;
-
-	/**
-	 * Process an "init" request from a worker.
-	 * That means storing the identity and headers of the worker
-	 * so that we can forward jobs to it.
-	 */
-	void process_worker_init(const std::string &identity, const std::vector<std::string> &message)
-	{
-		task_router::headers_t headers;
-
-		for (auto it = std::begin(message) + 1; it != std::end(message); ++it) {
-			auto &header = *it;
-			size_t pos = header.find('=');
-			size_t value_size = header.size() - (pos + 1);
-
-			headers.emplace(header.substr(0, pos), header.substr(pos + 1, value_size));
-		}
-
-		router_->add_worker(task_router::worker_ptr(new worker(identity, headers)));
-		std::stringstream ss;
-		std::copy(message.begin(), message.end(), std::ostream_iterator<std::string>(ss, ","));
-		logger_->debug() << "Added new worker '" << identity << "' with headers: " << ss.str();
-	}
-
-	/**
-	 * Process a "done" message from a worker.
-	 */
-	void process_worker_done(const std::string &identity, const std::vector<std::string> &message)
-	{
-		task_router::worker_ptr worker = router_->find_worker_by_identity(identity);
-
-		if (worker == nullptr) {
-			logger_->warn() << "Got 'done' message from nonexisting worker";
-			return;
-		}
-
-		if (worker->request_queue.empty()) {
-			worker->free = true;
-			logger_->debug() << "Worker '" << identity << "' is now free";
-		} else {
-			sockets_->send_workers(worker->identity, worker->request_queue.front());
-			worker->request_queue.pop();
-			logger_->debug() << "New job sent to worker '" << identity << "'";
-		}
-	}
-
-	/**
-	 * Process an "eval" request from a client
-	 */
-	void process_client_eval(const std::string &identity, const std::vector<std::string> &message)
-	{
-		std::string job_id = message.at(1);
-		task_router::headers_t headers;
-
-		// Load headers terminated by an empty frame
-		auto it = std::begin(message) + 2;
-
-		while (true) {
-			// End of headers
-			if (it->size() == 0) {
-				++it;
-				break;
-			}
-
-			// Unexpected end of message - do nothing and return
-			if (std::next(it) == std::end(message)) {
-				logger_->warn() << "Unexpected end of message from frontend. Skipped.";
-				return;
-			}
-
-			// Parse header, save it and continue
-			size_t pos = it->find('=');
-			size_t value_size = it->size() - (pos + 1);
-
-			headers.emplace(it->substr(0, pos), it->substr(pos + 1, value_size));
-			++it;
-		}
-
-		task_router::worker_ptr worker = router_->find_worker(headers);
-
-		if (worker != nullptr) {
-			std::vector<std::string> request = {"eval", job_id};
-			logger_->debug() << "Got 'eval' request for job '" << job_id << "'";
-
-			// Forward remaining messages to the worker without actually understanding them
-			for (; it != std::end(message); ++it) {
-				request.push_back(*it);
-			}
-
-			if (worker->free) {
-				// If the worker isn't doing anything, just forward the request
-				worker->free = false;
-				sockets_->send_workers(worker->identity, request);
-				logger_->debug() << "Request '" << job_id << "' sent to worker '" << worker->identity << "'";
-			} else {
-				// If the worker is occupied, queue the request
-				worker->request_queue.push(request);
-				logger_->debug() << "Request '" << job_id << "' saved to queue for worker '" << worker->identity << "'";
-			}
-
-			sockets_->send_clients(identity, std::vector<std::string>{"accept"});
-			router_->deprioritize_worker(worker);
-		} else {
-			sockets_->send_clients(identity, std::vector<std::string>{"reject"});
-			logger_->warn() << "Request '" << job_id << "' rejected. No worker available.";
-		}
-	}
 
 public:
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
-		std::shared_ptr<task_router> router,
+		std::shared_ptr<commands_holder<proxy>> worker_cmds,
+		std::shared_ptr<commands_holder<proxy>> client_cmds,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: config_(config), sockets_(sockets), router_(router)
+		: config_(config), sockets_(sockets), worker_cmds_(worker_cmds), client_cmds_(client_cmds)
 	{
 		if (logger != nullptr) {
 			logger_ = logger;
@@ -194,9 +90,7 @@ public:
 
 				logger_->debug() << "Received message '" << type << "' from frontend";
 
-				if (type == "eval") {
-					process_client_eval(identity, message);
-				}
+				client_cmds_->call_function(type, identity, message);
 			}
 
 			// Received a message from the backend
@@ -213,11 +107,7 @@ public:
 
 				logger_->debug() << "Received message '" << type << "' from backend";
 
-				if (type == "init") {
-					process_worker_init(identity, message);
-				} else if (type == "done") {
-					process_worker_done(identity, message);
-				}
+				worker_cmds_->call_function(type, identity, message);
 			}
 		}
 

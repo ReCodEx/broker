@@ -24,6 +24,9 @@ set(SOURCE_FILES
 	src/broker_core.h
 	src/broker_core.cpp
 	src/connection_proxy.h
+	src/commands/commands_base.h
+	src/commands/client_commands.h
+	src/commands/worker_commands.h
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})

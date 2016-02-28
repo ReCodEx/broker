@@ -21,6 +21,9 @@ namespace fs = boost::filesystem;
 #include "config/log_config.h"
 #include "config/broker_config.h"
 #include "connection_proxy.h"
+#include "commands/commands_base.h"
+#include "commands/worker_commands.h"
+#include "commands/client_commands.h"
 
 
 /**
