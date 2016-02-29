@@ -31,7 +31,7 @@ public:
 	MOCK_METHOD2(send_clients, bool(const std::string &, const std::vector<std::string> &));
 };
 
-/*TEST(broker, bind)
+TEST(broker, bind)
 {
 	auto config = std::make_shared<mock_broker_config>();
 	auto sockets = std::make_shared<mock_connection_proxy>();
@@ -252,4 +252,4 @@ TEST(broker, queuing)
 
 	broker_connect<mock_connection_proxy> broker(config, sockets, router);
 	broker.start_brokering();
-}*/
+}

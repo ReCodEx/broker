@@ -5,11 +5,12 @@
 #include <memory>
 #include <bitset>
 #include <spdlog/spdlog.h>
-#include <sstream>
 
 #include "config/broker_config.h"
 #include "task_router.h"
-#include "commands/commands_base.h"
+#include "commands/command_holder.h"
+#include "commands/worker_commands.h"
+#include "commands/client_commands.h"
 
 /**
  * Contains type definitions used by the proxy poll function
@@ -28,17 +29,16 @@ template <typename proxy> class broker_connect
 private:
 	std::shared_ptr<const broker_config> config_;
 	std::shared_ptr<proxy> sockets_;
-	std::shared_ptr<commands_holder<proxy>> worker_cmds_;
-	std::shared_ptr<commands_holder<proxy>> client_cmds_;
+	std::shared_ptr<command_holder<proxy>> worker_cmds_;
+	std::shared_ptr<command_holder<proxy>> client_cmds_;
 	std::shared_ptr<spdlog::logger> logger_;
 
 public:
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
-		std::shared_ptr<commands_holder<proxy>> worker_cmds,
-		std::shared_ptr<commands_holder<proxy>> client_cmds,
+		std::shared_ptr<task_router> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: config_(config), sockets_(sockets), worker_cmds_(worker_cmds), client_cmds_(client_cmds)
+		: config_(config), sockets_(sockets)
 	{
 		if (logger != nullptr) {
 			logger_ = logger;
@@ -49,6 +49,15 @@ public:
 			// Set loglevel to 'off' cause no logging
 			logger_->set_level(spdlog::level::off);
 		}
+
+		// init worker commands
+		worker_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, logger_);
+		worker_cmds_->register_command("init", worker_commands::process_init<proxy>);
+		worker_cmds_->register_command("done", worker_commands::process_done<proxy>);
+
+		// init client commands
+		client_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, logger_);
+		client_cmds_->register_command("eval", client_commands::process_eval<proxy>);
 	}
 
 	/**

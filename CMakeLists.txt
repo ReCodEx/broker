@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 project(recodex-broker)
-set(RECODEX_VERSION "0.1.1")
+set(RECODEX_VERSION "0.1.2")
 
 set(EXEC_NAME ${PROJECT_NAME})
 enable_testing()
@@ -24,7 +24,7 @@ set(SOURCE_FILES
 	src/broker_core.h
 	src/broker_core.cpp
 	src/connection_proxy.h
-	src/commands/commands_base.h
+	src/commands/command_holder.h
 	src/commands/client_commands.h
 	src/commands/worker_commands.h
 )

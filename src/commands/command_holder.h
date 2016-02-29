@@ -30,12 +30,12 @@ public:
 };
 
 
-template <typename proxy> class commands_holder
+template <typename proxy> class command_holder
 {
 public:
 	typedef std::function<void(const std::string &, const std::vector<std::string> &, const command_context<proxy> &)>
 		callback_fn;
-	commands_holder(std::shared_ptr<proxy> sockets,
+	command_holder(std::shared_ptr<proxy> sockets,
 		std::shared_ptr<task_router> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
 		: context_(sockets, router, logger)
@@ -48,10 +48,17 @@ public:
 			(it->second)(identity, message, context_);
 		}
 	}
+	bool register_command(const std::string &command, callback_fn callback)
+	{
+		auto ret = functions_.emplace(command, callback);
+		return ret.second;
+	}
 
 protected:
-	const command_context<proxy> context_;
 	std::map<std::string, callback_fn> functions_;
+
+private:
+	const command_context<proxy> context_;
 };
 
 #endif // CODEX_BROKER_COMMANDS_BASE_H
