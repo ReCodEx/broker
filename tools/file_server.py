@@ -64,7 +64,7 @@ if task_source:
                     destfile.write(content)
 
                 rel = os.path.relpath(taskfile_name, task_source)
-                print("{0}: {1}".format(destfile_name, rel))
+                print("{0}: {1}".format(destfile_name, rel), flush=True)
 
 # An id for new jobs
 job_id = 0
@@ -135,7 +135,7 @@ class FileServerHandler(http.SimpleHTTPRequestHandler):
 
 server = socketserver.TCPServer(("", port), FileServerHandler)
 
-print("Serving files from {0} at port {1}...".format(tmp.name, port))
+print("Serving files from {0} at port {1}...".format(tmp.name, port), flush=True)
 
 try:
     server.serve_forever()
