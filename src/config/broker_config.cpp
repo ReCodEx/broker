@@ -29,6 +29,12 @@ broker_config::broker_config(const YAML::Node &config)
 			if (config["workers"]["port"] && config["workers"]["port"].IsScalar()) {
 				worker_port_ = config["workers"]["port"].as<uint16_t>();
 			} // no throw... can be omitted
+			if (config["workers"]["max_liveness"] && config["workers"]["max_liveness"].IsScalar()) {
+				max_worker_liveness_ = config["workers"]["max_liveness"].as<size_t>();
+			} // no throw... can be omitted
+			if (config["workers"]["ping_interval"] && config["workers"]["ping_interval"].IsScalar()) {
+				worker_ping_interval_ = std::chrono::milliseconds(config["workers"]["ping_interval"].as<size_t>());
+			} // no throw... can be omitted
 		}
 
 		// load logger
@@ -71,6 +77,16 @@ const std::string &broker_config::get_worker_address() const
 uint16_t broker_config::get_worker_port() const
 {
 	return worker_port_;
+}
+
+size_t broker_config::get_max_worker_liveness() const
+{
+	return max_worker_liveness_;
+}
+
+std::chrono::milliseconds broker_config::get_worker_ping_interval() const
+{
+	return worker_ping_interval_;
 }
 
 const log_config &broker_config::get_log_config() const

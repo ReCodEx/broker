@@ -44,6 +44,14 @@ public:
 	 */
 	virtual uint16_t get_worker_port() const;
 	/**
+	 * Get the maximum (i.e. initial) liveness of a worker
+	 */
+	virtual size_t get_max_worker_liveness() const;
+	/**
+	 * Get the time (in milliseconds) expected to pass between pings from the worker
+	 */
+	virtual std::chrono::milliseconds get_worker_ping_interval() const;
+	/**
 	 * Get wrapper for logger configuration.
 	 * @return constant reference to log_config structure
 	 */
@@ -58,6 +66,13 @@ private:
 	std::string worker_address_ = "*"; // '*' is any address
 	/** Server socket port (to workers) */
 	uint16_t worker_port_ = 0;
+	/**
+	 * Maximum (initial) liveness of a worker 
+	 * (the amount of pings the worker can miss before it's considered dead) 
+	 */
+	size_t max_worker_liveness_ = 4;
+	/** Time (in milliseconds) expected to pass between pings from the worker */
+	std::chrono::milliseconds worker_ping_interval_ = std::chrono::milliseconds(1000);
 	/** Configuration of logger */
 	log_config log_config_;
 };
