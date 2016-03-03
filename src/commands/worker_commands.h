@@ -55,6 +55,21 @@ namespace worker_commands
 			context.logger->debug() << "New job sent to worker '" << identity << "'";
 		}
 	}
+
+	template <typename proxy>
+	void process_ping(
+		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
+	{
+		task_router::worker_ptr worker = context.router->find_worker_by_identity(identity);
+
+		if (worker == nullptr) {
+			context.sockets->send_workers(worker->identity, std::vector<std::string>{"intro"});
+			return;
+		}
+
+		context.sockets->send_workers(worker->identity, std::vector<std::string>{"pong"});
+	}
+
 } // namespace
 
 
