@@ -24,7 +24,7 @@ public:
 class mock_connection_proxy {
 public:
 	MOCK_METHOD2(bind, void(const std::string &, const std::string &));
-	MOCK_METHOD3(poll, void(message_origin::set &, int, bool *));
+	MOCK_METHOD4(poll, void(message_origin::set &, std::chrono::milliseconds, bool &, std::chrono::milliseconds &));
 	MOCK_METHOD3(recv_workers, bool(std::string &, std::vector<std::string> &, bool *));
 	MOCK_METHOD3(recv_clients, bool(std::string &, std::vector<std::string> &, bool *));
 	MOCK_METHOD2(send_workers, bool(const std::string &, const std::vector<std::string> &));
@@ -57,7 +57,7 @@ TEST(broker, bind)
 		std::string addr_2 = "tcp://*:4321";
 
 		EXPECT_CALL(*sockets, bind(StrEq(addr_1), StrEq(addr_2)));
-		EXPECT_CALL(*sockets, poll(_, _, _)).WillOnce(SetArgPointee<2>(true));
+		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(SetArgReferee<2>(true));
 	}
 
 	broker_connect<mock_connection_proxy> broker(config, sockets, router);
@@ -98,7 +98,7 @@ TEST(broker, worker_init)
 	EXPECT_CALL(*sockets, bind(_, _))
 		.InSequence(s1, s2);
 
-	EXPECT_CALL(*sockets, poll(_, _, _))
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(DoAll(
 			ClearFlags(), SetFlag(message_origin::WORKER)
@@ -116,17 +116,31 @@ TEST(broker, worker_init)
 			})
 		));
 
+	task_router::headers_t headers_1{
+			std::make_pair("env", "c"),
+			std::make_pair("hwgroup", "group_1")
+	};
+
+	auto worker_1 = std::make_shared<worker>("identity1", headers_1);
+
+	EXPECT_CALL(*router, find_worker_by_identity(StrEq("identity1")))
+		.Times(AnyNumber())
+        .InSequence(s2)
+		.WillRepeatedly(Return(nullptr));
+
 	EXPECT_CALL(*router, add_worker(AllOf(
-		Pointee(Field(&worker::identity, StrEq("identity1"))),
-		Pointee(Field(&worker::headers, UnorderedElementsAre(
-			std::pair<std::string, std::string>{"env", "c"},
-			std::pair<std::string, std::string>{"hwgroup", "group_1"}
-		))))))
+		Pointee(Field(&worker::identity, StrEq(worker_1->identity))),
+		Pointee(Field(&worker::headers, worker_1->headers)))))
 		.InSequence(s2);
 
-	EXPECT_CALL(*sockets, poll(_, _, _))
+	EXPECT_CALL(*router, find_worker_by_identity(StrEq(worker_1->identity)))
+        .Times(AnyNumber())
+        .InSequence(s2)
+        .WillRepeatedly(Return(worker_1));
+
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
-		.WillOnce(SetArgPointee<2>(true));
+		.WillOnce(SetArgReferee<2>(true));
 
 	broker_connect<mock_connection_proxy> broker(config, sockets, router);
 	broker.start_brokering();
@@ -167,7 +181,7 @@ TEST(broker, queuing)
 		.InSequence(s1, s2);
 
 	// A request has arrived
-	EXPECT_CALL(*sockets, poll(_, _, _))
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(DoAll(
 			ClearFlags(), SetFlag(message_origin::CLIENT)
@@ -198,7 +212,7 @@ TEST(broker, queuing)
 		.InSequence(s2);
 
 	// Another request has arrived
-	EXPECT_CALL(*sockets, poll(_, _, _))
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(DoAll(
 			ClearFlags(), SetFlag(message_origin::CLIENT)
@@ -226,7 +240,7 @@ TEST(broker, queuing)
 		.InSequence(s2);
 
 	// The worker is finally done
-	EXPECT_CALL(*sockets, poll(_, _, _))
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(DoAll(
 			ClearFlags(), SetFlag(message_origin::WORKER)
@@ -246,9 +260,9 @@ TEST(broker, queuing)
 	EXPECT_CALL(*sockets, send_workers(worker->identity, ElementsAre("eval", "job2", "3", "4")))
 		.InSequence(s2);
 
-	EXPECT_CALL(*sockets, poll(_, _, _))
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
-		.WillOnce(SetArgPointee<2>(true));
+		.WillOnce(SetArgReferee<2>(true));
 
 	broker_connect<mock_connection_proxy> broker(config, sockets, router);
 	broker.start_brokering();

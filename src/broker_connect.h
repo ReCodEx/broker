@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <bitset>
+#include <chrono>
 #include <spdlog/spdlog.h>
 
 #include "config/broker_config.h"
@@ -32,13 +33,22 @@ private:
 	std::shared_ptr<command_holder<proxy>> worker_cmds_;
 	std::shared_ptr<command_holder<proxy>> client_cmds_;
 	std::shared_ptr<spdlog::logger> logger_;
+	std::shared_ptr<task_router> router_;
+
+	/**
+	 * Remove an expired worker
+	 */
+	void remove_worker(task_router::worker_ptr worker)
+	{
+		router_->remove_worker(worker);
+	}
 
 public:
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
 		std::shared_ptr<task_router> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: config_(config), sockets_(sockets)
+		: config_(config), sockets_(sockets), router_(router)
 	{
 		if (logger != nullptr) {
 			logger_ = logger;
@@ -54,6 +64,7 @@ public:
 		worker_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, logger_);
 		worker_cmds_->register_command("init", worker_commands::process_init<proxy>);
 		worker_cmds_->register_command("done", worker_commands::process_done<proxy>);
+		worker_cmds_->register_command("ping", worker_commands::process_ping<proxy>);
 
 		// init client commands
 		client_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, logger_);
@@ -75,11 +86,29 @@ public:
 
 		sockets_->bind(clients_endpoint, workers_endpoint);
 
+		const std::chrono::milliseconds ping_interval = config_->get_worker_ping_interval();
+		const size_t max_liveness = config_->get_max_worker_liveness();
+		std::chrono::milliseconds poll_limit = ping_interval;
+
 		while (true) {
 			bool terminate = false;
 			message_origin::set result;
+			std::chrono::milliseconds poll_duration(0);
 
-			sockets_->poll(result, -1, &terminate);
+			sockets_->poll(result, poll_limit, terminate, poll_duration);
+
+			// Check if we spent enough time polling to decrease the workers liveness
+			if (poll_duration >= poll_limit) {
+				// Reset the time limit
+				poll_limit = ping_interval;
+
+				// Decrease liveness but don't clean up dead workers yet (in case of miracles)
+				for (auto worker : router_->get_workers()) {
+					worker->liveness -= 1;
+				}
+			} else {
+				poll_limit -= std::max(std::chrono::milliseconds(0), poll_duration);
+			}
 
 			if (terminate) {
 				break;
@@ -117,6 +146,19 @@ public:
 				logger_->debug() << "Received message '" << type << "' from backend";
 
 				worker_cmds_->call_function(type, identity, message);
+
+				// An incoming message means the worker is alive
+				auto worker = router_->find_worker_by_identity(identity);
+				if (worker != nullptr) {
+					worker->liveness = max_liveness;
+				}
+			}
+
+			// Handle dead workers
+			for (auto worker : router_->get_workers()) {
+				if (worker->liveness == 0) {
+					remove_worker(worker);
+				}
 			}
 		}
 

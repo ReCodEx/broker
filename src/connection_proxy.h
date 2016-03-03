@@ -43,18 +43,26 @@ public:
 	/**
 	 * Block execution until a message arrives to either socket.
 	 * @param result If a message arrived to a socket, the corresponding bit field is set to true
+	 * @param timeout The maximum time this function is allowed to block execution
+	 * @param terminate If the underlying connection is terminated, the referenced variable is set to true
+	 * @param elapsed_time Set to the time spent polling on success
 	 */
-	void poll(message_origin::set &result, int timeout, bool *terminate = nullptr)
+	void poll(message_origin::set &result,
+		std::chrono::milliseconds timeout,
+		bool &terminate,
+		std::chrono::milliseconds &elapsed_time)
 	{
 		result.reset();
 
 		try {
+			auto time_before_poll = std::chrono::system_clock::now();
 			zmq::poll(items_, 2, timeout);
+			auto time_after_poll = std::chrono::system_clock::now();
+
+			elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(time_after_poll - time_before_poll);
 		} catch (zmq::error_t) {
-			if (terminate != nullptr) {
-				*terminate = true;
-				return;
-			}
+            terminate = true;
+            return;
 		}
 
 		if (items_[0].revents & ZMQ_POLLIN) {

@@ -27,6 +27,7 @@ private:
 public:
 	task_router(std::shared_ptr<spdlog::logger> logger = nullptr);
 	virtual void add_worker(worker_ptr worker);
+	virtual void remove_worker(worker_ptr worker);
 	virtual worker_ptr find_worker(const headers_t &headers);
 	virtual worker_ptr find_worker_by_identity(const std::string &identity);
 
@@ -34,6 +35,11 @@ public:
 	 * Reduce the priority of a worker so that it's less likely to be found by subsequent finds
 	 */
 	virtual void deprioritize_worker(worker_ptr worker);
+
+	/**
+	 * Get all workers known to this service
+	 */
+	virtual const std::vector<worker_ptr> &get_workers() const;
 };
 
 /**
@@ -51,6 +57,9 @@ struct worker {
 
 	/** A queue of requests to be processed by the worker */
 	std::queue<task_router::request_t> request_queue;
+
+	/** The amount of pings the worker can miss before it's considered dead */
+	size_t liveness;
 
 	worker(const std::string &id, const task_router::headers_t &headers) : identity(id), headers(headers), free(true)
 	{

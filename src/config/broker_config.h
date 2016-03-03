@@ -67,8 +67,8 @@ private:
 	/** Server socket port (to workers) */
 	uint16_t worker_port_ = 0;
 	/**
-	 * Maximum (initial) liveness of a worker 
-	 * (the amount of pings the worker can miss before it's considered dead) 
+	 * Maximum (initial) liveness of a worker
+	 * (the amount of pings the worker can miss before it's considered dead)
 	 */
 	size_t max_worker_liveness_ = 4;
 	/** Time (in milliseconds) expected to pass between pings from the worker */

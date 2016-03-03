@@ -21,6 +21,15 @@ void task_router::add_worker(worker_ptr worker)
 	workers.push_back(worker);
 }
 
+void task_router::remove_worker(worker_ptr worker)
+{
+	auto it = std::find(std::begin(workers), std::end(workers), worker);
+
+	if (it != std::end(workers)) {
+		workers.erase(it);
+	}
+}
+
 task_router::worker_ptr task_router::find_worker(const task_router::headers_t &headers)
 {
 	for (auto &worker : workers) {
@@ -71,4 +80,9 @@ void task_router::deprioritize_worker(task_router::worker_ptr worker)
 		workers.erase(it);
 		workers.push_back(worker);
 	}
+}
+
+const std::vector<task_router::worker_ptr> &task_router::get_workers() const
+{
+	return workers;
 }
