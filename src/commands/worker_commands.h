@@ -46,16 +46,13 @@ namespace worker_commands
 			return;
 		}
 
-		if (worker->request_queue.empty()) {
-			worker->free = true;
-			worker->current_request = nullptr;
-			context.logger->debug() << "Worker '" << identity << "' is now free";
-		} else {
-			auto new_request = worker->request_queue.front();
-			context.sockets->send_workers(worker->identity, new_request->data);
-			worker->current_request = new_request;
-			worker->request_queue.pop();
+		worker->complete_request();
+
+		if (worker->next_request()) {
+			context.sockets->send_workers(worker->identity, worker->get_current_request()->data);
 			context.logger->debug() << "New job sent to worker '" << identity << "'";
+		} else {
+			context.logger->debug() << "Worker '" << identity << "' is now free";
 		}
 	}
 

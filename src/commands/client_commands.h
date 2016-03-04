@@ -51,16 +51,13 @@ namespace client_commands
 			}
 
 			auto eval_request = std::make_shared<request>(headers, request_data);
+			worker->enqueue_request(eval_request);
 
-			if (worker->free) {
+			if (worker->next_request()) {
 				// If the worker isn't doing anything, just forward the request
-				worker->free = false;
-				worker->current_request = eval_request;
-				context.sockets->send_workers(worker->identity, request_data);
+				context.sockets->send_workers(worker->identity, worker->get_current_request()->data);
 				context.logger->debug() << "Request '" << job_id << "' sent to worker '" << worker->identity << "'";
 			} else {
-				// If the worker is occupied, queue the request
-				worker->request_queue.push(eval_request);
 				context.logger->debug() << "Request '" << job_id << "' saved to queue for worker '" << worker->identity
 										<< "'";
 			}

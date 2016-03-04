@@ -35,4 +35,10 @@ add_test_suite(broker
 	broker.cpp
 	${SRC_DIR}/config/broker_config.cpp
 	${SRC_DIR}/task_router.cpp
+	${SRC_DIR}/worker.cpp
+)
+
+add_test_suite(worker
+	worker.cpp
+	${SRC_DIR}/worker.cpp
 )

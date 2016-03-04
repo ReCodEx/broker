@@ -122,6 +122,7 @@ TEST(broker, worker_init)
 	};
 
 	auto worker_1 = std::make_shared<worker>("identity1", headers_1);
+	worker_1->liveness = 100;
 
 	EXPECT_CALL(*router, find_worker_by_identity(StrEq("identity1")))
 		.Times(AnyNumber())
@@ -155,7 +156,7 @@ TEST(broker, queuing)
 
 	std::string client_id = "client_foo";
 	task_router::headers_t headers = {{"env", "c"}};
-	task_router::worker_ptr worker = std::make_shared<struct worker>("identity1", headers);
+	task_router::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
 
 	EXPECT_CALL(*config, get_client_address())
 		.WillRepeatedly(ReturnRef(address));
@@ -170,10 +171,10 @@ TEST(broker, queuing)
 		.WillRepeatedly(Return(4321));
 
 	EXPECT_CALL(*router, find_worker(Eq(headers)))
-		.WillRepeatedly(Return(worker));
+		.WillRepeatedly(Return(worker_1));
 
-	EXPECT_CALL(*router, find_worker_by_identity(worker->identity))
-		.WillRepeatedly(Return(worker));
+	EXPECT_CALL(*router, find_worker_by_identity(worker_1->identity))
+		.WillRepeatedly(Return(worker_1));
 
 	Sequence s1, s2, s3;
 
@@ -201,11 +202,11 @@ TEST(broker, queuing)
 			})
 		));
 
-	EXPECT_CALL(*router, deprioritize_worker(worker))
+	EXPECT_CALL(*router, deprioritize_worker(worker_1))
 		.InSequence(s3);
 
 	// Let the worker process it
-	EXPECT_CALL(*sockets, send_workers(StrEq(worker->identity), ElementsAre("eval", "job1", "1", "2")))
+	EXPECT_CALL(*sockets, send_workers(StrEq(worker_1->identity), ElementsAre("eval", "job1", "1", "2")))
 		.InSequence(s2);
 
 	EXPECT_CALL(*sockets, send_clients(StrEq(client_id), ElementsAre("accept")))
@@ -232,7 +233,7 @@ TEST(broker, queuing)
 			})
 		));
 
-	EXPECT_CALL(*router, deprioritize_worker(worker))
+	EXPECT_CALL(*router, deprioritize_worker(worker_1))
 		.InSequence(s3);
 
 	// The worker is busy, but we don't want to keep the client waiting
@@ -249,7 +250,7 @@ TEST(broker, queuing)
 	EXPECT_CALL(*sockets, recv_workers(_, _, _))
 		.InSequence(s2)
 		.WillOnce(DoAll(
-			SetArgReferee<0>(worker->identity),
+			SetArgReferee<0>(worker_1->identity),
 			SetArgReferee<1>(std::vector<std::string>{
 				"done",
 				"job1"
@@ -257,7 +258,7 @@ TEST(broker, queuing)
 		));
 
 	// Give the worker some more work
-	EXPECT_CALL(*sockets, send_workers(worker->identity, ElementsAre("eval", "job2", "3", "4")))
+	EXPECT_CALL(*sockets, send_workers(StrEq(worker_1->identity), ElementsAre("eval", "job2", "3", "4")))
 		.InSequence(s2);
 
 	EXPECT_CALL(*sockets, poll(_, _, _, _))

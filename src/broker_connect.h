@@ -42,38 +42,16 @@ private:
 	void remove_worker(task_router::worker_ptr expired_worker)
 	{
 		router_->remove_worker(expired_worker);
-		expired_worker->current_request->failure_count += 1;
+		auto requests = expired_worker->terminate();
 
-		task_router::worker_ptr substitute_worker = nullptr;
-		substitute_worker = router_->find_worker(expired_worker->current_request->headers);
-
-		if (substitute_worker != nullptr) {
-			if (substitute_worker->free) {
-				substitute_worker->free = false;
-				substitute_worker->current_request = expired_worker->current_request;
-
-				sockets_->send_workers(substitute_worker->identity, substitute_worker->current_request->data);
-			} else {
-				substitute_worker->request_queue.push(expired_worker->current_request);
-			}
-		} else {
-			// TODO evaluation failed - notify the frontend
-		}
-
-		while (!expired_worker->request_queue.empty()) {
-			auto queued_request = expired_worker->request_queue.front();
-			expired_worker->request_queue.pop();
-
-			substitute_worker = router_->find_worker(queued_request->headers);
+		for (auto request : *requests) {
+			task_router::worker_ptr substitute_worker = router_->find_worker(request->headers);
 
 			if (substitute_worker != nullptr) {
-				if (substitute_worker->free) {
-					substitute_worker->free = false;
-					substitute_worker->current_request = queued_request;
+				substitute_worker->enqueue_request(request);
 
-					sockets_->send_workers(substitute_worker->identity, substitute_worker->current_request->data);
-				} else {
-					substitute_worker->request_queue.push(queued_request);
+				if (substitute_worker->next_request()) {
+					sockets_->send_workers(substitute_worker->identity, substitute_worker->get_current_request()->data);
 				}
 			} else {
 				// TODO evaluation failed - notify the frontend

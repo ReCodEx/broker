@@ -27,7 +27,7 @@ set(SOURCE_FILES
 	src/commands/command_holder.h
 	src/commands/client_commands.h
 	src/commands/worker_commands.h
-)
+	src/worker.cpp)
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
 target_link_libraries(${EXEC_NAME} yaml-cpp)
