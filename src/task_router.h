@@ -52,6 +52,9 @@ struct request {
 	/** The data of the request */
 	const std::vector<std::string> data;
 
+	/** The amount of failed attempts at processing this request */
+	size_t failure_count = 0;
+
 	request(const task_router::headers_t &headers, const std::vector<std::string> &data) : headers(headers), data(data)
 	{
 	}
