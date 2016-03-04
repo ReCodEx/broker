@@ -13,7 +13,7 @@ namespace client_commands
 		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
 	{
 		std::string job_id = message.at(1);
-		task_router::headers_t headers;
+		worker_registry::headers_t headers;
 
 		// Load headers terminated by an empty frame
 		auto it = std::begin(message) + 2;
@@ -39,7 +39,8 @@ namespace client_commands
 			++it;
 		}
 
-		task_router::worker_ptr worker = context.router->find_worker(headers);
+		worker_registry::worker_ptr worker = context.workers
+			->find_worker(headers);
 
 		if (worker != nullptr) {
 			std::vector<std::string> request_data = {"eval", job_id};
@@ -63,7 +64,8 @@ namespace client_commands
 			}
 
 			context.sockets->send_clients(identity, std::vector<std::string>{"accept"});
-			context.router->deprioritize_worker(worker);
+			context.workers
+				->deprioritize_worker(worker);
 		} else {
 			context.sockets->send_clients(identity, std::vector<std::string>{"reject"});
 			context.logger->warn() << "Request '" << job_id << "' rejected. No worker available.";

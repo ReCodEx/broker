@@ -8,7 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include "config/broker_config.h"
-#include "task_router.h"
+#include "worker_registry.h"
 #include "commands/command_holder.h"
 #include "commands/worker_commands.h"
 #include "commands/client_commands.h"
@@ -33,19 +33,19 @@ private:
 	std::shared_ptr<command_holder<proxy>> worker_cmds_;
 	std::shared_ptr<command_holder<proxy>> client_cmds_;
 	std::shared_ptr<spdlog::logger> logger_;
-	std::shared_ptr<task_router> router_;
+	std::shared_ptr<worker_registry> workers_;
 
 	/**
 	 * Remove an expired worker.
 	 * Also try to reassign the requests it was processing
 	 */
-	void remove_worker(task_router::worker_ptr expired_worker)
+	void remove_worker(worker_registry::worker_ptr expired_worker)
 	{
-		router_->remove_worker(expired_worker);
+		workers_->remove_worker(expired_worker);
 		auto requests = expired_worker->terminate();
 
 		for (auto request : *requests) {
-			task_router::worker_ptr substitute_worker = router_->find_worker(request->headers);
+			worker_registry::worker_ptr substitute_worker = workers_->find_worker(request->headers);
 
 			if (substitute_worker != nullptr) {
 				substitute_worker->enqueue_request(request);
@@ -62,9 +62,9 @@ private:
 public:
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
-		std::shared_ptr<task_router> router,
+		std::shared_ptr<worker_registry> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: config_(config), sockets_(sockets), router_(router)
+		: config_(config), sockets_(sockets), workers_(router)
 	{
 		if (logger != nullptr) {
 			logger_ = logger;
@@ -119,7 +119,7 @@ public:
 				poll_limit = ping_interval;
 
 				// Decrease liveness but don't clean up dead workers yet (in case of miracles)
-				for (auto worker : router_->get_workers()) {
+				for (auto worker : workers_->get_workers()) {
 					worker->liveness -= 1;
 				}
 			} else {
@@ -164,14 +164,14 @@ public:
 				worker_cmds_->call_function(type, identity, message);
 
 				// An incoming message means the worker is alive
-				auto worker = router_->find_worker_by_identity(identity);
+				auto worker = workers_->find_worker_by_identity(identity);
 				if (worker != nullptr) {
 					worker->liveness = max_liveness;
 				}
 			}
 
 			// Handle dead workers
-			for (auto worker : router_->get_workers()) {
+			for (auto worker : workers_->get_workers()) {
 				if (worker->liveness == 0) {
 					remove_worker(worker);
 				}

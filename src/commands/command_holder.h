@@ -7,14 +7,14 @@
 #include <map>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/null_sink.h"
-#include "../task_router.h"
+#include "../worker_registry.h"
 
 template <typename proxy> class command_context
 {
 public:
 	command_context(
-		std::shared_ptr<proxy> sockets, std::shared_ptr<task_router> router, std::shared_ptr<spdlog::logger> logger)
-		: sockets(sockets), router(router), logger(logger)
+		std::shared_ptr<proxy> sockets, std::shared_ptr<worker_registry> workers, std::shared_ptr<spdlog::logger> logger)
+		: sockets(sockets), workers(workers), logger(logger)
 	{
 		if (this->logger == nullptr) {
 			// Create logger manually to avoid global registration of logger
@@ -25,7 +25,7 @@ public:
 		}
 	}
 	std::shared_ptr<proxy> sockets;
-	std::shared_ptr<task_router> router;
+	std::shared_ptr<worker_registry> workers;
 	std::shared_ptr<spdlog::logger> logger;
 };
 
@@ -36,7 +36,7 @@ public:
 	typedef std::function<void(const std::string &, const std::vector<std::string> &, const command_context<proxy> &)>
 		callback_fn;
 	command_holder(std::shared_ptr<proxy> sockets,
-		std::shared_ptr<task_router> router,
+		std::shared_ptr<worker_registry> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
 		: context_(sockets, router, logger)
 	{

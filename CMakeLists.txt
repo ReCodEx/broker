@@ -15,8 +15,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
 	src/main.cpp
-	src/task_router.cpp
-	src/task_router.h
+	src/worker_registry.cpp
+	src/worker_registry.h
 	src/config/broker_config.cpp
 	src/config/broker_config.h
 	src/config/log_config.h

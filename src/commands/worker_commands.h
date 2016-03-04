@@ -16,7 +16,7 @@ namespace worker_commands
 	void process_init(
 		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
 	{
-		task_router::headers_t headers;
+		worker_registry::headers_t headers;
 
 		for (auto it = std::begin(message) + 1; it != std::end(message); ++it) {
 			auto &header = *it;
@@ -26,7 +26,8 @@ namespace worker_commands
 			headers.emplace(header.substr(0, pos), header.substr(pos + 1, value_size));
 		}
 
-		context.router->add_worker(task_router::worker_ptr(new worker(identity, headers)));
+		context.workers
+			->add_worker(worker_registry::worker_ptr(new worker(identity, headers)));
 		std::stringstream ss;
 		std::copy(message.begin(), message.end(), std::ostream_iterator<std::string>(ss, ","));
 		context.logger->debug() << "Added new worker '" << identity << "' with headers: " << ss.str();
@@ -39,7 +40,8 @@ namespace worker_commands
 	void process_done(
 		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
 	{
-		task_router::worker_ptr worker = context.router->find_worker_by_identity(identity);
+		worker_registry::worker_ptr worker = context.workers
+			->find_worker_by_identity(identity);
 
 		if (worker == nullptr) {
 			context.logger->warn() << "Got 'done' message from nonexisting worker";
@@ -60,7 +62,8 @@ namespace worker_commands
 	void process_ping(
 		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
 	{
-		task_router::worker_ptr worker = context.router->find_worker_by_identity(identity);
+		worker_registry::worker_ptr worker = context.workers
+			->find_worker_by_identity(identity);
 
 		if (worker == nullptr) {
 			context.sockets->send_workers(worker->identity, std::vector<std::string>{"intro"});

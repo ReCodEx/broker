@@ -102,7 +102,7 @@ private:
 	std::shared_ptr<spdlog::logger> logger_;
 
 	/** Pointer to task router */
-	std::shared_ptr<task_router> task_router_;
+	std::shared_ptr<worker_registry> workers_;
 
 	/** Pointer to sockets */
 	std::shared_ptr<connection_proxy> sockets_;

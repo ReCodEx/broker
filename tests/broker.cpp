@@ -13,12 +13,12 @@ public:
 	MOCK_CONST_METHOD0(get_worker_port, uint16_t());
 };
 
-class mock_task_router : public task_router {
+class mock_worker_registry : public worker_registry {
 public:
-	MOCK_METHOD1(add_worker, void(task_router::worker_ptr));
-	MOCK_METHOD1(deprioritize_worker, void(task_router::worker_ptr));
-	MOCK_METHOD1(find_worker, task_router::worker_ptr(const task_router::headers_t &));
-	MOCK_METHOD1(find_worker_by_identity, task_router::worker_ptr(const std::string &));
+	MOCK_METHOD1(add_worker, void(worker_registry::worker_ptr));
+	MOCK_METHOD1(deprioritize_worker, void(worker_registry::worker_ptr));
+	MOCK_METHOD1(find_worker, worker_registry::worker_ptr(const worker_registry::headers_t &));
+	MOCK_METHOD1(find_worker_by_identity, worker_registry::worker_ptr(const std::string &));
 };
 
 class mock_connection_proxy {
@@ -35,7 +35,7 @@ TEST(broker, bind)
 {
 	auto config = std::make_shared<mock_broker_config>();
 	auto sockets = std::make_shared<mock_connection_proxy>();
-	auto router = std::make_shared<mock_task_router>();
+	auto workers = std::make_shared<mock_worker_registry>();
 	const std::string address = "*";
 
 	EXPECT_CALL(*config, get_client_address())
@@ -60,7 +60,7 @@ TEST(broker, bind)
 		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(SetArgReferee<2>(true));
 	}
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, router);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
 	broker.start_brokering();
 }
 
@@ -78,7 +78,7 @@ TEST(broker, worker_init)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
-	auto router = std::make_shared<StrictMock<mock_task_router>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 	const std::string address = "*";
 
 	Sequence s1, s2;
@@ -116,7 +116,7 @@ TEST(broker, worker_init)
 			})
 		));
 
-	task_router::headers_t headers_1{
+	worker_registry::headers_t headers_1{
 			std::make_pair("env", "c"),
 			std::make_pair("hwgroup", "group_1")
 	};
@@ -124,17 +124,17 @@ TEST(broker, worker_init)
 	auto worker_1 = std::make_shared<worker>("identity1", headers_1);
 	worker_1->liveness = 100;
 
-	EXPECT_CALL(*router, find_worker_by_identity(StrEq("identity1")))
+	EXPECT_CALL(*workers, find_worker_by_identity(StrEq("identity1")))
 		.Times(AnyNumber())
         .InSequence(s2)
 		.WillRepeatedly(Return(nullptr));
 
-	EXPECT_CALL(*router, add_worker(AllOf(
+	EXPECT_CALL(*workers, add_worker(AllOf(
 		Pointee(Field(&worker::identity, StrEq(worker_1->identity))),
 		Pointee(Field(&worker::headers, worker_1->headers)))))
 		.InSequence(s2);
 
-	EXPECT_CALL(*router, find_worker_by_identity(StrEq(worker_1->identity)))
+	EXPECT_CALL(*workers, find_worker_by_identity(StrEq(worker_1->identity)))
         .Times(AnyNumber())
         .InSequence(s2)
         .WillRepeatedly(Return(worker_1));
@@ -143,7 +143,7 @@ TEST(broker, worker_init)
 		.InSequence(s1)
 		.WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, router);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
 	broker.start_brokering();
 }
 
@@ -151,12 +151,12 @@ TEST(broker, queuing)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
-	auto router = std::make_shared<StrictMock<mock_task_router>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 	const std::string address = "*";
 
 	std::string client_id = "client_foo";
-	task_router::headers_t headers = {{"env", "c"}};
-	task_router::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_registry::headers_t headers = {{"env", "c"}};
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
 
 	EXPECT_CALL(*config, get_client_address())
 		.WillRepeatedly(ReturnRef(address));
@@ -170,10 +170,10 @@ TEST(broker, queuing)
 	EXPECT_CALL(*config, get_worker_port())
 		.WillRepeatedly(Return(4321));
 
-	EXPECT_CALL(*router, find_worker(Eq(headers)))
+	EXPECT_CALL(*workers, find_worker(Eq(headers)))
 		.WillRepeatedly(Return(worker_1));
 
-	EXPECT_CALL(*router, find_worker_by_identity(worker_1->identity))
+	EXPECT_CALL(*workers, find_worker_by_identity(worker_1->identity))
 		.WillRepeatedly(Return(worker_1));
 
 	Sequence s1, s2, s3;
@@ -202,7 +202,7 @@ TEST(broker, queuing)
 			})
 		));
 
-	EXPECT_CALL(*router, deprioritize_worker(worker_1))
+	EXPECT_CALL(*workers, deprioritize_worker(worker_1))
 		.InSequence(s3);
 
 	// Let the worker process it
@@ -233,7 +233,7 @@ TEST(broker, queuing)
 			})
 		));
 
-	EXPECT_CALL(*router, deprioritize_worker(worker_1))
+	EXPECT_CALL(*workers, deprioritize_worker(worker_1))
 		.InSequence(s3);
 
 	// The worker is busy, but we don't want to keep the client waiting
@@ -265,6 +265,6 @@ TEST(broker, queuing)
 		.InSequence(s1)
 		.WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, router);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
 	broker.start_brokering();
 }

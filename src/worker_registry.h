@@ -12,7 +12,7 @@
 /**
  * Service that stores information about worker machines and routes tasks to them
  */
-class task_router
+class worker_registry
 {
 public:
 	typedef std::multimap<std::string, std::string> headers_t;
@@ -23,7 +23,7 @@ private:
 	std::shared_ptr<spdlog::logger> logger_;
 
 public:
-	task_router(std::shared_ptr<spdlog::logger> logger = nullptr);
+	worker_registry (std::shared_ptr<spdlog::logger> logger = nullptr);
 	virtual void add_worker(worker_ptr worker);
 	virtual void remove_worker(worker_ptr worker);
 	virtual worker_ptr find_worker(const headers_t &headers);
