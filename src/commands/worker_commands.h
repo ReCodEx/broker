@@ -66,7 +66,7 @@ namespace worker_commands
 			->find_worker_by_identity(identity);
 
 		if (worker == nullptr) {
-			context.sockets->send_workers(worker->identity, std::vector<std::string>{"intro"});
+			context.sockets->send_workers(identity, std::vector<std::string>{"intro"});
 			return;
 		}
 

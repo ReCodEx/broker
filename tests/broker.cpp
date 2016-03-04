@@ -126,7 +126,7 @@ TEST(broker, worker_init)
 
 	EXPECT_CALL(*workers, find_worker_by_identity(StrEq("identity1")))
 		.Times(AnyNumber())
-        .InSequence(s2)
+		.InSequence(s2)
 		.WillRepeatedly(Return(nullptr));
 
 	EXPECT_CALL(*workers, add_worker(AllOf(
@@ -135,9 +135,9 @@ TEST(broker, worker_init)
 		.InSequence(s2);
 
 	EXPECT_CALL(*workers, find_worker_by_identity(StrEq(worker_1->identity)))
-        .Times(AnyNumber())
-        .InSequence(s2)
-        .WillRepeatedly(Return(worker_1));
+		.Times(AnyNumber())
+		.InSequence(s2)
+		.WillRepeatedly(Return(worker_1));
 
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
@@ -261,6 +261,151 @@ TEST(broker, queuing)
 	EXPECT_CALL(*sockets, send_workers(StrEq(worker_1->identity), ElementsAre("eval", "job2", "3", "4")))
 		.InSequence(s2);
 
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(SetArgReferee<2>(true));
+
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker.start_brokering();
+}
+
+TEST(broker, ping_unknown_worker)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
+	const std::string address = "*";
+
+	std::string client_id = "client_foo";
+	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+
+	EXPECT_CALL(*config, get_client_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_client_port())
+		.WillRepeatedly(Return(1234));
+
+	EXPECT_CALL(*config, get_worker_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_worker_port())
+		.WillRepeatedly(Return(4321));
+
+	Sequence s1, s2, s3;
+
+	EXPECT_CALL(*sockets, bind(_, _))
+		.InSequence(s1, s2);
+
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(DoAll(
+			ClearFlags(), SetFlag(message_origin::WORKER)
+		));
+
+	// A wild ping appeared
+	EXPECT_CALL(*sockets, recv_workers(_, _, _))
+		.InSequence(s2, s3)
+		.WillOnce(DoAll(
+			SetArgReferee<0>(worker_1->identity),
+			SetArgReferee<1>(std::vector<std::string>{
+				"ping"
+			})
+		));
+
+	EXPECT_CALL(*workers, find_worker_by_identity(StrEq(worker_1->identity)))
+		.InSequence(s3)
+		.WillRepeatedly(Return(nullptr));
+
+	// Ask the worker to introduce itself
+	EXPECT_CALL(*sockets, send_workers(StrEq(worker_1->identity), ElementsAre("intro")))
+		.InSequence(s2);
+
+	// The worker kindly does so
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(DoAll(
+			ClearFlags(), SetFlag(message_origin::WORKER)
+		));
+
+	EXPECT_CALL(*sockets, recv_workers(_, _, _))
+		.InSequence(s2)
+		.WillOnce(DoAll(
+			SetArgReferee<0>(worker_1->identity),
+			SetArgReferee<1>(std::vector<std::string>{
+				"init",
+				"env=c",
+				"hwgroup=group_1"
+			})
+		));
+
+	EXPECT_CALL(*workers, add_worker(AllOf(
+		Pointee(Field(&worker::identity, StrEq(worker_1->identity))),
+		Pointee(Field(&worker::headers, Eq(worker_1->headers)))
+	))).InSequence(s2);
+
+	// Last poll
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(SetArgReferee<2>(true));
+
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker.start_brokering();
+}
+
+TEST(broker, ping_known_worker)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
+	const std::string address = "*";
+
+	std::string client_id = "client_foo";
+	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+
+	EXPECT_CALL(*config, get_client_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_client_port())
+		.WillRepeatedly(Return(1234));
+
+	EXPECT_CALL(*config, get_worker_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_worker_port())
+		.WillRepeatedly(Return(4321));
+
+	Sequence s1, s2, s3;
+
+	EXPECT_CALL(*sockets, bind(_, _))
+		.InSequence(s1, s2);
+
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(DoAll(
+			ClearFlags(), SetFlag(message_origin::WORKER)
+		));
+
+	// A ping from a familiar worker appeared
+	EXPECT_CALL(*sockets, recv_workers(_, _, _))
+		.InSequence(s2, s3)
+		.WillOnce(DoAll(
+			SetArgReferee<0>(worker_1->identity),
+			SetArgReferee<1>(std::vector<std::string>{
+				"ping"
+			})
+		));
+
+	EXPECT_CALL(*workers, find_worker_by_identity(StrEq(worker_1->identity)))
+		.InSequence(s3)
+		.WillRepeatedly(Return(worker_1));
+
+	// Ask the worker to introduce itself
+	EXPECT_CALL(*sockets, send_workers(StrEq(worker_1->identity), ElementsAre("pong")))
+		.InSequence(s2);
+
+	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(SetArgReferee<2>(true));
