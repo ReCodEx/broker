@@ -5,6 +5,7 @@
 #include <memory>
 #include <bitset>
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/null_sink.h>
 
 #include "config/broker_config.h"
 #include "task_router.h"
@@ -44,7 +45,7 @@ public:
 			logger_ = logger;
 		} else {
 			// Create logger manually to avoid global registration of logger
-			auto sink = std::make_shared<spdlog::sinks::stderr_sink_st>();
+			auto sink = std::make_shared<spdlog::sinks::null_sink_st>();
 			logger_ = std::make_shared<spdlog::logger>("broker_nolog", sink);
 			// Set loglevel to 'off' cause no logging
 			logger_->set_level(spdlog::level::off);
@@ -114,7 +115,7 @@ public:
 
 				std::string &type = message.at(0);
 
-				logger_->debug() << "Received message '" << type << "' from backend";
+				logger_->debug() << "Received message '" << type << "' from workers";
 
 				worker_cmds_->call_function(type, identity, message);
 			}

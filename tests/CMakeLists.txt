@@ -2,6 +2,7 @@ project(codex_broker_tests)
 
 set(SRC_DIR ../src)
 set(LIBS_DIR ../vendor)
+set(HELPERS_DIR ${SRC_DIR}/helpers)
 
 # Google Test and Google Mock headers
 include_directories(${LIBS_DIR}/googletest/include)
@@ -35,4 +36,5 @@ add_test_suite(broker
 	broker.cpp
 	${SRC_DIR}/config/broker_config.cpp
 	${SRC_DIR}/task_router.cpp
+	${HELPERS_DIR}/string_to_hex.cpp
 )

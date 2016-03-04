@@ -6,19 +6,17 @@
 
 TEST(broker_config, config_basic)
 {
-	auto yaml = YAML::Load(
-		"clients:\n"
-		"    address: 192.168.5.5\n"
-		"    port: 8452\n"
-		"workers:\n"
-		"    address: 10.0.1.2\n"
-		"    port: 5482\n"
-		"logger:\n"
-		"    file: /var/log/isoeval\n"
-		"    level: emerg\n"
-		"    max-size: 2048576\n"
-		"    rotations: 5\n"
-	);
+	auto yaml = YAML::Load("clients:\n"
+						   "    address: 192.168.5.5\n"
+						   "    port: 8452\n"
+						   "workers:\n"
+						   "    address: 10.0.1.2\n"
+						   "    port: 5482\n"
+						   "logger:\n"
+						   "    file: /var/log/isoeval\n"
+						   "    level: emerg\n"
+						   "    max-size: 2048576\n"
+						   "    rotations: 5\n");
 
 	broker_config config(yaml);
 
@@ -38,29 +36,23 @@ TEST(broker_config, config_basic)
 
 TEST(broker_config, invalid_port_1)
 {
-	auto yaml = YAML::Load(
-		"clients:\n"
-		"    port: foo\n"
-	);
+	auto yaml = YAML::Load("clients:\n"
+						   "    port: foo\n");
 
 	ASSERT_THROW(broker_config config(yaml), config_error);
 }
 
 TEST(broker_config, invalid_port_2)
 {
-	auto yaml = YAML::Load(
-		"clients:\n"
-		"    port: 999999\n"
-	);
+	auto yaml = YAML::Load("clients:\n"
+						   "    port: 999999\n");
 
 	ASSERT_THROW(broker_config config(yaml), config_error);
 }
 
 TEST(broker_config, invalid_document)
 {
-	auto yaml = YAML::Load(
-		"[1, 2, 3]\n"
-	);
+	auto yaml = YAML::Load("[1, 2, 3]\n");
 
 	ASSERT_THROW(broker_config config(yaml), config_error);
 }

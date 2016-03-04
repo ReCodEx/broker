@@ -2,6 +2,7 @@
 #define CODEX_BROKER_WORKER_COMMANDS_H
 
 #include <sstream>
+#include "../helpers/string_to_hex.h"
 
 
 namespace worker_commands
@@ -28,8 +29,9 @@ namespace worker_commands
 
 		context.router->add_worker(task_router::worker_ptr(new worker(identity, headers)));
 		std::stringstream ss;
-		std::copy(message.begin(), message.end(), std::ostream_iterator<std::string>(ss, ","));
-		context.logger->debug() << "Added new worker '" << identity << "' with headers: " << ss.str();
+		std::copy(++message.begin(), message.end(), std::ostream_iterator<std::string>(ss, " "));
+		context.logger->debug() << " - added new worker '" << helpers::string_to_hex(identity)
+								<< "' with headers: " << ss.str();
 	}
 
 	/**
@@ -39,6 +41,7 @@ namespace worker_commands
 	void process_done(
 		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
 	{
+		context.logger->debug() << " - from worker '" << helpers::string_to_hex(identity) << "'";
 		task_router::worker_ptr worker = context.router->find_worker_by_identity(identity);
 
 		if (worker == nullptr) {
@@ -48,11 +51,11 @@ namespace worker_commands
 
 		if (worker->request_queue.empty()) {
 			worker->free = true;
-			context.logger->debug() << "Worker '" << identity << "' is now free";
+			context.logger->debug() << " - worker is now free";
 		} else {
 			context.sockets->send_workers(worker->identity, worker->request_queue.front());
 			worker->request_queue.pop();
-			context.logger->debug() << "New job sent to worker '" << identity << "'";
+			context.logger->debug() << " - new job sent to worker from queue";
 		}
 	}
 } // namespace

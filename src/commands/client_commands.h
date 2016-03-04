@@ -1,6 +1,7 @@
 #ifndef CODEX_BROKER_CLIENT_COMMANDS_H
 #define CODEX_BROKER_CLIENT_COMMANDS_H
 
+#include "../helpers/string_to_hex.h"
 
 namespace client_commands
 {
@@ -43,7 +44,7 @@ namespace client_commands
 
 		if (worker != nullptr) {
 			std::vector<std::string> request = {"eval", job_id};
-			context.logger->debug() << "Got 'eval' request for job '" << job_id << "'";
+			context.logger->debug() << " - incomming job '" << job_id << "'";
 
 			// Forward remaining messages to the worker without actually understanding them
 			for (; it != std::end(message); ++it) {
@@ -54,19 +55,20 @@ namespace client_commands
 				// If the worker isn't doing anything, just forward the request
 				worker->free = false;
 				context.sockets->send_workers(worker->identity, request);
-				context.logger->debug() << "Request '" << job_id << "' sent to worker '" << worker->identity << "'";
+				context.logger->debug() << " - sent to worker '"
+										<< helpers::string_to_hex(worker->identity) << "'";
 			} else {
 				// If the worker is occupied, queue the request
 				worker->request_queue.push(request);
-				context.logger->debug() << "Request '" << job_id << "' saved to queue for worker '" << worker->identity
-										<< "'";
+				context.logger->debug() << " - saved to queue for worker '"
+										<< helpers::string_to_hex(worker->identity) << "'";
 			}
 
 			context.sockets->send_clients(identity, std::vector<std::string>{"accept"});
 			context.router->deprioritize_worker(worker);
 		} else {
 			context.sockets->send_clients(identity, std::vector<std::string>{"reject"});
-			context.logger->warn() << "Request '" << job_id << "' rejected. No worker available.";
+			context.logger->error() << "Request '" << job_id << "' rejected. No worker available.";
 		}
 	}
 } // namespace

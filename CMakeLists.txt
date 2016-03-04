@@ -27,6 +27,8 @@ set(SOURCE_FILES
 	src/commands/command_holder.h
 	src/commands/client_commands.h
 	src/commands/worker_commands.h
+	src/helpers/string_to_hex.h
+	src/helpers/string_to_hex.cpp
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})

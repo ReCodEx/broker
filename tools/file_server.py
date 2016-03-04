@@ -16,6 +16,7 @@ import sys
 import tempfile
 import tarfile
 import hashlib
+import signal
 
 join = os.path.join
 
@@ -64,7 +65,7 @@ if task_source:
                     destfile.write(content)
 
                 rel = os.path.relpath(taskfile_name, task_source)
-                print("{0}: {1}".format(destfile_name, rel), flush=True)
+                print("{0}: {1}".format(destfile_name, rel), flush = True)
 
 # An id for new jobs
 job_id = 0
@@ -133,13 +134,18 @@ class FileServerHandler(http.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
 
+socketserver.TCPServer.allow_reuse_address = True
 server = socketserver.TCPServer(("", port), FileServerHandler)
 
-print("Serving files from {0} at port {1}...".format(tmp.name, port), flush=True)
-
-try:
-    server.serve_forever()
-except KeyboardInterrupt:
-    print("Interrupted by user", file = sys.stderr)
+def exit_gracefully_handler(*args):
+    print("Interrupted by signal", file = sys.stderr)
+    server.server_close()
     sys.exit(0)
+
+signal.signal(signal.SIGINT, exit_gracefully_handler)
+signal.signal(signal.SIGTERM, exit_gracefully_handler)
+
+print("Serving files from {0} at port {1}...".format(tmp.name, port), flush = True)
+
+server.serve_forever()
 
