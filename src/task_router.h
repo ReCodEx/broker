@@ -43,6 +43,21 @@ public:
 };
 
 /**
+ * An evaluation request
+ */
+struct request {
+	/** Headers that specify requirements on the machine that processes the request */
+	const task_router::headers_t headers;
+
+	/** The data of the request */
+	const std::vector<std::string> data;
+
+	request(const task_router::headers_t &headers, const std::vector<std::string> &data) : headers(headers), data(data)
+	{
+	}
+};
+
+/**
  * A structure that contains data about a worker machine
  */
 struct worker {
@@ -56,12 +71,16 @@ struct worker {
 	bool free;
 
 	/** A queue of requests to be processed by the worker */
-	std::queue<task_router::request_t> request_queue;
+	std::queue<std::shared_ptr<request>> request_queue;
+
+	/** The request that is now being processed by the worker */
+	std::shared_ptr<request> current_request;
 
 	/** The amount of pings the worker can miss before it's considered dead */
 	size_t liveness;
 
-	worker(const std::string &id, const task_router::headers_t &headers) : identity(id), headers(headers), free(true)
+	worker(const std::string &id, const task_router::headers_t &headers)
+		: identity(id), headers(headers), free(true), current_request(nullptr)
 	{
 	}
 };

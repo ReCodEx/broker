@@ -61,8 +61,8 @@ public:
 
 			elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(time_after_poll - time_before_poll);
 		} catch (zmq::error_t) {
-            terminate = true;
-            return;
+			terminate = true;
+			return;
 		}
 
 		if (items_[0].revents & ZMQ_POLLIN) {

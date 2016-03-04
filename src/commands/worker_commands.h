@@ -48,9 +48,12 @@ namespace worker_commands
 
 		if (worker->request_queue.empty()) {
 			worker->free = true;
+			worker->current_request = nullptr;
 			context.logger->debug() << "Worker '" << identity << "' is now free";
 		} else {
-			context.sockets->send_workers(worker->identity, worker->request_queue.front());
+			auto new_request = worker->request_queue.front();
+			context.sockets->send_workers(worker->identity, new_request->data);
+			worker->current_request = new_request;
 			worker->request_queue.pop();
 			context.logger->debug() << "New job sent to worker '" << identity << "'";
 		}

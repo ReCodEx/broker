@@ -42,22 +42,25 @@ namespace client_commands
 		task_router::worker_ptr worker = context.router->find_worker(headers);
 
 		if (worker != nullptr) {
-			std::vector<std::string> request = {"eval", job_id};
+			std::vector<std::string> request_data = {"eval", job_id};
 			context.logger->debug() << "Got 'eval' request for job '" << job_id << "'";
 
 			// Forward remaining messages to the worker without actually understanding them
 			for (; it != std::end(message); ++it) {
-				request.push_back(*it);
+				request_data.push_back(*it);
 			}
+
+			auto eval_request = std::make_shared<request>(headers, request_data);
 
 			if (worker->free) {
 				// If the worker isn't doing anything, just forward the request
 				worker->free = false;
-				context.sockets->send_workers(worker->identity, request);
+				worker->current_request = eval_request;
+				context.sockets->send_workers(worker->identity, request_data);
 				context.logger->debug() << "Request '" << job_id << "' sent to worker '" << worker->identity << "'";
 			} else {
 				// If the worker is occupied, queue the request
-				worker->request_queue.push(request);
+				worker->request_queue.push(eval_request);
 				context.logger->debug() << "Request '" << job_id << "' saved to queue for worker '" << worker->identity
 										<< "'";
 			}
