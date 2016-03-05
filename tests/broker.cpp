@@ -7,10 +7,24 @@ using namespace testing;
 
 class mock_broker_config : public broker_config {
 public:
+	const std::string address = "*";
+
 	mock_broker_config() : broker_config()
 	{
 		ON_CALL(*this, get_worker_ping_interval())
 			.WillByDefault(Return(std::chrono::milliseconds(1000)));
+
+		ON_CALL(*this, get_client_address())
+			.WillByDefault(ReturnRef(address));
+
+		ON_CALL(*this, get_client_port())
+			.WillByDefault(Return(1234));
+
+		ON_CALL(*this, get_worker_address())
+			.WillByDefault(ReturnRef(address));
+
+		ON_CALL(*this, get_worker_port())
+			.WillByDefault(Return(4321));
 	}
 
 	MOCK_CONST_METHOD0(get_client_address, const std::string &());
@@ -45,19 +59,6 @@ TEST(broker, bind)
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<mock_connection_proxy>();
 	auto workers = std::make_shared<mock_worker_registry>();
-	const std::string address = "*";
-
-	EXPECT_CALL(*config, get_client_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_client_port())
-		.WillRepeatedly(Return(1234));
-
-	EXPECT_CALL(*config, get_worker_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_worker_port())
-		.WillRepeatedly(Return(4321));
 
 	{
 		InSequence s;
@@ -88,21 +89,8 @@ TEST(broker, worker_init)
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
-	const std::string address = "*";
 
 	Sequence s1, s2, s3, s4;
-
-	EXPECT_CALL(*config, get_client_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_client_port())
-		.WillRepeatedly(Return(1234));
-
-	EXPECT_CALL(*config, get_worker_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_worker_port())
-		.WillRepeatedly(Return(4321));
 
 	EXPECT_CALL(*sockets, bind(_, _))
 		.InSequence(s1, s2);
@@ -182,18 +170,6 @@ TEST(broker, queuing)
 	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
-
-	EXPECT_CALL(*config, get_client_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_client_port())
-		.WillRepeatedly(Return(1234));
-
-	EXPECT_CALL(*config, get_worker_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_worker_port())
-		.WillRepeatedly(Return(4321));
 
 	EXPECT_CALL(*config, get_worker_ping_interval())
 		.WillRepeatedly(Return(std::chrono::milliseconds(50000)));
@@ -324,18 +300,6 @@ TEST(broker, ping_unknown_worker)
 	std::vector<std::shared_ptr<worker>> empty_worker_vector;
 	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
 
-	EXPECT_CALL(*config, get_client_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_client_port())
-		.WillRepeatedly(Return(1234));
-
-	EXPECT_CALL(*config, get_worker_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_worker_port())
-		.WillRepeatedly(Return(4321));
-
 	Sequence s1, s2, s3, s4, s5;
 
 	EXPECT_CALL(*sockets, bind(_, _))
@@ -411,25 +375,12 @@ TEST(broker, ping_known_worker)
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
-	const std::string address = "*";
 
 	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
 	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
-
-	EXPECT_CALL(*config, get_client_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_client_port())
-		.WillRepeatedly(Return(1234));
-
-	EXPECT_CALL(*config, get_worker_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_worker_port())
-		.WillRepeatedly(Return(4321));
 
 	EXPECT_CALL(*workers, find_worker_by_identity(StrEq(worker_1->identity)))
 		.WillRepeatedly(Return(worker_1));
@@ -476,25 +427,12 @@ TEST(broker, worker_expiration)
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
-	const std::string address = "*";
 
 	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
 	worker_1->liveness = 1;
 
 	std::vector<std::shared_ptr<worker>> worker_vector{worker_1};
-
-	EXPECT_CALL(*config, get_client_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_client_port())
-		.WillRepeatedly(Return(1234));
-
-	EXPECT_CALL(*config, get_worker_address())
-		.WillRepeatedly(ReturnRef(address));
-
-	EXPECT_CALL(*config, get_worker_port())
-		.WillRepeatedly(Return(4321));
 
 	Sequence s1, s2, s3;
 
