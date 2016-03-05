@@ -16,9 +16,11 @@ public:
 class mock_worker_registry : public worker_registry {
 public:
 	MOCK_METHOD1(add_worker, void(worker_registry::worker_ptr));
+	MOCK_METHOD1(remove_worker, void(worker_registry::worker_ptr));
 	MOCK_METHOD1(deprioritize_worker, void(worker_registry::worker_ptr));
 	MOCK_METHOD1(find_worker, worker_registry::worker_ptr(const worker_registry::headers_t &));
 	MOCK_METHOD1(find_worker_by_identity, worker_registry::worker_ptr(const std::string &));
+	MOCK_CONST_METHOD0(get_workers, const std::vector<std::shared_ptr<worker>> &());
 };
 
 class mock_connection_proxy {
@@ -276,7 +278,6 @@ TEST(broker, ping_unknown_worker)
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 	const std::string address = "*";
 
-	std::string client_id = "client_foo";
 	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
 
@@ -360,7 +361,6 @@ TEST(broker, ping_known_worker)
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 	const std::string address = "*";
 
-	std::string client_id = "client_foo";
 	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
 
@@ -403,6 +403,60 @@ TEST(broker, ping_known_worker)
 
 	// Ask the worker to introduce itself
 	EXPECT_CALL(*sockets, send_workers(StrEq(worker_1->identity), ElementsAre("pong")))
+		.InSequence(s2);
+
+	// Last poll
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(SetArgReferee<2>(true));
+
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker.start_brokering();
+}
+
+TEST(broker, worker_expiration)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
+	const std::string address = "*";
+
+	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_1->liveness = 1;
+
+	std::vector<std::shared_ptr<worker>> worker_vector{worker_1};
+
+	EXPECT_CALL(*config, get_client_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_client_port())
+		.WillRepeatedly(Return(1234));
+
+	EXPECT_CALL(*config, get_worker_address())
+		.WillRepeatedly(ReturnRef(address));
+
+	EXPECT_CALL(*config, get_worker_port())
+		.WillRepeatedly(Return(4321));
+
+	Sequence s1, s2, s3;
+
+	EXPECT_CALL(*sockets, bind(_, _))
+		.InSequence(s1, s2);
+
+	// No message from workers for a whole second
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(DoAll(
+			ClearFlags(),
+			SetArgReferee<3>(std::chrono::milliseconds(1000))
+		));
+
+	EXPECT_CALL(*workers, get_workers())
+		.WillRepeatedly(ReturnRef(worker_vector));
+
+	// Liveness got decreased to zero -> get rid of the worker
+	EXPECT_CALL(*workers, remove_worker(worker_1))
 		.InSequence(s2);
 
 	// Last poll
