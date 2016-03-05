@@ -33,8 +33,11 @@ std::shared_ptr<std::vector<worker::request_ptr>> worker::terminate()
 {
 	auto result = std::make_shared<std::vector<worker::request_ptr>>();
 
-	current_request->failure_count += 1;
-	result->push_back(current_request);
+	if (current_request != nullptr) {
+		current_request->failure_count += 1;
+		result->push_back(current_request);
+	}
+
 	current_request = nullptr;
 
 	while (!request_queue.empty()) {
