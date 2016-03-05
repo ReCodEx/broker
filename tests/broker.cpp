@@ -7,10 +7,17 @@ using namespace testing;
 
 class mock_broker_config : public broker_config {
 public:
+	mock_broker_config() : broker_config()
+	{
+		ON_CALL(*this, get_worker_ping_interval())
+			.WillByDefault(Return(std::chrono::milliseconds(1000)));
+	}
+
 	MOCK_CONST_METHOD0(get_client_address, const std::string &());
 	MOCK_CONST_METHOD0(get_client_port, uint16_t());
 	MOCK_CONST_METHOD0(get_worker_address, const std::string &());
 	MOCK_CONST_METHOD0(get_worker_port, uint16_t());
+	MOCK_CONST_METHOD0(get_worker_ping_interval, std::chrono::milliseconds());
 };
 
 class mock_worker_registry : public worker_registry {
@@ -35,7 +42,7 @@ public:
 
 TEST(broker, bind)
 {
-	auto config = std::make_shared<mock_broker_config>();
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<mock_connection_proxy>();
 	auto workers = std::make_shared<mock_worker_registry>();
 	const std::string address = "*";
@@ -172,6 +179,7 @@ TEST(broker, queuing)
 	std::string client_id = "client_foo";
 	worker_registry::headers_t headers = {{"env", "c"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
 
@@ -187,6 +195,9 @@ TEST(broker, queuing)
 	EXPECT_CALL(*config, get_worker_port())
 		.WillRepeatedly(Return(4321));
 
+	EXPECT_CALL(*config, get_worker_ping_interval())
+		.WillRepeatedly(Return(std::chrono::milliseconds(50000)));
+
 	EXPECT_CALL(*workers, find_worker(Eq(headers)))
 		.WillRepeatedly(Return(worker_1));
 
@@ -195,6 +206,9 @@ TEST(broker, queuing)
 
 	EXPECT_CALL(*workers, get_workers())
 		.WillRepeatedly(ReturnRef(worker_vector));
+
+	EXPECT_CALL(*workers, remove_worker(_))
+		.Times(0);
 
 	Sequence s1, s2, s3;
 
@@ -205,7 +219,9 @@ TEST(broker, queuing)
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(DoAll(
-			ClearFlags(), SetFlag(message_origin::CLIENT)
+			ClearFlags(),
+			SetFlag(message_origin::CLIENT),
+			SetArgReferee<3>(std::chrono::milliseconds(10))
 		));
 
 	EXPECT_CALL(*sockets, recv_clients(_, _, _))
@@ -236,7 +252,9 @@ TEST(broker, queuing)
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(DoAll(
-			ClearFlags(), SetFlag(message_origin::CLIENT)
+			ClearFlags(),
+			SetFlag(message_origin::CLIENT),
+			SetArgReferee<3>(std::chrono::milliseconds(10))
 		));
 
 	EXPECT_CALL(*sockets, recv_clients(_, _, _))
@@ -264,7 +282,9 @@ TEST(broker, queuing)
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(DoAll(
-			ClearFlags(), SetFlag(message_origin::WORKER)
+			ClearFlags(),
+			SetFlag(message_origin::WORKER),
+			SetArgReferee<3>(std::chrono::milliseconds(10))
 		));
 
 	EXPECT_CALL(*sockets, recv_workers(_, _, _))
@@ -281,6 +301,7 @@ TEST(broker, queuing)
 	EXPECT_CALL(*sockets, send_workers(StrEq(worker_1->identity), ElementsAre("eval", "job2", "3", "4")))
 		.InSequence(s2);
 
+	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
 		.WillOnce(SetArgReferee<2>(true));
@@ -298,6 +319,7 @@ TEST(broker, ping_unknown_worker)
 
 	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> empty_worker_vector;
 	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
@@ -393,6 +415,7 @@ TEST(broker, ping_known_worker)
 
 	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
 
