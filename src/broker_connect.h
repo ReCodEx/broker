@@ -41,6 +41,8 @@ private:
 	 */
 	void remove_worker(worker_registry::worker_ptr expired_worker)
 	{
+		logger_->debug() << "Worker " + expired_worker->identity + " expired";
+
 		workers_->remove_worker(expired_worker);
 		auto requests = expired_worker->terminate();
 
