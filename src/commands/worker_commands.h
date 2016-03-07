@@ -5,13 +5,15 @@
 #include "../helpers/string_to_hex.h"
 
 
+/**
+ * Commands from workers.
+ * Commands originated from one of workers. See @ref command_holder for more info.
+ */
 namespace worker_commands
 {
-
 	/**
 	 * Process an "init" request from a worker.
-	 * That means storing the identity and headers of the worker
-	 * so that we can forward jobs to it.
+	 * That means storing the identity and headers of the worker so that we can forward jobs to it.
 	 */
 	template <typename proxy>
 	void process_init(

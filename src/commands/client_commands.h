@@ -3,9 +3,13 @@
 
 #include "../helpers/string_to_hex.h"
 
+
+/**
+ * Commands from client (frontend).
+ * Commands originated from client, usually the only one frontend. See @ref command_holder for more info.
+ */
 namespace client_commands
 {
-
 	/**
 	 * Process an "eval" request from a client
 	 */
@@ -55,13 +59,12 @@ namespace client_commands
 				// If the worker isn't doing anything, just forward the request
 				worker->free = false;
 				context.sockets->send_workers(worker->identity, request);
-				context.logger->debug() << " - sent to worker '"
-										<< helpers::string_to_hex(worker->identity) << "'";
+				context.logger->debug() << " - sent to worker '" << helpers::string_to_hex(worker->identity) << "'";
 			} else {
 				// If the worker is occupied, queue the request
 				worker->request_queue.push(request);
-				context.logger->debug() << " - saved to queue for worker '"
-										<< helpers::string_to_hex(worker->identity) << "'";
+				context.logger->debug() << " - saved to queue for worker '" << helpers::string_to_hex(worker->identity)
+										<< "'";
 			}
 
 			context.sockets->send_clients(identity, std::vector<std::string>{"accept"});
