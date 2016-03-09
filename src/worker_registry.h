@@ -5,7 +5,6 @@
 #include <map>
 #include <queue>
 #include <memory>
-#include <spdlog/spdlog.h>
 
 #include "worker.h"
 
@@ -20,10 +19,9 @@ public:
 
 private:
 	std::vector<worker_ptr> workers;
-	std::shared_ptr<spdlog::logger> logger_;
 
 public:
-	worker_registry(std::shared_ptr<spdlog::logger> logger = nullptr);
+	worker_registry();
 	virtual void add_worker(worker_ptr worker);
 	virtual void remove_worker(worker_ptr worker);
 	virtual worker_ptr find_worker(const headers_t &headers);

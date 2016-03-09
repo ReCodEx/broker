@@ -5,8 +5,7 @@
 #include <string>
 #include <functional>
 #include <map>
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/null_sink.h"
+#include "../helpers/create_logger.h"
 #include "../worker_registry.h"
 
 
@@ -26,11 +25,7 @@ public:
 		: sockets(sockets), workers(workers), logger(logger)
 	{
 		if (this->logger == nullptr) {
-			// Create logger manually to avoid global registration of logger
-			auto sink = std::make_shared<spdlog::sinks::null_sink_st>();
-			this->logger = std::make_shared<spdlog::logger>("command_context_nolog", sink);
-			// Set loglevel to 'off' cause no logging
-			this->logger->set_level(spdlog::level::off);
+			this->logger = helpers::create_null_logger();
 		}
 	}
 	/** Pointer to communication proxy (see @ref connection_proxy for possible implementation. */

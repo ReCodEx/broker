@@ -2,18 +2,9 @@
 
 #include <algorithm>
 
-worker_registry::worker_registry(std::shared_ptr<spdlog::logger> logger)
+
+worker_registry::worker_registry()
 {
-	// TODO: logger currently not used here. Can be removed?
-	if (logger != nullptr) {
-		logger_ = logger;
-	} else {
-		// Create logger manually to avoid global registration of logger
-		auto sink = std::make_shared<spdlog::sinks::stderr_sink_st>();
-		logger_ = std::make_shared<spdlog::logger>("task_router_nolog", sink);
-		// Set loglevel to 'off' cause no logging
-		logger_->set_level(spdlog::level::off);
-	}
 }
 
 void worker_registry::add_worker(worker_ptr worker)

@@ -29,6 +29,8 @@ set(SOURCE_FILES
 	src/commands/worker_commands.h
 	src/helpers/string_to_hex.h
 	src/helpers/string_to_hex.cpp
+	src/helpers/create_logger.h
+	src/helpers/create_logger.cpp
 	src/worker.cpp
 )
 

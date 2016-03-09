@@ -5,9 +5,8 @@
 #include <memory>
 #include <bitset>
 #include <chrono>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/null_sink.h>
-
+#include "helpers/create_logger.h"
+#include "helpers/string_to_hex.h"
 #include "config/broker_config.h"
 #include "worker_registry.h"
 #include "commands/command_holder.h"
@@ -42,7 +41,7 @@ private:
 	 */
 	void remove_worker(worker_registry::worker_ptr expired_worker)
 	{
-		logger_->debug() << "Worker " + expired_worker->identity + " expired";
+		logger_->debug() << "Worker " + helpers::string_to_hex(expired_worker->identity) + " expired";
 
 		workers_->remove_worker(expired_worker);
 		auto requests = expired_worker->terminate();
@@ -67,16 +66,10 @@ public:
 		std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: config_(config), sockets_(sockets), workers_(router)
+		: config_(config), sockets_(sockets), logger_(logger), workers_(router)
 	{
-		if (logger != nullptr) {
-			logger_ = logger;
-		} else {
-			// Create logger manually to avoid global registration of logger
-			auto sink = std::make_shared<spdlog::sinks::null_sink_st>();
-			logger_ = std::make_shared<spdlog::logger>("broker_nolog", sink);
-			// Set loglevel to 'off' cause no logging
-			logger_->set_level(spdlog::level::off);
+		if (logger_ == nullptr) {
+			logger_ = helpers::create_null_logger();
 		}
 
 		// init worker commands
