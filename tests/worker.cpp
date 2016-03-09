@@ -10,7 +10,7 @@ TEST(worker, basic_queueing)
 	std::multimap<std::string, std::string> headers = {};
 	std::vector<std::string> data = {};
 
-	worker worker_1("identity1", headers);
+	worker worker_1("identity1", "group_1", headers);
 	auto request_1 = std::make_shared<request>(headers, data);
 	auto request_2 = std::make_shared<request>(headers, data);
 
@@ -43,7 +43,7 @@ TEST(worker, terminate_basic)
 	std::multimap<std::string, std::string> headers = {};
 	std::vector<std::string> data = {};
 
-	worker worker_1("identity1", headers);
+	worker worker_1("identity1", "group_1", headers);
 	auto request_1 = std::make_shared<request>(headers, data);
 	auto request_2 = std::make_shared<request>(headers, data);
 
@@ -59,7 +59,7 @@ TEST(worker, terminate_no_current)
 	std::multimap<std::string, std::string> headers = {};
 	std::vector<std::string> data = {};
 
-	worker worker_1("identity1", headers);
+	worker worker_1("identity1", "group_1", headers);
 	auto request_1 = std::make_shared<request>(headers, data);
 	auto request_2 = std::make_shared<request>(headers, data);
 
@@ -74,7 +74,7 @@ TEST(worker, terminate_empty)
 	std::multimap<std::string, std::string> headers = {};
 	std::vector<std::string> data = {};
 
-	worker worker_1("identity1", headers);
+	worker worker_1("identity1", "group_1", headers);
 	auto request_1 = std::make_shared<request>(headers, data);
 
 	worker_1.enqueue_request(request_1);

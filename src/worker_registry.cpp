@@ -27,6 +27,15 @@ worker_registry::worker_ptr worker_registry::find_worker(const worker_registry::
 		bool worker_suitable = true;
 
 		for (auto &header : headers) {
+			if (header.first == "hwgroup") {
+				if (worker->hwgroup != header.second) {
+					worker_suitable = false;
+					break;
+				}
+
+				continue;
+			}
+
 			bool header_satisfied = false;
 
 			auto range = worker->headers.equal_range(header.first);

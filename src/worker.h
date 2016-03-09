@@ -47,14 +47,17 @@ public:
 	/** A unique identifier of the worker */
 	const std::string identity;
 
+	/** A hardware group identifier */
+	const std::string hwgroup;
+
 	/** Headers that describe the worker's capabilities */
 	const std::multimap<std::string, std::string> headers;
 
 	/** The amount of pings the worker can miss before it's considered dead */
 	size_t liveness;
 
-	worker(const std::string &id, const std::multimap<std::string, std::string> &headers)
-		: identity(id), headers(headers), free(true), current_request(nullptr)
+	worker(const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers)
+		: identity(id), hwgroup(hwgroup), headers(headers), free(true), current_request(nullptr)
 	{
 	}
 

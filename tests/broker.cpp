@@ -100,11 +100,11 @@ TEST(broker, worker_init)
 	EXPECT_CALL(*sockets, recv_workers(_, _, _))
 		.InSequence(s2, s3)
 		.WillOnce(DoAll(SetArgReferee<0>("identity1"),
-			SetArgReferee<1>(std::vector<std::string>{"init", "env=c", "hwgroup=group_1"})));
+			SetArgReferee<1>(std::vector<std::string>{"init", "group_1", "env=c", "threads=8"})));
 
-	worker_registry::headers_t headers_1{std::make_pair("env", "c"), std::make_pair("hwgroup", "group_1")};
+	worker_registry::headers_t headers_1{std::make_pair("env", "c"), std::make_pair("threads", "8")};
 
-	auto worker_1 = std::make_shared<worker>("identity1", headers_1);
+	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers_1);
 	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> empty_vector;
@@ -119,7 +119,8 @@ TEST(broker, worker_init)
 
 	EXPECT_CALL(*workers,
 		add_worker(AllOf(Pointee(Field(&worker::identity, StrEq(worker_1->identity))),
-			Pointee(Field(&worker::headers, worker_1->headers)))))
+			Pointee(Field(&worker::headers, worker_1->headers)),
+			Pointee(Field(&worker::hwgroup, worker_1->hwgroup)))))
 		.InSequence(s2, s4);
 
 	EXPECT_CALL(*workers, find_worker_by_identity(StrEq(worker_1->identity)))
@@ -144,7 +145,7 @@ TEST(broker, queuing)
 
 	std::string client_id = "client_foo";
 	worker_registry::headers_t headers = {{"env", "c"}};
-	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
@@ -227,8 +228,8 @@ TEST(broker, ping_unknown_worker)
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 	const std::string address = "*";
 
-	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
-	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_registry::headers_t headers = {{"env", "c"}};
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> empty_worker_vector;
@@ -264,10 +265,11 @@ TEST(broker, ping_unknown_worker)
 	EXPECT_CALL(*sockets, recv_workers(_, _, _))
 		.InSequence(s2)
 		.WillOnce(DoAll(SetArgReferee<0>(worker_1->identity),
-			SetArgReferee<1>(std::vector<std::string>{"init", "env=c", "hwgroup=group_1"})));
+			SetArgReferee<1>(std::vector<std::string>{"init", "group_1", "env=c"})));
 
 	EXPECT_CALL(*workers,
 		add_worker(AllOf(Pointee(Field(&worker::identity, StrEq(worker_1->identity))),
+			Pointee(Field(&worker::hwgroup, StrEq(worker_1->hwgroup))),
 			Pointee(Field(&worker::headers, Eq(worker_1->headers))))))
 		.InSequence(s2, s4);
 
@@ -286,8 +288,8 @@ TEST(broker, ping_known_worker)
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 
-	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
-	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_registry::headers_t headers = {{"env", "c"}};
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	worker_1->liveness = 100;
 
 	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
@@ -325,8 +327,8 @@ TEST(broker, worker_expiration)
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 
-	worker_registry::headers_t headers = {{"env", "c"}, {"hwgroup", "group_1"}};
-	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", headers);
+	worker_registry::headers_t headers = {{"env", "c"}};
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	worker_1->liveness = 1;
 
 	std::vector<std::shared_ptr<worker>> worker_vector{worker_1};

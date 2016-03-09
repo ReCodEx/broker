@@ -9,10 +9,9 @@ TEST(worker_registry, basic_lookup)
 {
 	worker_registry workers;
 
-	auto worker1 =
-		worker_registry::worker_ptr(new worker("id1234", {{"env", "python"}, {"env", "c"}, {"hwgroup", "group_1"}}));
+	auto worker1 = worker_registry::worker_ptr(new worker("id1234", "group_1", {{"env", "python"}, {"env", "c"}}));
 
-	auto worker2 = worker_registry::worker_ptr(new worker("id12345", {{"env", "c"}, {"hwgroup", "group_2"}}));
+	auto worker2 = worker_registry::worker_ptr(new worker("id12345", "group_2", {{"env", "c"}}));
 
 	workers.add_worker(worker1);
 	workers.add_worker(worker2);
@@ -32,9 +31,9 @@ TEST(worker_registry, load_balancing)
 {
 	worker_registry workers;
 
-	auto worker1 = worker_registry::worker_ptr(new worker("id1234", {{"env", "c"}}));
+	auto worker1 = worker_registry::worker_ptr(new worker("id1234", "group_1", {{"env", "c"}}));
 
-	auto worker2 = worker_registry::worker_ptr(new worker("id12345", {{"env", "c"}}));
+	auto worker2 = worker_registry::worker_ptr(new worker("id12345", "group_1", {{"env", "c"}}));
 
 	workers.add_worker(worker1);
 	workers.add_worker(worker2);
