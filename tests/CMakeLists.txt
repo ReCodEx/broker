@@ -27,14 +27,20 @@ add_test_suite(broker_config
 	${SRC_DIR}/config/broker_config.cpp
 )
 
-add_test_suite(task_router
-	task_router.cpp
-	${SRC_DIR}/task_router.cpp
+add_test_suite(worker_registry
+	worker_registry.cpp
+	${SRC_DIR}/worker_registry.cpp
 )
 
 add_test_suite(broker
 	broker.cpp
 	${SRC_DIR}/config/broker_config.cpp
-	${SRC_DIR}/task_router.cpp
 	${HELPERS_DIR}/string_to_hex.cpp
+	${SRC_DIR}/worker_registry.cpp
+	${SRC_DIR}/worker.cpp
+)
+
+add_test_suite(worker
+	worker.cpp
+	${SRC_DIR}/worker.cpp
 )

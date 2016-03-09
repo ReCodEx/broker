@@ -7,7 +7,7 @@
 #include <map>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/null_sink.h"
-#include "../task_router.h"
+#include "../worker_registry.h"
 
 
 /**
@@ -20,9 +20,10 @@ public:
 	/**
 	 * Constructor with initialization of all members.
 	 */
-	command_context(
-		std::shared_ptr<proxy> sockets, std::shared_ptr<task_router> router, std::shared_ptr<spdlog::logger> logger)
-		: sockets(sockets), router(router), logger(logger)
+	command_context(std::shared_ptr<proxy> sockets,
+		std::shared_ptr<worker_registry> workers,
+		std::shared_ptr<spdlog::logger> logger)
+		: sockets(sockets), workers(workers), logger(logger)
 	{
 		if (this->logger == nullptr) {
 			// Create logger manually to avoid global registration of logger
@@ -34,8 +35,8 @@ public:
 	}
 	/** Pointer to communication proxy (see @ref connection_proxy for possible implementation. */
 	std::shared_ptr<proxy> sockets;
-	/** Pointer to @ref task_router class - info about workers and routing preferences to them. */
-	std::shared_ptr<task_router> router;
+	/** Pointer to @ref worker_registry class - info about workers and routing preferences to them. */
+	std::shared_ptr<worker_registry> workers;
 	/** System logger. */
 	std::shared_ptr<spdlog::logger> logger;
 };
@@ -57,7 +58,7 @@ public:
 		callback_fn;
 	/** Constructor with initialization of all members. */
 	command_holder(std::shared_ptr<proxy> sockets,
-		std::shared_ptr<task_router> router,
+		std::shared_ptr<worker_registry> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
 		: context_(sockets, router, logger)
 	{

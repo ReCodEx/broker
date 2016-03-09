@@ -18,7 +18,7 @@ namespace client_commands
 		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
 	{
 		std::string job_id = message.at(1);
-		task_router::headers_t headers;
+		worker_registry::headers_t headers;
 
 		// Load headers terminated by an empty frame
 		auto it = std::begin(message) + 2;
@@ -44,31 +44,32 @@ namespace client_commands
 			++it;
 		}
 
-		task_router::worker_ptr worker = context.router->find_worker(headers);
+		worker_registry::worker_ptr worker = context.workers->find_worker(headers);
 
 		if (worker != nullptr) {
-			std::vector<std::string> request = {"eval", job_id};
+			std::vector<std::string> request_data = {"eval", job_id};
 			context.logger->debug() << " - incomming job '" << job_id << "'";
 
 			// Forward remaining messages to the worker without actually understanding them
 			for (; it != std::end(message); ++it) {
-				request.push_back(*it);
+				request_data.push_back(*it);
 			}
 
-			if (worker->free) {
+			auto eval_request = std::make_shared<request>(headers, request_data);
+			worker->enqueue_request(eval_request);
+
+			if (worker->next_request()) {
 				// If the worker isn't doing anything, just forward the request
-				worker->free = false;
-				context.sockets->send_workers(worker->identity, request);
+				context.sockets->send_workers(worker->identity, worker->get_current_request()->data);
 				context.logger->debug() << " - sent to worker '" << helpers::string_to_hex(worker->identity) << "'";
 			} else {
 				// If the worker is occupied, queue the request
-				worker->request_queue.push(request);
 				context.logger->debug() << " - saved to queue for worker '" << helpers::string_to_hex(worker->identity)
 										<< "'";
 			}
 
 			context.sockets->send_clients(identity, std::vector<std::string>{"accept"});
-			context.router->deprioritize_worker(worker);
+			context.workers->deprioritize_worker(worker);
 		} else {
 			context.sockets->send_clients(identity, std::vector<std::string>{"reject"});
 			context.logger->error() << "Request '" << job_id << "' rejected. No worker available.";

@@ -1,8 +1,8 @@
-#include "task_router.h"
+#include "worker_registry.h"
 
 #include <algorithm>
 
-task_router::task_router(std::shared_ptr<spdlog::logger> logger)
+worker_registry::worker_registry(std::shared_ptr<spdlog::logger> logger)
 {
 	// TODO: logger currently not used here. Can be removed?
 	if (logger != nullptr) {
@@ -16,12 +16,21 @@ task_router::task_router(std::shared_ptr<spdlog::logger> logger)
 	}
 }
 
-void task_router::add_worker(worker_ptr worker)
+void worker_registry::add_worker(worker_ptr worker)
 {
 	workers.push_back(worker);
 }
 
-task_router::worker_ptr task_router::find_worker(const task_router::headers_t &headers)
+void worker_registry::remove_worker(worker_ptr worker)
+{
+	auto it = std::find(std::begin(workers), std::end(workers), worker);
+
+	if (it != std::end(workers)) {
+		workers.erase(it);
+	}
+}
+
+worker_registry::worker_ptr worker_registry::find_worker(const worker_registry::headers_t &headers)
 {
 	for (auto &worker : workers) {
 		bool worker_suitable = true;
@@ -52,7 +61,7 @@ task_router::worker_ptr task_router::find_worker(const task_router::headers_t &h
 	return nullptr;
 }
 
-task_router::worker_ptr task_router::find_worker_by_identity(const std::string &identity)
+worker_registry::worker_ptr worker_registry::find_worker_by_identity(const std::string &identity)
 {
 	for (auto &worker : workers) {
 		if (worker->identity == identity) {
@@ -63,7 +72,7 @@ task_router::worker_ptr task_router::find_worker_by_identity(const std::string &
 	return nullptr;
 }
 
-void task_router::deprioritize_worker(task_router::worker_ptr worker)
+void worker_registry::deprioritize_worker(worker_registry::worker_ptr worker)
 {
 	auto it = std::find(std::begin(workers), std::end(workers), worker);
 
@@ -71,4 +80,9 @@ void task_router::deprioritize_worker(task_router::worker_ptr worker)
 		workers.erase(it);
 		workers.push_back(worker);
 	}
+}
+
+const std::vector<worker_registry::worker_ptr> &worker_registry::get_workers() const
+{
+	return workers;
 }
