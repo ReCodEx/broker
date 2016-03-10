@@ -47,3 +47,23 @@ std::shared_ptr<std::vector<worker::request_ptr>> worker::terminate()
 
 	return result;
 }
+
+bool worker::check_header(const std::string &header, const std::string &value)
+{
+	// If we're checking the hwgroup header, handle it first
+	if (header == "hwgroup") {
+		return hwgroup == value;
+	}
+
+	// Find all worker headers with the right name
+	auto range = headers.equal_range(header);
+	for (auto &worker_header = range.first; worker_header != range.second; ++worker_header) {
+		// If any of these headers has a matching value, return true
+		if (worker_header->second == value) {
+			return true;
+		}
+	}
+
+	// If we found nothing, return false
+	return false;
+}

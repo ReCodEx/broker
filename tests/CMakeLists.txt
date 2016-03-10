@@ -30,6 +30,7 @@ add_test_suite(broker_config
 add_test_suite(worker_registry
 	worker_registry.cpp
 	${SRC_DIR}/worker_registry.cpp
+	${SRC_DIR}/worker.cpp
 	${HELPERS_DIR}/create_logger.cpp
 )
 

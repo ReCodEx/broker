@@ -85,3 +85,18 @@ TEST(worker, terminate_empty)
 
 	ASSERT_THAT(worker_1.terminate(), Pointee(IsEmpty()));
 }
+
+TEST(worker, headers_basic)
+{
+	std::multimap<std::string, std::string> headers = {{"env", "c"}, {"threads", "8"}};
+
+	worker worker_1("identity1", "group_1", headers);
+
+	ASSERT_TRUE(worker_1.check_header("env", "c"));
+	ASSERT_TRUE(worker_1.check_header("threads", "8"));
+	ASSERT_TRUE(worker_1.check_header("hwgroup", "group_1"));
+
+	ASSERT_FALSE(worker_1.check_header("hwgroup", "group_2"));
+	ASSERT_FALSE(worker_1.check_header("time_measurement", "extra_precise"));
+	ASSERT_FALSE(worker_1.check_header("threads", "10"));
+}

@@ -53,6 +53,12 @@ public:
 	MOCK_METHOD2(send_clients, bool(const std::string &, const std::vector<std::string> &));
 };
 
+/** Check if worker satisfies given header value */
+MATCHER_P2(HasHeader, header, value, std::string("Worker satisfies header ") + header + "=" + value)
+{
+	return ((std::shared_ptr<worker>) arg)->check_header(header, value);
+}
+
 TEST(broker, bind)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
@@ -120,7 +126,9 @@ TEST(broker, worker_init)
 
 	EXPECT_CALL(*workers,
 		add_worker(AllOf(Pointee(Field(&worker::identity, StrEq(worker_1->identity))),
-			Pointee(Field(&worker::headers, worker_1->headers)),
+			HasHeader("env", "c"),
+			HasHeader("threads", "8"),
+			HasHeader("hwgroup", worker_1->hwgroup),
 			Pointee(Field(&worker::hwgroup, worker_1->hwgroup)))))
 		.InSequence(s2, s4);
 
@@ -271,7 +279,8 @@ TEST(broker, ping_unknown_worker)
 	EXPECT_CALL(*workers,
 		add_worker(AllOf(Pointee(Field(&worker::identity, StrEq(worker_1->identity))),
 			Pointee(Field(&worker::hwgroup, StrEq(worker_1->hwgroup))),
-			Pointee(Field(&worker::headers, Eq(worker_1->headers))))))
+			HasHeader("env", "c"),
+			HasHeader("hwgroup", "group_1"))))
 		.InSequence(s2, s4);
 
 	EXPECT_CALL(*workers, get_workers()).Times(AnyNumber()).InSequence(s4).WillRepeatedly(ReturnRef(worker_vector));

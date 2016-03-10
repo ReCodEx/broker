@@ -21,8 +21,7 @@ struct request {
 	/** The amount of failed attempts at processing this request */
 	size_t failure_count = 0;
 
-	request(const headers_t &headers, const std::vector<std::string> &data)
-		: headers(headers), data(data)
+	request(const headers_t &headers, const std::vector<std::string> &data) : headers(headers), data(data)
 	{
 	}
 };
@@ -36,6 +35,9 @@ public:
 	typedef std::shared_ptr<request> request_ptr;
 
 private:
+	/** Headers that describe the worker's capabilities */
+	const std::multimap<std::string, std::string> headers;
+
 	/** False if the worker is processing a request */
 	bool free;
 
@@ -52,9 +54,6 @@ public:
 	/** A hardware group identifier */
 	const std::string hwgroup;
 
-	/** Headers that describe the worker's capabilities */
-	const std::multimap<std::string, std::string> headers;
-
 	/** The amount of pings the worker can miss before it's considered dead */
 	size_t liveness;
 
@@ -62,6 +61,13 @@ public:
 		: identity(id), hwgroup(hwgroup), headers(headers), free(true), current_request(nullptr)
 	{
 	}
+
+	/**
+	 * Check if the worker satisfies given header
+	 * @param header Name of the header
+	 * @param value Name of the value
+	 */
+	bool check_header(const std::string &header, const std::string &value);
 
 	/**
 	 * Insert a request into the workers queue

@@ -24,36 +24,16 @@ void worker_registry::remove_worker(worker_ptr worker)
 worker_registry::worker_ptr worker_registry::find_worker(const request::headers_t &headers)
 {
 	for (auto &worker : workers) {
-		bool worker_suitable = true;
+		bool is_worker_suitable = true;
 
 		for (auto &header : headers) {
-			if (header.first == "hwgroup") {
-				if (worker->hwgroup != header.second) {
-					worker_suitable = false;
-					break;
-				}
-
-				continue;
-			}
-
-			bool header_satisfied = false;
-
-			auto range = worker->headers.equal_range(header.first);
-
-			for (auto &worker_header = range.first; worker_header != range.second; ++worker_header) {
-				if (worker_header->second == header.second) {
-					header_satisfied = true;
-					break;
-				}
-			}
-
-			if (!header_satisfied) {
-				worker_suitable = false;
+			if (!worker->check_header(header.first, header.second)) {
+				is_worker_suitable = false;
 				break;
 			}
 		}
 
-		if (worker_suitable) {
+		if (is_worker_suitable) {
 			return worker;
 		}
 	}
