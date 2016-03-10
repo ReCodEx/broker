@@ -21,7 +21,7 @@ void worker_registry::remove_worker(worker_ptr worker)
 	}
 }
 
-worker_registry::worker_ptr worker_registry::find_worker(const worker_registry::headers_t &headers)
+worker_registry::worker_ptr worker_registry::find_worker(const request::headers_t &headers)
 {
 	for (auto &worker : workers) {
 		bool worker_suitable = true;

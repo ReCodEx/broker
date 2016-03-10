@@ -10,8 +10,10 @@
  * An evaluation request
  */
 struct request {
+	typedef std::multimap<std::string, std::string> headers_t;
+
 	/** Headers that specify requirements on the machine that processes the request */
-	const std::multimap<std::string, std::string> headers;
+	const headers_t headers;
 
 	/** The data of the request */
 	const std::vector<std::string> data;
@@ -19,7 +21,7 @@ struct request {
 	/** The amount of failed attempts at processing this request */
 	size_t failure_count = 0;
 
-	request(const std::multimap<std::string, std::string> &headers, const std::vector<std::string> &data)
+	request(const headers_t &headers, const std::vector<std::string> &data)
 		: headers(headers), data(data)
 	{
 	}

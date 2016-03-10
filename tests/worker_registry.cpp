@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 
 #include "../src/worker_registry.h"
+#include "../src/worker.h"
 
 using namespace testing;
 
@@ -16,11 +17,11 @@ TEST(worker_registry, basic_lookup)
 	workers.add_worker(worker1);
 	workers.add_worker(worker2);
 
-	worker_registry::headers_t headers1 = {{"env", "python"}};
+	request::headers_t headers1 = {{"env", "python"}};
 
-	worker_registry::headers_t headers2 = {{"hwgroup", "group_2"}};
+	request::headers_t headers2 = {{"hwgroup", "group_2"}};
 
-	worker_registry::headers_t headers3 = {{"env", "python"}, {"hwgroup", "group_2"}};
+	request::headers_t headers3 = {{"env", "python"}, {"hwgroup", "group_2"}};
 
 	ASSERT_EQ(worker1, workers.find_worker(headers1));
 	ASSERT_EQ(worker2, workers.find_worker(headers2));
@@ -38,7 +39,7 @@ TEST(worker_registry, load_balancing)
 	workers.add_worker(worker1);
 	workers.add_worker(worker2);
 
-	worker_registry::headers_t headers = {{"env", "c"}};
+	request::headers_t headers = {{"env", "c"}};
 
 	auto first_found = workers.find_worker(headers);
 	workers.deprioritize_worker(first_found);

@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include "../helpers/string_to_hex.h"
+#include "../worker.h"
 
 
 /**
@@ -24,7 +25,7 @@ namespace worker_commands
 		}
 
 		std::string hwgroup = message.at(1);
-		worker_registry::headers_t headers;
+		request::headers_t headers;
 
 		auto headers_start = std::begin(message) + 2;
 		for (auto it = headers_start; it != std::end(message); ++it) {

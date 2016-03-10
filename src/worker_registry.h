@@ -14,7 +14,6 @@
 class worker_registry
 {
 public:
-	typedef std::multimap<std::string, std::string> headers_t;
 	typedef std::shared_ptr<worker> worker_ptr;
 
 private:
@@ -24,7 +23,7 @@ public:
 	worker_registry();
 	virtual void add_worker(worker_ptr worker);
 	virtual void remove_worker(worker_ptr worker);
-	virtual worker_ptr find_worker(const headers_t &headers);
+	virtual worker_ptr find_worker(const request::headers_t &headers);
 	virtual worker_ptr find_worker_by_identity(const std::string &identity);
 
 	/**

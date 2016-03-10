@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 
 #include "../src/broker_connect.h"
+#include "../src/worker.h"
 
 using namespace testing;
 
@@ -36,7 +37,7 @@ public:
 	MOCK_METHOD1(add_worker, void(worker_registry::worker_ptr));
 	MOCK_METHOD1(remove_worker, void(worker_registry::worker_ptr));
 	MOCK_METHOD1(deprioritize_worker, void(worker_registry::worker_ptr));
-	MOCK_METHOD1(find_worker, worker_registry::worker_ptr(const worker_registry::headers_t &));
+	MOCK_METHOD1(find_worker, worker_registry::worker_ptr(const request::headers_t &));
 	MOCK_METHOD1(find_worker_by_identity, worker_registry::worker_ptr(const std::string &));
 	MOCK_CONST_METHOD0(get_workers, const std::vector<std::shared_ptr<worker>> &());
 };
@@ -102,7 +103,7 @@ TEST(broker, worker_init)
 		.WillOnce(DoAll(SetArgReferee<0>("identity1"),
 			SetArgReferee<1>(std::vector<std::string>{"init", "group_1", "env=c", "threads=8"})));
 
-	worker_registry::headers_t headers_1{std::make_pair("env", "c"), std::make_pair("threads", "8")};
+	request::headers_t headers_1{std::make_pair("env", "c"), std::make_pair("threads", "8")};
 
 	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers_1);
 	worker_1->liveness = 100;
@@ -144,7 +145,7 @@ TEST(broker, queuing)
 	const std::string address = "*";
 
 	std::string client_id = "client_foo";
-	worker_registry::headers_t headers = {{"env", "c"}};
+	request::headers_t headers = {{"env", "c"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	worker_1->liveness = 100;
 
@@ -228,7 +229,7 @@ TEST(broker, ping_unknown_worker)
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 	const std::string address = "*";
 
-	worker_registry::headers_t headers = {{"env", "c"}};
+	request::headers_t headers = {{"env", "c"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	worker_1->liveness = 100;
 
@@ -288,7 +289,7 @@ TEST(broker, ping_known_worker)
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 
-	worker_registry::headers_t headers = {{"env", "c"}};
+	request::headers_t headers = {{"env", "c"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	worker_1->liveness = 100;
 
@@ -327,7 +328,7 @@ TEST(broker, worker_expiration)
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 
-	worker_registry::headers_t headers = {{"env", "c"}};
+	request::headers_t headers = {{"env", "c"}};
 	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	worker_1->liveness = 1;
 

@@ -2,6 +2,7 @@
 #define CODEX_BROKER_CLIENT_COMMANDS_H
 
 #include "../helpers/string_to_hex.h"
+#include "../worker.h"
 
 
 /**
@@ -18,7 +19,7 @@ namespace client_commands
 		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
 	{
 		std::string job_id = message.at(1);
-		worker_registry::headers_t headers;
+		request::headers_t headers;
 
 		// Load headers terminated by an empty frame
 		auto it = std::begin(message) + 2;
