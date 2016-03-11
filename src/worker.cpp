@@ -1,5 +1,72 @@
 #include "worker.h"
 
+/**
+ * Takes multiple string values separated by the "|" character and checks if the workers value is equal at least to
+ * one of these.
+ */
+class multiple_string_matcher : public header_matcher {
+public:
+	static const char delimiter = '|';
+
+	multiple_string_matcher(std::string my_value) : header_matcher(my_value)
+	{
+	}
+
+	virtual bool match(const std::string &value)
+	{
+		size_t offset = 0;
+
+		while (offset < value.size()) {
+			size_t end = value.find(delimiter, offset);
+
+			if (end == std::string::npos) {
+				end = value.size();
+			}
+
+			if (value.compare(offset, end - offset, my_value_) == 0) {
+				return true;
+			}
+
+			offset = end + 1;
+		}
+
+		return false;
+	}
+};
+
+/**
+ * Checks if a value is less than or equal to a set number
+ */
+class count_matcher : public header_matcher {
+private:
+	size_t my_count_;
+public:
+	count_matcher(std::string my_value) : my_count_(std::stoul(my_value)), header_matcher(my_value)
+	{
+	}
+
+	virtual bool match(const std::string &value)
+	{
+		return my_count_ >= std::stoul(value);
+	}
+};
+
+worker::worker(const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers)
+	: identity(id), hwgroup(hwgroup), free(true), current_request(nullptr)
+{
+	headers_.emplace("hwgroup", std::unique_ptr<header_matcher>(new multiple_string_matcher(hwgroup)));
+
+	for (auto it: headers) {
+		auto matcher = std::unique_ptr<header_matcher>(new header_matcher(it.second));
+
+		if (it.first == "threads") {
+			matcher = std::unique_ptr<header_matcher>(new count_matcher(it.second));
+		}
+
+		headers_.emplace(it.first, std::move(matcher));
+	}
+}
+
 void worker::enqueue_request(request_ptr request)
 {
 	request_queue.push(request);
@@ -50,16 +117,11 @@ std::shared_ptr<std::vector<worker::request_ptr>> worker::terminate()
 
 bool worker::check_header(const std::string &header, const std::string &value)
 {
-	// If we're checking the hwgroup header, handle it first
-	if (header == "hwgroup") {
-		return hwgroup == value;
-	}
-
 	// Find all worker headers with the right name
-	auto range = headers.equal_range(header);
+	auto range = headers_.equal_range(header);
 	for (auto &worker_header = range.first; worker_header != range.second; ++worker_header) {
 		// If any of these headers has a matching value, return true
-		if (worker_header->second == value) {
+		if (worker_header->second->match(value)) {
 			return true;
 		}
 	}

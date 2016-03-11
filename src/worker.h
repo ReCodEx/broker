@@ -27,6 +27,24 @@ struct request {
 };
 
 /**
+ * Used to compare requested headers to those supported by the worker.
+ * The class is meant to be extended for different matching methods (e.g. numeric comparison)
+ */
+class header_matcher {
+protected:
+	std::string my_value_;
+public:
+	header_matcher(std::string my_value) : my_value_(my_value)
+	{
+	}
+
+	virtual bool match (const std::string &value)
+	{
+		return value == my_value_;
+	}
+};
+
+/**
  * Contains information about a worker machine
  */
 class worker
@@ -35,8 +53,8 @@ public:
 	typedef std::shared_ptr<request> request_ptr;
 
 private:
-	/** Headers that describe the worker's capabilities */
-	const std::multimap<std::string, std::string> headers;
+	/** Headers that describe the workers capabilities */
+	std::multimap<std::string, std::unique_ptr<header_matcher>> headers_;
 
 	/** False if the worker is processing a request */
 	bool free;
@@ -57,10 +75,7 @@ public:
 	/** The amount of pings the worker can miss before it's considered dead */
 	size_t liveness;
 
-	worker(const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers)
-		: identity(id), hwgroup(hwgroup), headers(headers), free(true), current_request(nullptr)
-	{
-	}
+	worker(const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers);
 
 	/**
 	 * Check if the worker satisfies given header
