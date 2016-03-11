@@ -99,6 +99,52 @@ TEST(broker, worker_init)
 	broker.start_brokering();
 }
 
+TEST(broker, worker_repeated_init_same_headers)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
+
+	EXPECT_CALL(*workers, add_worker(_))
+		.Times(0);
+
+	EXPECT_CALL(*workers, remove_worker(_))
+		.Times(0);
+
+	Sequence s1, s2;
+
+	EXPECT_CALL(*sockets, set_addresses(_, _, _)).InSequence(s1, s2);
+
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(DoAll(ClearFlags(), SetFlag(message_origin::WORKER)));
+
+	// A wild worker appeared
+	EXPECT_CALL(*sockets, recv_workers(_, _, _))
+		.InSequence(s2)
+		.WillOnce(DoAll(SetArgReferee<0>("identity1"),
+			SetArgReferee<1>(std::vector<std::string>{"init", "group_1", "env=c", "threads=8"})));
+
+	std::multimap<std::string, std::string> headers_1{std::make_pair("env", "c"), std::make_pair("threads", "8")};
+
+	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers_1);
+	worker_1->liveness = 100;
+
+	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
+
+	EXPECT_CALL(*workers, find_worker_by_identity(StrEq("identity1")))
+		.Times(AnyNumber())
+		.WillRepeatedly(Return(worker_1));
+
+	EXPECT_CALL(*workers, get_workers()).Times(AnyNumber()).WillRepeatedly(ReturnRef(worker_vector));
+
+	// Last poll
+	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
+
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker.start_brokering();
+}
+
 TEST(broker, queuing)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
