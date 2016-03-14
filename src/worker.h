@@ -30,15 +30,17 @@ struct request {
  * Used to compare requested headers to those supported by the worker.
  * The class is meant to be extended for different matching methods (e.g. numeric comparison)
  */
-class header_matcher {
+class header_matcher
+{
 protected:
 	std::string my_value_;
+
 public:
 	header_matcher(std::string my_value) : my_value_(my_value)
 	{
 	}
 
-	virtual bool match (const std::string &value)
+	virtual bool match(const std::string &value)
 	{
 		return value == my_value_;
 	}

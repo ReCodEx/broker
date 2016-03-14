@@ -4,7 +4,8 @@
  * Takes multiple string values separated by the "|" character and checks if the workers value is equal at least to
  * one of these.
  */
-class multiple_string_matcher : public header_matcher {
+class multiple_string_matcher : public header_matcher
+{
 public:
 	static const char delimiter = '|';
 
@@ -37,9 +38,11 @@ public:
 /**
  * Checks if a value is less than or equal to a set number
  */
-class count_matcher : public header_matcher {
+class count_matcher : public header_matcher
+{
 private:
 	size_t my_count_;
+
 public:
 	count_matcher(std::string my_value) : my_count_(std::stoul(my_value)), header_matcher(my_value)
 	{
@@ -51,12 +54,13 @@ public:
 	}
 };
 
-worker::worker(const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers)
+worker::worker(
+	const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers)
 	: identity(id), hwgroup(hwgroup), free(true), current_request(nullptr)
 {
 	headers_.emplace("hwgroup", std::unique_ptr<header_matcher>(new multiple_string_matcher(hwgroup)));
 
-	for (auto it: headers) {
+	for (auto it : headers) {
 		auto matcher = std::unique_ptr<header_matcher>(new header_matcher(it.second));
 
 		if (it.first == "threads") {

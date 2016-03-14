@@ -16,13 +16,13 @@ namespace client_commands
 	 */
 	template <typename proxy>
 	void process_eval(
-		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
+		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
-		std::string job_id = message.at(1);
+		std::string job_id = arguments.front();
 		request::headers_t headers;
 
 		// Load headers terminated by an empty frame
-		auto it = std::begin(message) + 2;
+		auto it = std::begin(arguments) + 1;
 
 		while (true) {
 			// End of headers
@@ -32,7 +32,7 @@ namespace client_commands
 			}
 
 			// Unexpected end of message - do nothing and return
-			if (std::next(it) == std::end(message)) {
+			if (std::next(it) == std::end(arguments)) {
 				context.logger->warn() << "Unexpected end of message from frontend. Skipped.";
 				return;
 			}
@@ -52,7 +52,7 @@ namespace client_commands
 			context.logger->debug() << " - incomming job '" << job_id << "'";
 
 			// Forward remaining messages to the worker without actually understanding them
-			for (; it != std::end(message); ++it) {
+			for (; it != std::end(arguments); ++it) {
 				request_data.push_back(*it);
 			}
 

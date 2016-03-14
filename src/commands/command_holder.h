@@ -63,7 +63,6 @@ public:
 	 * @param command String reprezentation of command for processing.
 	 * @param identity Unique ID of each worker for connection subsystem.
 	 * @param message Arguments for callback function.
-	 * @note Note, that @a message argument contains command as it's first item.
 	 */
 	void call_function(const std::string &command, const std::string &identity, const std::vector<std::string> &message)
 	{

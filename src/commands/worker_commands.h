@@ -18,17 +18,19 @@ namespace worker_commands
 	 */
 	template <typename proxy>
 	void process_init(
-		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
+		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
-		if (message.size() < 2) {
+		// There must be at least on argument
+		if (arguments.size() < 1) {
+			context.logger->warn() << "Init command without argument. Nothing to do.";
 			return;
 		}
 
-		std::string hwgroup = message.at(1);
+		std::string hwgroup = arguments.front();
 		request::headers_t headers;
 
-		auto headers_start = std::begin(message) + 2;
-		for (auto it = headers_start; it != std::end(message); ++it) {
+		auto headers_start = std::begin(arguments) + 1;
+		for (auto it = headers_start; it != std::end(arguments); ++it) {
 			auto &header = *it;
 			size_t pos = header.find('=');
 			size_t value_size = header.size() - (pos + 1);
@@ -38,7 +40,7 @@ namespace worker_commands
 
 		context.workers->add_worker(worker_registry::worker_ptr(new worker(identity, hwgroup, headers)));
 		std::stringstream ss;
-		std::copy(++message.begin(), message.end(), std::ostream_iterator<std::string>(ss, " "));
+		std::copy(arguments.begin(), arguments.end(), std::ostream_iterator<std::string>(ss, " "));
 		context.logger->debug() << " - added new worker '" << helpers::string_to_hex(identity)
 								<< "' with headers: " << ss.str();
 	}
@@ -48,7 +50,7 @@ namespace worker_commands
 	 */
 	template <typename proxy>
 	void process_done(
-		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
+		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
 		worker_registry::worker_ptr worker = context.workers->find_worker_by_identity(identity);
 
@@ -61,15 +63,16 @@ namespace worker_commands
 
 		if (worker->next_request()) {
 			context.sockets->send_workers(worker->identity, worker->get_current_request()->data);
-			context.logger->debug() << " - new job sent to worker from queue";
+			context.logger->debug() << " - new job sent to worker '" << helpers::string_to_hex(identity)
+									<< "' from queue";
 		} else {
-			context.logger->debug() << " - worker is now free";
+			context.logger->debug() << " - worker '" << helpers::string_to_hex(identity) << "' is now free";
 		}
 	}
 
 	template <typename proxy>
 	void process_ping(
-		const std::string &identity, const std::vector<std::string> &message, const command_context<proxy> &context)
+		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
 		worker_registry::worker_ptr worker = context.workers->find_worker_by_identity(identity);
 

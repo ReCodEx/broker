@@ -136,7 +136,9 @@ public:
 					break;
 				}
 
-				std::string &type = message.at(0);
+				// Get command and remove it from its arguments
+				std::string type = message.front();
+				message.erase(message.begin());
 
 				logger_->debug() << "Received message '" << type << "' from frontend";
 
@@ -153,7 +155,9 @@ public:
 					break;
 				}
 
-				std::string &type = message.at(0);
+				// Get command and remove it from its arguments
+				std::string type = message.front();
+				message.erase(message.begin());
 
 				logger_->debug() << "Received message '" << type << "' from workers";
 
