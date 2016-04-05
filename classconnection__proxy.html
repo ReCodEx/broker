@@ -47,6 +47,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -119,8 +120,8 @@ $(document).ready(function(){initNavTree('classconnection__proxy.html','');});
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a4faff8d5733db237697b85364c74aca5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classconnection__proxy.html#a4faff8d5733db237697b85364c74aca5">bind</a> (const std::string &amp;clients_addr, const std::string &amp;workers_addr)</td></tr>
 <tr class="separator:a4faff8d5733db237697b85364c74aca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48d3ffbc01b89c05d9fd1cd8fe98b27a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classconnection__proxy.html#a48d3ffbc01b89c05d9fd1cd8fe98b27a">poll</a> (message_origin::set &amp;result, int timeout, bool *terminate=nullptr)</td></tr>
-<tr class="separator:a48d3ffbc01b89c05d9fd1cd8fe98b27a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a229e4bce6726bbd0c386f339710c2ac7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classconnection__proxy.html#a229e4bce6726bbd0c386f339710c2ac7">poll</a> (message_origin::set &amp;result, std::chrono::milliseconds timeout, bool &amp;terminate, std::chrono::milliseconds &amp;elapsed_time)</td></tr>
+<tr class="separator:a229e4bce6726bbd0c386f339710c2ac7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a54d2d306b606b36833bf839339b976"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classconnection__proxy.html#a9a54d2d306b606b36833bf839339b976">recv_workers</a> (std::string &amp;identity, std::vector&lt; std::string &gt; &amp;target, bool *terminate=nullptr)</td></tr>
 <tr class="separator:a9a54d2d306b606b36833bf839339b976"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62a6b71f00bf4e396554b6ba1ea48996"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classconnection__proxy.html#a62a6b71f00bf4e396554b6ba1ea48996">recv_clients</a> (std::string &amp;identity, std::vector&lt; std::string &gt; &amp;target, bool *terminate=nullptr)</td></tr>
@@ -172,7 +173,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a48d3ffbc01b89c05d9fd1cd8fe98b27a"></a>
+<a class="anchor" id="a229e4bce6726bbd0c386f339710c2ac7"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -188,14 +189,20 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
+          <td class="paramtype">std::chrono::milliseconds&#160;</td>
           <td class="paramname"><em>timeout</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">bool *&#160;</td>
-          <td class="paramname"><em>terminate</em> = <code>nullptr</code>&#160;</td>
+          <td class="paramtype">bool &amp;&#160;</td>
+          <td class="paramname"><em>terminate</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::chrono::milliseconds &amp;&#160;</td>
+          <td class="paramname"><em>elapsed_time</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -212,11 +219,14 @@ Public Member Functions</h2></td></tr>
 <p>Block execution until a message arrives to either socket. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">result</td><td>If a message arrived to a socket, the corresponding bit field is set to true </td></tr>
+    <tr><td class="paramname">timeout</td><td>The maximum time this function is allowed to block execution </td></tr>
+    <tr><td class="paramname">terminate</td><td>If the underlying connection is terminated, the referenced variable is set to true </td></tr>
+    <tr><td class="paramname">elapsed_time</td><td>Set to the time spent polling on success </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00047">47</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
+<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00050">50</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
 
 </div>
 </div>
@@ -259,7 +269,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Receive a message frame from the client socket </p>
 
-<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00109">109</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
+<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00117">117</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
 
 </div>
 </div>
@@ -302,7 +312,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Receive a message frame from the worker socket </p>
 
-<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00072">72</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
+<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00080">80</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
 
 </div>
 </div>
@@ -339,7 +349,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Send a message through the client socket </p>
 
-<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00175">175</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
+<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00183">183</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
 
 </div>
 </div>
@@ -376,7 +386,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Send a message through the worker socket </p>
 
-<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00152">152</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
+<p>Definition at line <a class="el" href="connection__proxy_8h_source.html#l00160">160</a> of file <a class="el" href="connection__proxy_8h_source.html">connection_proxy.h</a>.</p>
 
 </div>
 </div>
@@ -389,7 +399,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classconnection__proxy.html">connection_proxy</a></li>
-    <li class="footer">Generated on Fri Feb 19 2016 18:37:05 for ReCodEx - Task Broker by
+    <li class="footer">Generated on Tue Apr 5 2016 23:18:15 for ReCodEx - Task Broker by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.10 </li>
   </ul>

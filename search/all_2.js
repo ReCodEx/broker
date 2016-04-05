@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['get_5fclient_5fport',['get_client_port',['../classbroker__config.html#a746ecf2589391d05dbde4061827233cc',1,'broker_config']]],
-  ['get_5fworker_5fport',['get_worker_port',['../classbroker__config.html#acef02576d8cf5c6331d29642d31ecf6b',1,'broker_config']]]
+  ['data',['data',['../structrequest.html#a9c13c2e2a7b6ce529f4192fa72e22ef9',1,'request']]],
+  ['deprioritize_5fworker',['deprioritize_worker',['../classworker__registry.html#a3ce97e617d3b53a04c05a5b7bcdc3443',1,'worker_registry']]]
 ];

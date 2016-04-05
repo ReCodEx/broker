@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['poll',['poll',['../classconnection__proxy.html#a48d3ffbc01b89c05d9fd1cd8fe98b27a',1,'connection_proxy']]]
+  ['deprioritize_5fworker',['deprioritize_worker',['../classworker__registry.html#a3ce97e617d3b53a04c05a5b7bcdc3443',1,'worker_registry']]]
 ];

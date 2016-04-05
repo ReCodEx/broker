@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['headers',['headers',['../structworker.html#a715f2f63af9f83c8c3d9a1c6bead7cae',1,'worker']]]
+  ['data',['data',['../structrequest.html#a9c13c2e2a7b6ce529f4192fa72e22ef9',1,'request']]]
 ];

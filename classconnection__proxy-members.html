@@ -47,6 +47,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -114,7 +115,7 @@ $(document).ready(function(){initNavTree('classconnection__proxy.html','');});
 <table class="directory">
   <tr class="even"><td class="entry"><a class="el" href="classconnection__proxy.html#a4faff8d5733db237697b85364c74aca5">bind</a>(const std::string &amp;clients_addr, const std::string &amp;workers_addr)</td><td class="entry"><a class="el" href="classconnection__proxy.html">connection_proxy</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>connection_proxy</b>() (defined in <a class="el" href="classconnection__proxy.html">connection_proxy</a>)</td><td class="entry"><a class="el" href="classconnection__proxy.html">connection_proxy</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classconnection__proxy.html#a48d3ffbc01b89c05d9fd1cd8fe98b27a">poll</a>(message_origin::set &amp;result, int timeout, bool *terminate=nullptr)</td><td class="entry"><a class="el" href="classconnection__proxy.html">connection_proxy</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classconnection__proxy.html#a229e4bce6726bbd0c386f339710c2ac7">poll</a>(message_origin::set &amp;result, std::chrono::milliseconds timeout, bool &amp;terminate, std::chrono::milliseconds &amp;elapsed_time)</td><td class="entry"><a class="el" href="classconnection__proxy.html">connection_proxy</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr><td class="entry"><a class="el" href="classconnection__proxy.html#a62a6b71f00bf4e396554b6ba1ea48996">recv_clients</a>(std::string &amp;identity, std::vector&lt; std::string &gt; &amp;target, bool *terminate=nullptr)</td><td class="entry"><a class="el" href="classconnection__proxy.html">connection_proxy</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classconnection__proxy.html#a9a54d2d306b606b36833bf839339b976">recv_workers</a>(std::string &amp;identity, std::vector&lt; std::string &gt; &amp;target, bool *terminate=nullptr)</td><td class="entry"><a class="el" href="classconnection__proxy.html">connection_proxy</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr><td class="entry"><a class="el" href="classconnection__proxy.html#af7eba0b0b82ba54f3ae8caadf9ed5c31">send_clients</a>(const std::string &amp;identity, const std::vector&lt; std::string &gt; &amp;msg)</td><td class="entry"><a class="el" href="classconnection__proxy.html">connection_proxy</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
@@ -124,7 +125,7 @@ $(document).ready(function(){initNavTree('classconnection__proxy.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Fri Feb 19 2016 18:37:05 for ReCodEx - Task Broker by
+    <li class="footer">Generated on Tue Apr 5 2016 23:18:15 for ReCodEx - Task Broker by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.10 </li>
   </ul>

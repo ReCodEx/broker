@@ -47,6 +47,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -112,21 +113,34 @@ $(document).ready(function(){initNavTree('classbroker__config.html','');});
 <div class="title">broker_config Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="broker__config_8h_source.html">broker_config.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a731098e522a4846931fd33b57c1868b8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#a731098e522a4846931fd33b57c1868b8">broker_config</a> ()</td></tr>
 <tr class="separator:a731098e522a4846931fd33b57c1868b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2be599f9cb5b127ff8a7b414894370df"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#a2be599f9cb5b127ff8a7b414894370df">broker_config</a> (YAML::Node &amp;config)</td></tr>
-<tr class="separator:a2be599f9cb5b127ff8a7b414894370df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a653937083e5bde59a223947fa16b933a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#a653937083e5bde59a223947fa16b933a">broker_config</a> (const YAML::Node &amp;config)</td></tr>
+<tr class="separator:a653937083e5bde59a223947fa16b933a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a08f9a1c22aa304ba71e6c64bf6ee34"><td class="memItemLeft" align="right" valign="top">virtual const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#a5a08f9a1c22aa304ba71e6c64bf6ee34">get_client_address</a> () const </td></tr>
+<tr class="separator:a5a08f9a1c22aa304ba71e6c64bf6ee34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a746ecf2589391d05dbde4061827233cc"><td class="memItemLeft" align="right" valign="top">virtual uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#a746ecf2589391d05dbde4061827233cc">get_client_port</a> () const </td></tr>
 <tr class="separator:a746ecf2589391d05dbde4061827233cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cc71f9dc5f1d5de6e37198d020779e6"><td class="memItemLeft" align="right" valign="top">virtual const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#a9cc71f9dc5f1d5de6e37198d020779e6">get_worker_address</a> () const </td></tr>
+<tr class="separator:a9cc71f9dc5f1d5de6e37198d020779e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acef02576d8cf5c6331d29642d31ecf6b"><td class="memItemLeft" align="right" valign="top">virtual uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#acef02576d8cf5c6331d29642d31ecf6b">get_worker_port</a> () const </td></tr>
 <tr class="separator:acef02576d8cf5c6331d29642d31ecf6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06bee90b0a71d57065b34ef465b348b6"><td class="memItemLeft" align="right" valign="top">virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#a06bee90b0a71d57065b34ef465b348b6">get_max_worker_liveness</a> () const </td></tr>
+<tr class="separator:a06bee90b0a71d57065b34ef465b348b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf1b6562880e899e33dfeeef15ce2e14"><td class="memItemLeft" align="right" valign="top">virtual std::chrono::milliseconds&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#aaf1b6562880e899e33dfeeef15ce2e14">get_worker_ping_interval</a> () const </td></tr>
+<tr class="separator:aaf1b6562880e899e33dfeeef15ce2e14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46f90da07eadb17d94493675df35ca57"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structlog__config.html">log_config</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbroker__config.html#a46f90da07eadb17d94493675df35ca57">get_log_config</a> () const </td></tr>
+<tr class="separator:a46f90da07eadb17d94493675df35ca57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p>Definition at line <a class="el" href="broker__config_8h_source.html#l00008">8</a> of file <a class="el" href="broker__config_8h_source.html">broker_config.h</a>.</p>
+<div class="textblock"><p>An object representation of a default broker's configuration </p>
+
+<p>Definition at line <a class="el" href="broker__config_8h_source.html#l00020">20</a> of file <a class="el" href="broker__config_8h_source.html">broker_config.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a731098e522a4846931fd33b57c1868b8"></a>
 <div class="memitem">
@@ -146,14 +160,14 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a2be599f9cb5b127ff8a7b414894370df"></a>
+<a class="anchor" id="a653937083e5bde59a223947fa16b933a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">broker_config::broker_config </td>
           <td>(</td>
-          <td class="paramtype">YAML::Node &amp;&#160;</td>
+          <td class="paramtype">const YAML::Node &amp;&#160;</td>
           <td class="paramname"><em>config</em></td><td>)</td>
           <td></td>
         </tr>
@@ -171,6 +185,32 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a5a08f9a1c22aa304ba71e6c64bf6ee34"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string &amp; broker_config::get_client_address </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return IP address for client connections (from frontend) </p>
+
+<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00062">62</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a746ecf2589391d05dbde4061827233cc"></a>
 <div class="memitem">
 <div class="memproto">
@@ -193,7 +233,103 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Get the port to listen for incoming tasks </p>
 
-<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00026">26</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
+<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00067">67</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a46f90da07eadb17d94493675df35ca57"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structlog__config.html">log_config</a> &amp; broker_config::get_log_config </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get wrapper for logger configuration. </p><dl class="section return"><dt>Returns</dt><dd>constant reference to <a class="el" href="structlog__config.html">log_config</a> structure </dd></dl>
+
+<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00092">92</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a06bee90b0a71d57065b34ef465b348b6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t broker_config::get_max_worker_liveness </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Get the maximum (i.e. initial) liveness of a worker </p>
+
+<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00082">82</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a9cc71f9dc5f1d5de6e37198d020779e6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string &amp; broker_config::get_worker_address </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return IP address for worker connections </p>
+
+<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00072">72</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aaf1b6562880e899e33dfeeef15ce2e14"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::chrono::milliseconds broker_config::get_worker_ping_interval </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Get the time (in milliseconds) expected to pass between pings from the worker </p>
+
+<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00087">87</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
 
 </div>
 </div>
@@ -219,13 +355,13 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Get the port for communication with workers </p>
 
-<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00031">31</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
+<p>Definition at line <a class="el" href="broker__config_8cpp_source.html#l00077">77</a> of file <a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/<a class="el" href="broker__config_8h_source.html">broker_config.h</a></li>
-<li>src/<a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a></li>
+<li>src/config/<a class="el" href="broker__config_8h_source.html">broker_config.h</a></li>
+<li>src/config/<a class="el" href="broker__config_8cpp_source.html">broker_config.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -233,7 +369,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classbroker__config.html">broker_config</a></li>
-    <li class="footer">Generated on Fri Feb 19 2016 18:37:05 for ReCodEx - Task Broker by
+    <li class="footer">Generated on Tue Apr 5 2016 23:18:15 for ReCodEx - Task Broker by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.10 </li>
   </ul>

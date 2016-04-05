@@ -1,6 +1,12 @@
 var searchData=
 [
-  ['send_5fclients',['send_clients',['../classconnection__proxy.html#af7eba0b0b82ba54f3ae8caadf9ed5c31',1,'connection_proxy']]],
-  ['send_5fworkers',['send_workers',['../classconnection__proxy.html#adc6d52c211372d404bf37f1587d8f6ff',1,'connection_proxy']]],
-  ['start_5fbrokering',['start_brokering',['../classbroker.html#a67884c9be2dd745ad906d3f8b6fcc16a',1,'broker']]]
+  ['liveness',['liveness',['../classworker.html#afaf268ca96c5f5539ab7fbe1b9dbf021',1,'worker']]],
+  ['log_5fbasename',['log_basename',['../structlog__config.html#a703407dcb75efcb61b924b29abb084e3',1,'log_config']]],
+  ['log_5fconfig',['log_config',['../structlog__config.html',1,'']]],
+  ['log_5ffile_5fsize',['log_file_size',['../structlog__config.html#ab6f1234d4769233988dd2740d0e90802',1,'log_config']]],
+  ['log_5ffiles_5fcount',['log_files_count',['../structlog__config.html#a22c0a929b30fa747c909205dda662769',1,'log_config']]],
+  ['log_5flevel',['log_level',['../structlog__config.html#a9c47eb219dd530eceacd3b4936a5ddc2',1,'log_config']]],
+  ['log_5fpath',['log_path',['../structlog__config.html#a0347e433932ac20de976a7bfc1244ad8',1,'log_config']]],
+  ['log_5fsuffix',['log_suffix',['../structlog__config.html#a60549f8f7e308491af4e5f764a3be49f',1,'log_config']]],
+  ['logger',['logger',['../classcommand__context.html#a36a94839d14474f5aa25b4ac812c1b75',1,'command_context']]]
 ];

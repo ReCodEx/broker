@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['poll',['poll',['../classconnection__proxy.html#a48d3ffbc01b89c05d9fd1cd8fe98b27a',1,'connection_proxy']]]
+  ['header_5fmatcher',['header_matcher',['../classheader__matcher.html',1,'']]],
+  ['headers',['headers',['../structrequest.html#ad79f91d4ad942b49f0464fc9d75e56bb',1,'request']]],
+  ['hwgroup',['hwgroup',['../classworker.html#a807bfef23a1cb8646eb8558dc6f2cf82',1,'worker']]]
 ];

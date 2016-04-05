@@ -47,6 +47,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -112,6 +113,8 @@ $(document).ready(function(){initNavTree('classconfig__error.html','');});
 <div class="title">config_error Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="broker__config_8h_source.html">broker_config.h</a>&gt;</code></p>
 <div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
   <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Inheritance diagram for config_error:</div>
 <div id="dynsection-0-summary" class="dynsummary" style="display:block;">
@@ -125,15 +128,48 @@ $(document).ready(function(){initNavTree('classconfig__error.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8d9627108e5a250a223e3de47da28b6c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d9627108e5a250a223e3de47da28b6c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>config_error</b> (const std::string &amp;msg)</td></tr>
+<tr class="memitem:a8d9627108e5a250a223e3de47da28b6c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classconfig__error.html#a8d9627108e5a250a223e3de47da28b6c">config_error</a> (const std::string &amp;msg)</td></tr>
 <tr class="separator:a8d9627108e5a250a223e3de47da28b6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p>Definition at line <a class="el" href="broker__config_8h_source.html#l00035">35</a> of file <a class="el" href="broker__config_8h_source.html">broker_config.h</a>.</p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>src/<a class="el" href="broker__config_8h_source.html">broker_config.h</a></li>
+<div class="textblock"><p>Default broker configuration exception. </p>
+
+<p>Definition at line <a class="el" href="broker__config_8h_source.html#l00084">84</a> of file <a class="el" href="broker__config_8h_source.html">broker_config.h</a>.</p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a8d9627108e5a250a223e3de47da28b6c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">config_error::config_error </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>msg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Construction with message returned with what() method. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">msg</td><td>description of exception circumstances </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="broker__config_8h_source.html#l00091">91</a> of file <a class="el" href="broker__config_8h_source.html">broker_config.h</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li>src/config/<a class="el" href="broker__config_8h_source.html">broker_config.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -141,7 +177,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="classconfig__error.html">config_error</a></li>
-    <li class="footer">Generated on Fri Feb 19 2016 18:37:05 for ReCodEx - Task Broker by
+    <li class="footer">Generated on Tue Apr 5 2016 23:18:15 for ReCodEx - Task Broker by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.10 </li>
   </ul>

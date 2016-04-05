@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.10"/>
-<title>ReCodEx - Task Broker: src/broker_config.h Source File</title>
+<title>ReCodEx - Task Broker: src/config/broker_config.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -47,6 +47,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -106,50 +107,75 @@ $(document).ready(function(){initNavTree('broker__config_8h_source.html','');});
 <div class="title">broker_config.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef CODEX_BROKER_BROKER_CONFIG_HPP</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define CODEX_BROKER_BROKER_CONFIG_HPP</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef CODEX_BROKER_CONFIG_H</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define CODEX_BROKER_CONFIG_H</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;yaml-cpp/yaml.h&gt;</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;</div>
-<div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="classbroker__config.html">    8</a></span>&#160;<span class="keyword">class </span><a class="code" href="classbroker__config.html">broker_config</a></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;{</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    uint16_t client_port = 0;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    uint16_t worker_port = 0;</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;yaml-cpp/yaml.h&gt;</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#define BOOST_FILESYSTEM_NO_DEPRECATED</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#define BOOST_NO_CXX11_SCOPED_ENUMS</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &lt;boost/filesystem.hpp&gt;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">namespace </span>fs = boost::filesystem;</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <a class="code" href="classbroker__config.html#a731098e522a4846931fd33b57c1868b8">broker_config</a>();</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="classbroker__config.html#a731098e522a4846931fd33b57c1868b8">broker_config</a>(YAML::Node &amp;config);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">virtual</span> uint16_t <a class="code" href="classbroker__config.html#a746ecf2589391d05dbde4061827233cc">get_client_port</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keyword">virtual</span> uint16_t <a class="code" href="classbroker__config.html#acef02576d8cf5c6331d29642d31ecf6b">get_worker_port</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;};</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;</div>
-<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="classconfig__error.html">   35</a></span>&#160;<span class="keyword">class </span><a class="code" href="classconfig__error.html">config_error</a> : std::runtime_error</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;{</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="classconfig__error.html">config_error</a>(<span class="keyword">const</span> std::string &amp;msg) : std::runtime_error(msg)</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    }</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;};</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#endif // CODEX_BROKER_BROKER_CONFIG_HPP</span></div>
-<div class="ttc" id="classbroker__config_html"><div class="ttname"><a href="classbroker__config.html">broker_config</a></div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8h_source.html#l00008">broker_config.h:8</a></div></div>
-<div class="ttc" id="classconfig__error_html"><div class="ttname"><a href="classconfig__error.html">config_error</a></div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8h_source.html#l00035">broker_config.h:35</a></div></div>
-<div class="ttc" id="classbroker__config_html_a746ecf2589391d05dbde4061827233cc"><div class="ttname"><a href="classbroker__config.html#a746ecf2589391d05dbde4061827233cc">broker_config::get_client_port</a></div><div class="ttdeci">virtual uint16_t get_client_port() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00026">broker_config.cpp:26</a></div></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &quot;log_config.h&quot;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="classbroker__config.html">   20</a></span>&#160;<span class="keyword">class </span><a class="code" href="classbroker__config.html">broker_config</a></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;{</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="classbroker__config.html#a731098e522a4846931fd33b57c1868b8">broker_config</a>();</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="classbroker__config.html#a731098e522a4846931fd33b57c1868b8">broker_config</a>(<span class="keyword">const</span> YAML::Node &amp;config);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keyword">virtual</span> <span class="keyword">const</span> std::string &amp;<a class="code" href="classbroker__config.html#a5a08f9a1c22aa304ba71e6c64bf6ee34">get_client_address</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keyword">virtual</span> uint16_t <a class="code" href="classbroker__config.html#a746ecf2589391d05dbde4061827233cc">get_client_port</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keyword">virtual</span> <span class="keyword">const</span> std::string &amp;<a class="code" href="classbroker__config.html#a9cc71f9dc5f1d5de6e37198d020779e6">get_worker_address</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keyword">virtual</span> uint16_t <a class="code" href="classbroker__config.html#acef02576d8cf5c6331d29642d31ecf6b">get_worker_port</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">size_t</span> <a class="code" href="classbroker__config.html#a06bee90b0a71d57065b34ef465b348b6">get_max_worker_liveness</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keyword">virtual</span> std::chrono::milliseconds <a class="code" href="classbroker__config.html#aaf1b6562880e899e33dfeeef15ce2e14">get_worker_ping_interval</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    <span class="keyword">const</span> <a class="code" href="structlog__config.html">log_config</a> &amp;<a class="code" href="classbroker__config.html#a46f90da07eadb17d94493675df35ca57">get_log_config</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    std::string client_address_ = <span class="stringliteral">&quot;*&quot;</span>; <span class="comment">// &#39;*&#39; is any address</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment"></span>    uint16_t client_port_ = 0;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    std::string worker_address_ = <span class="stringliteral">&quot;*&quot;</span>; <span class="comment">// &#39;*&#39; is any address</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment"></span>    uint16_t worker_port_ = 0;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordtype">size_t</span> max_worker_liveness_ = 4;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    std::chrono::milliseconds worker_ping_interval_ = std::chrono::milliseconds(1000);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <a class="code" href="structlog__config.html">log_config</a> log_config_;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;};</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="classconfig__error.html">   84</a></span>&#160;<span class="keyword">class </span><a class="code" href="classconfig__error.html">config_error</a> : <span class="keyword">public</span> std::runtime_error</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;{</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00091"></a><span class="lineno"><a class="line" href="classconfig__error.html#a8d9627108e5a250a223e3de47da28b6c">   91</a></span>&#160;    <span class="keyword">explicit</span> <a class="code" href="classconfig__error.html#a8d9627108e5a250a223e3de47da28b6c">config_error</a>(<span class="keyword">const</span> std::string &amp;msg) : <a class="code" href="namespacestd.html">std</a>::runtime_error(msg)</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    {</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    }</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;};</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#endif // CODEX_BROKER_CONFIG_H</span></div>
+<div class="ttc" id="classbroker__config_html"><div class="ttname"><a href="classbroker__config.html">broker_config</a></div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8h_source.html#l00020">broker_config.h:20</a></div></div>
+<div class="ttc" id="namespacestd_html"><div class="ttname"><a href="namespacestd.html">std</a></div><div class="ttdoc">STL namespace. </div></div>
+<div class="ttc" id="classconfig__error_html_a8d9627108e5a250a223e3de47da28b6c"><div class="ttname"><a href="classconfig__error.html#a8d9627108e5a250a223e3de47da28b6c">config_error::config_error</a></div><div class="ttdeci">config_error(const std::string &amp;msg)</div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8h_source.html#l00091">broker_config.h:91</a></div></div>
+<div class="ttc" id="classbroker__config_html_a9cc71f9dc5f1d5de6e37198d020779e6"><div class="ttname"><a href="classbroker__config.html#a9cc71f9dc5f1d5de6e37198d020779e6">broker_config::get_worker_address</a></div><div class="ttdeci">virtual const std::string &amp; get_worker_address() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00072">broker_config.cpp:72</a></div></div>
+<div class="ttc" id="structlog__config_html"><div class="ttname"><a href="structlog__config.html">log_config</a></div><div class="ttdef"><b>Definition:</b> <a href="log__config_8h_source.html#l00010">log_config.h:10</a></div></div>
+<div class="ttc" id="classconfig__error_html"><div class="ttname"><a href="classconfig__error.html">config_error</a></div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8h_source.html#l00084">broker_config.h:84</a></div></div>
+<div class="ttc" id="classbroker__config_html_a06bee90b0a71d57065b34ef465b348b6"><div class="ttname"><a href="classbroker__config.html#a06bee90b0a71d57065b34ef465b348b6">broker_config::get_max_worker_liveness</a></div><div class="ttdeci">virtual size_t get_max_worker_liveness() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00082">broker_config.cpp:82</a></div></div>
+<div class="ttc" id="classbroker__config_html_a746ecf2589391d05dbde4061827233cc"><div class="ttname"><a href="classbroker__config.html#a746ecf2589391d05dbde4061827233cc">broker_config::get_client_port</a></div><div class="ttdeci">virtual uint16_t get_client_port() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00067">broker_config.cpp:67</a></div></div>
 <div class="ttc" id="classbroker__config_html_a731098e522a4846931fd33b57c1868b8"><div class="ttname"><a href="classbroker__config.html#a731098e522a4846931fd33b57c1868b8">broker_config::broker_config</a></div><div class="ttdeci">broker_config()</div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00003">broker_config.cpp:3</a></div></div>
-<div class="ttc" id="classbroker__config_html_acef02576d8cf5c6331d29642d31ecf6b"><div class="ttname"><a href="classbroker__config.html#acef02576d8cf5c6331d29642d31ecf6b">broker_config::get_worker_port</a></div><div class="ttdeci">virtual uint16_t get_worker_port() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00031">broker_config.cpp:31</a></div></div>
+<div class="ttc" id="classbroker__config_html_aaf1b6562880e899e33dfeeef15ce2e14"><div class="ttname"><a href="classbroker__config.html#aaf1b6562880e899e33dfeeef15ce2e14">broker_config::get_worker_ping_interval</a></div><div class="ttdeci">virtual std::chrono::milliseconds get_worker_ping_interval() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00087">broker_config.cpp:87</a></div></div>
+<div class="ttc" id="classbroker__config_html_a5a08f9a1c22aa304ba71e6c64bf6ee34"><div class="ttname"><a href="classbroker__config.html#a5a08f9a1c22aa304ba71e6c64bf6ee34">broker_config::get_client_address</a></div><div class="ttdeci">virtual const std::string &amp; get_client_address() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00062">broker_config.cpp:62</a></div></div>
+<div class="ttc" id="classbroker__config_html_a46f90da07eadb17d94493675df35ca57"><div class="ttname"><a href="classbroker__config.html#a46f90da07eadb17d94493675df35ca57">broker_config::get_log_config</a></div><div class="ttdeci">const log_config &amp; get_log_config() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00092">broker_config.cpp:92</a></div></div>
+<div class="ttc" id="classbroker__config_html_acef02576d8cf5c6331d29642d31ecf6b"><div class="ttname"><a href="classbroker__config.html#acef02576d8cf5c6331d29642d31ecf6b">broker_config::get_worker_port</a></div><div class="ttdeci">virtual uint16_t get_worker_port() const </div><div class="ttdef"><b>Definition:</b> <a href="broker__config_8cpp_source.html#l00077">broker_config.cpp:77</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><b>broker_config.h</b></li>
-    <li class="footer">Generated on Fri Feb 19 2016 18:37:05 for ReCodEx - Task Broker by
+    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_7e83d1792d529f4aa7126ac7e0b3b699.html">config</a></li><li class="navelem"><b>broker_config.h</b></li>
+    <li class="footer">Generated on Tue Apr 5 2016 23:18:15 for ReCodEx - Task Broker by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.10 </li>
   </ul>
