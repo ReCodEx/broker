@@ -79,3 +79,20 @@ set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/install/postinst;")
 set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${RECODEX_VERSION}-${CPACK_RPM_PACKAGE_RELEASE}-${CPACK_RPM_PACKAGE_ARCHITECTURE}")
 include (CPack)
+
+
+# ========== Formatting ==========
+file(GLOB_RECURSE ALL_SOURCE_FILES src/*.cpp src/*.h tests/*.cpp tests/*.h)
+add_custom_target(format
+	COMMAND clang-format --style=file -i ${ALL_SOURCE_FILES}
+	COMMENT "Running clang-format"
+	VERBATIM
+)
+
+# Count sum of lines in source files (for Martin)
+add_custom_target(lines
+	COMMAND echo -n "Total lines of code: " && cat ${ALL_SOURCE_FILES} | wc -l
+	COMMENT "Counting lines"
+	VERBATIM
+)
+
