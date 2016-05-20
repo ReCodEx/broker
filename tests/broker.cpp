@@ -26,7 +26,7 @@ public:
 
 		ON_CALL(*this, get_monitor_address()).WillByDefault(ReturnRef(localhost));
 
-		ON_CALL(*this, get_monitor_port()).WillByDefault(Return(5454));
+		ON_CALL(*this, get_monitor_port()).WillByDefault(Return(7894));
 	}
 
 	MOCK_CONST_METHOD0(get_client_address, const std::string &());
@@ -58,7 +58,7 @@ public:
 	MOCK_METHOD3(recv_clients, bool(std::string &, std::vector<std::string> &, bool *));
 	MOCK_METHOD2(send_workers, bool(const std::string &, const std::vector<std::string> &));
 	MOCK_METHOD2(send_clients, bool(const std::string &, const std::vector<std::string> &));
-	MOCK_METHOD2(send_monitor, bool(const std::string &, const std::string &));
+	MOCK_METHOD1(send_monitor, bool(const std::vector<std::string> &));
 };
 
 /** Check if worker satisfies given header value */
@@ -78,7 +78,7 @@ TEST(broker, bind)
 
 		std::string addr_1 = "tcp://*:1234";
 		std::string addr_2 = "tcp://*:4321";
-		std::string addr_3 = "tcp://127.0.0.1:5454";
+		std::string addr_3 = "tcp://127.0.0.1:7894";
 
 		EXPECT_CALL(*sockets, set_addresses(StrEq(addr_1), StrEq(addr_2), StrEq(addr_3)));
 		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(SetArgReferee<2>(true));
@@ -365,6 +365,46 @@ TEST(broker, worker_expiration)
 
 	// Liveness got decreased to zero -> get rid of the worker
 	EXPECT_CALL(*workers, remove_worker(worker_1)).InSequence(s2);
+
+	// Last poll
+	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
+
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker.start_brokering();
+}
+
+TEST(broker, worker_state_message)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
+
+	request::headers_t headers = {{"env", "c"}};
+	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
+	worker_1->liveness = 100;
+
+	std::vector<std::shared_ptr<worker>> worker_vector = {worker_1};
+
+	EXPECT_CALL(*workers, find_worker_by_identity(StrEq(worker_1->identity))).WillRepeatedly(Return(worker_1));
+
+	EXPECT_CALL(*workers, get_workers()).WillRepeatedly(ReturnRef(worker_vector));
+
+	Sequence s1, s2, s3;
+
+	EXPECT_CALL(*sockets, set_addresses(_, _, _)).InSequence(s1, s2);
+
+	EXPECT_CALL(*sockets, poll(_, _, _, _))
+		.InSequence(s1)
+		.WillOnce(DoAll(ClearFlags(), SetFlag(message_origin::WORKER)));
+
+	// A state command from worker
+	EXPECT_CALL(*sockets, recv_workers(_, _, _))
+		.InSequence(s2, s3)
+		.WillOnce(DoAll(
+			SetArgReferee<0>(worker_1->identity), SetArgReferee<1>(std::vector<std::string>{"state", "arg1", "arg2"})));
+
+	// Respond to command - forward arguments to the monitor
+	EXPECT_CALL(*sockets, send_monitor(ElementsAre("arg1", "arg2"))).InSequence(s2);
 
 	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));

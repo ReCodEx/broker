@@ -77,7 +77,7 @@ private:
 	/** Monitor socket address */
 	std::string monitor_address_ = "127.0.0.1";
 	/** Monitor socket port */
-	uint16_t monitor_port_ = 5454;
+	uint16_t monitor_port_ = 7894;
 	/**
 	 * Maximum (initial) liveness of a worker
 	 * (the amount of pings the worker can miss before it's considered dead)

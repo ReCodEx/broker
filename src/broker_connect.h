@@ -104,6 +104,7 @@ public:
 
 		sockets_->set_addresses(clients_endpoint, workers_endpoint, monitor_endpoint);
 
+
 		const std::chrono::milliseconds ping_interval = config_->get_worker_ping_interval();
 		const size_t max_liveness = config_->get_max_worker_liveness();
 		std::chrono::milliseconds poll_limit = ping_interval;

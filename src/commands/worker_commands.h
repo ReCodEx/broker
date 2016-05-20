@@ -94,14 +94,7 @@ namespace worker_commands
 	void process_state(
 		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
-		if (arguments.size() != 2) {
-			context.logger->error() << "State command with wrong number of arguments - 2 expected, got "
-									<< arguments.size();
-		}
-
-		auto &channel = arguments[0];
-		auto &message = arguments[1];
-		context.sockets->send_monitor(channel, message);
+		context.sockets->send_monitor(arguments);
 	}
 
 } // namespace

@@ -47,7 +47,7 @@ public:
 	{
 		clients_.bind(clients_addr);
 		workers_.bind(workers_addr);
-		monitor_.connect(monitor_addr); // TODO:
+		monitor_.connect(monitor_addr);
 	}
 
 	/**
@@ -222,8 +222,11 @@ public:
 
 	/**
 	 * Send a message through monitor socket
+	 *
+	 * If monitor is connected, send a message through the open socket. Otherwise, messages are queued for
+	 * some time and then dropped automatically.
 	 */
-	bool send_monitor(const std::string &channel, const std::string &msg)
+	bool send_monitor(const std::vector<std::string> &msg)
 	{
 		bool retval;
 		const std::string monitor_socket_id = "recodex-monitor";
@@ -233,13 +236,15 @@ public:
 			return false;
 		}
 
-		retval = monitor_.send(channel.c_str(), channel.size(), ZMQ_SNDMORE) >= 0;
-		if (!retval) {
-			return false;
+		for (auto it = std::begin(msg); it != std::end(msg); ++it) {
+			retval = monitor_.send(it->c_str(), it->size(), std::next(it) != std::end(msg) ? ZMQ_SNDMORE : 0) >= 0;
+
+			if (!retval) {
+				return false;
+			}
 		}
 
-		retval = monitor_.send(msg.c_str(), msg.size(), 0) >= 0;
-		return retval;
+		return true;
 	}
 };
 
