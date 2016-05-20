@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "../src/broker_connect.h"
 #include "../src/worker.h"
@@ -10,6 +10,7 @@ class mock_broker_config : public broker_config
 {
 public:
 	const std::string address = "*";
+	const std::string localhost = "127.0.0.1";
 
 	mock_broker_config() : broker_config()
 	{
@@ -22,12 +23,18 @@ public:
 		ON_CALL(*this, get_worker_address()).WillByDefault(ReturnRef(address));
 
 		ON_CALL(*this, get_worker_port()).WillByDefault(Return(4321));
+
+		ON_CALL(*this, get_monitor_address()).WillByDefault(ReturnRef(localhost));
+
+		ON_CALL(*this, get_monitor_port()).WillByDefault(Return(5454));
 	}
 
 	MOCK_CONST_METHOD0(get_client_address, const std::string &());
 	MOCK_CONST_METHOD0(get_client_port, uint16_t());
 	MOCK_CONST_METHOD0(get_worker_address, const std::string &());
 	MOCK_CONST_METHOD0(get_worker_port, uint16_t());
+	MOCK_CONST_METHOD0(get_monitor_address, const std::string &());
+	MOCK_CONST_METHOD0(get_monitor_port, uint16_t());
 	MOCK_CONST_METHOD0(get_worker_ping_interval, std::chrono::milliseconds());
 };
 
@@ -45,12 +52,13 @@ public:
 class mock_connection_proxy
 {
 public:
-	MOCK_METHOD2(bind, void(const std::string &, const std::string &));
+	MOCK_METHOD3(set_addresses, void(const std::string &, const std::string &, const std::string &));
 	MOCK_METHOD4(poll, void(message_origin::set &, std::chrono::milliseconds, bool &, std::chrono::milliseconds &));
 	MOCK_METHOD3(recv_workers, bool(std::string &, std::vector<std::string> &, bool *));
 	MOCK_METHOD3(recv_clients, bool(std::string &, std::vector<std::string> &, bool *));
 	MOCK_METHOD2(send_workers, bool(const std::string &, const std::vector<std::string> &));
 	MOCK_METHOD2(send_clients, bool(const std::string &, const std::vector<std::string> &));
+	MOCK_METHOD2(send_monitor, bool(const std::string &, const std::string &));
 };
 
 /** Check if worker satisfies given header value */
@@ -70,8 +78,9 @@ TEST(broker, bind)
 
 		std::string addr_1 = "tcp://*:1234";
 		std::string addr_2 = "tcp://*:4321";
+		std::string addr_3 = "tcp://127.0.0.1:5454";
 
-		EXPECT_CALL(*sockets, bind(StrEq(addr_1), StrEq(addr_2)));
+		EXPECT_CALL(*sockets, set_addresses(StrEq(addr_1), StrEq(addr_2), StrEq(addr_3)));
 		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(SetArgReferee<2>(true));
 	}
 
@@ -97,7 +106,7 @@ TEST(broker, worker_init)
 
 	Sequence s1, s2, s3, s4;
 
-	EXPECT_CALL(*sockets, bind(_, _)).InSequence(s1, s2);
+	EXPECT_CALL(*sockets, set_addresses(_, _, _)).InSequence(s1, s2);
 
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
@@ -171,7 +180,7 @@ TEST(broker, queuing)
 
 	Sequence s1, s2, s3;
 
-	EXPECT_CALL(*sockets, bind(_, _)).InSequence(s1, s2);
+	EXPECT_CALL(*sockets, set_addresses(_, _, _)).InSequence(s1, s2);
 
 	// A request has arrived
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
@@ -246,7 +255,7 @@ TEST(broker, ping_unknown_worker)
 
 	Sequence s1, s2, s3, s4, s5;
 
-	EXPECT_CALL(*sockets, bind(_, _)).InSequence(s1, s2);
+	EXPECT_CALL(*sockets, set_addresses(_, _, _)).InSequence(s1, s2);
 
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
@@ -310,7 +319,7 @@ TEST(broker, ping_known_worker)
 
 	Sequence s1, s2, s3;
 
-	EXPECT_CALL(*sockets, bind(_, _)).InSequence(s1, s2);
+	EXPECT_CALL(*sockets, set_addresses(_, _, _)).InSequence(s1, s2);
 
 	EXPECT_CALL(*sockets, poll(_, _, _, _))
 		.InSequence(s1)
@@ -345,7 +354,7 @@ TEST(broker, worker_expiration)
 
 	Sequence s1, s2, s3;
 
-	EXPECT_CALL(*sockets, bind(_, _)).InSequence(s1, s2);
+	EXPECT_CALL(*sockets, set_addresses(_, _, _)).InSequence(s1, s2);
 
 	// No message from workers for a whole second
 	EXPECT_CALL(*sockets, poll(_, _, _, _))

@@ -1,9 +1,9 @@
 #ifndef CODEX_BROKER_WORKER_COMMANDS_H
 #define CODEX_BROKER_WORKER_COMMANDS_H
 
-#include <sstream>
 #include "../helpers/string_to_hex.h"
 #include "../worker.h"
+#include <sstream>
 
 
 /**
@@ -70,6 +70,9 @@ namespace worker_commands
 		}
 	}
 
+	/**
+	 * Process a "ping" message from worker.
+	 */
 	template <typename proxy>
 	void process_ping(
 		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
@@ -82,6 +85,23 @@ namespace worker_commands
 		}
 
 		context.sockets->send_workers(worker->identity, std::vector<std::string>{"pong"});
+	}
+
+	/**
+	 * Process a "state" message from worker.
+	 */
+	template <typename proxy>
+	void process_state(
+		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
+	{
+		if (arguments.size() != 2) {
+			context.logger->error() << "State command with wrong number of arguments - 2 expected, got "
+									<< arguments.size();
+		}
+
+		auto &channel = arguments[0];
+		auto &message = arguments[1];
+		context.sockets->send_monitor(channel, message);
 	}
 
 } // namespace

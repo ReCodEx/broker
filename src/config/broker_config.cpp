@@ -37,6 +37,16 @@ broker_config::broker_config(const YAML::Node &config)
 			} // no throw... can be omitted
 		}
 
+		// load monitor address and port
+		if (config["monitor"] && config["monitor"].IsMap()) {
+			if (config["monitor"]["address"] && config["monitor"]["address"].IsScalar()) {
+				monitor_address_ = config["monitor"]["address"].as<std::string>();
+			} // no throw... can be omitted
+			if (config["monitor"]["port"] && config["monitor"]["port"].IsScalar()) {
+				monitor_port_ = config["monitor"]["port"].as<uint16_t>();
+			} // no throw... can be omitted
+		}
+
 		// load logger
 		if (config["logger"] && config["logger"].IsMap()) {
 			if (config["logger"]["file"] && config["logger"]["file"].IsScalar()) {
@@ -77,6 +87,16 @@ const std::string &broker_config::get_worker_address() const
 uint16_t broker_config::get_worker_port() const
 {
 	return worker_port_;
+}
+
+const std::string &broker_config::get_monitor_address() const
+{
+	return monitor_address_;
+}
+
+uint16_t broker_config::get_monitor_port() const
+{
+	return monitor_port_;
 }
 
 size_t broker_config::get_max_worker_liveness() const

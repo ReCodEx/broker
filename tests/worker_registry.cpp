@@ -1,8 +1,8 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "../src/worker_registry.h"
 #include "../src/worker.h"
+#include "../src/worker_registry.h"
 
 using namespace testing;
 

@@ -1,10 +1,10 @@
 #ifndef CODEX_BROKER_ROUTER_H
 #define CODEX_BROKER_ROUTER_H
 
-#include <vector>
 #include <map>
-#include <queue>
 #include <memory>
+#include <queue>
+#include <vector>
 
 #include "worker.h"
 

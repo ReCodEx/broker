@@ -2,8 +2,8 @@
 #define CODEX_BROKER_CONFIG_H
 
 #include <iostream>
-#include <string>
 #include <map>
+#include <string>
 #include <yaml-cpp/yaml.h>
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
@@ -44,6 +44,14 @@ public:
 	 */
 	virtual uint16_t get_worker_port() const;
 	/**
+	 * Return IP address for monitor connections
+	 */
+	virtual const std::string &get_monitor_address() const;
+	/**
+	 * Get the port for communication with monitor
+	 */
+	virtual uint16_t get_monitor_port() const;
+	/**
 	 * Get the maximum (i.e. initial) liveness of a worker
 	 */
 	virtual size_t get_max_worker_liveness() const;
@@ -66,6 +74,10 @@ private:
 	std::string worker_address_ = "*"; // '*' is any address
 	/** Server socket port (to workers) */
 	uint16_t worker_port_ = 0;
+	/** Monitor socket address */
+	std::string monitor_address_ = "127.0.0.1";
+	/** Monitor socket port */
+	uint16_t monitor_port_ = 5454;
 	/**
 	 * Maximum (initial) liveness of a worker
 	 * (the amount of pings the worker can miss before it's considered dead)

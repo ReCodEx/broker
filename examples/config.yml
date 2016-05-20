@@ -6,6 +6,11 @@ clients:
 workers:
     address: "*"
     port: 9657
+    max_liveness: 4
+    ping_interval: 1000
+monitor:
+    address: "127.0.0.1"
+    port: 5454
 logger:
     file: "/var/log/recodex/broker"  # w/o suffix - actual names will be broker.log, broker.1.log, ...
     level: "debug"  # level of logging

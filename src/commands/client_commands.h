@@ -1,6 +1,7 @@
 #ifndef CODEX_BROKER_CLIENT_COMMANDS_H
 #define CODEX_BROKER_CLIENT_COMMANDS_H
 
+#include "../commands/command_holder.h"
 #include "../helpers/string_to_hex.h"
 #include "../worker.h"
 

@@ -1,12 +1,12 @@
 #ifndef CODEX_BROKER_COMMANDS_BASE_H
 #define CODEX_BROKER_COMMANDS_BASE_H
 
-#include <memory>
-#include <string>
-#include <functional>
-#include <map>
 #include "../helpers/create_logger.h"
 #include "../worker_registry.h"
+#include <functional>
+#include <map>
+#include <memory>
+#include <string>
 
 
 /**

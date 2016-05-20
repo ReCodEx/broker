@@ -18,10 +18,10 @@ namespace fs = boost::filesystem;
 
 // Our very own code includes
 #include "broker_connect.h"
-#include "config/log_config.h"
-#include "config/broker_config.h"
-#include "connection_proxy.h"
 #include "commands/command_holder.h"
+#include "config/broker_config.h"
+#include "config/log_config.h"
+#include "connection_proxy.h"
 
 
 /**

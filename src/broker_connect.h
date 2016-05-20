@@ -2,24 +2,24 @@
 #define CODEX_BROKER_BROKER_HPP
 
 
-#include <memory>
-#include <bitset>
-#include <chrono>
-#include "helpers/create_logger.h"
-#include "helpers/string_to_hex.h"
-#include "config/broker_config.h"
-#include "worker_registry.h"
+#include "commands/client_commands.h"
 #include "commands/command_holder.h"
 #include "commands/worker_commands.h"
-#include "commands/client_commands.h"
+#include "config/broker_config.h"
+#include "helpers/create_logger.h"
+#include "helpers/string_to_hex.h"
+#include "worker_registry.h"
+#include <bitset>
+#include <chrono>
+#include <memory>
 
 /**
  * Contains type definitions used by the proxy poll function
  */
 struct message_origin {
-	enum type { CLIENT = 0, WORKER = 1 };
+	enum type { CLIENT = 0, WORKER = 1, MONITOR = 2 };
 
-	typedef std::bitset<2> set;
+	typedef std::bitset<3> set;
 };
 
 /**
@@ -77,6 +77,7 @@ public:
 		worker_cmds_->register_command("init", worker_commands::process_init<proxy>);
 		worker_cmds_->register_command("done", worker_commands::process_done<proxy>);
 		worker_cmds_->register_command("ping", worker_commands::process_ping<proxy>);
+		worker_cmds_->register_command("state", worker_commands::process_state<proxy>);
 
 		// init client commands
 		client_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, logger_);
@@ -91,12 +92,17 @@ public:
 	{
 		auto clients_endpoint =
 			"tcp://" + config_->get_client_address() + ":" + std::to_string(config_->get_client_port());
+		logger_->debug() << "Binding clients to " + clients_endpoint;
+
 		auto workers_endpoint =
 			"tcp://" + config_->get_worker_address() + ":" + std::to_string(config_->get_worker_port());
-		logger_->debug() << "Binding clients to " + clients_endpoint;
 		logger_->debug() << "Binding workers to " + workers_endpoint;
 
-		sockets_->bind(clients_endpoint, workers_endpoint);
+		auto monitor_endpoint =
+			"tcp://" + config_->get_monitor_address() + ":" + std::to_string(config_->get_monitor_port());
+		logger_->debug() << "Binding monitor to " + monitor_endpoint;
+
+		sockets_->set_addresses(clients_endpoint, workers_endpoint, monitor_endpoint);
 
 		const std::chrono::milliseconds ping_interval = config_->get_worker_ping_interval();
 		const size_t max_liveness = config_->get_max_worker_liveness();
@@ -168,6 +174,12 @@ public:
 				if (worker != nullptr) {
 					worker->liveness = max_liveness;
 				}
+			}
+
+			// Received a message from the monitor
+			if (result.test(message_origin::MONITOR)) {
+				// this shoud not happen
+				logger_->error() << "Received message from monitor, but none expected.";
 			}
 
 			// Handle dead workers

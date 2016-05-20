@@ -1,10 +1,10 @@
 #ifndef RECODEX_BROKER_WORKER_H
 #define RECODEX_BROKER_WORKER_H
 
-#include <memory>
-#include <vector>
-#include <queue>
 #include <map>
+#include <memory>
+#include <queue>
+#include <vector>
 
 /**
  * An evaluation request
