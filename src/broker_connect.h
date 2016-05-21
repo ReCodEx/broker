@@ -77,7 +77,7 @@ public:
 		worker_cmds_->register_command("init", worker_commands::process_init<proxy>);
 		worker_cmds_->register_command("done", worker_commands::process_done<proxy>);
 		worker_cmds_->register_command("ping", worker_commands::process_ping<proxy>);
-		worker_cmds_->register_command("state", worker_commands::process_state<proxy>);
+		worker_cmds_->register_command("progress", worker_commands::process_progress<proxy>);
 
 		// init client commands
 		client_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, logger_);

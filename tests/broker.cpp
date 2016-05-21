@@ -400,8 +400,8 @@ TEST(broker, worker_state_message)
 	// A state command from worker
 	EXPECT_CALL(*sockets, recv_workers(_, _, _))
 		.InSequence(s2, s3)
-		.WillOnce(DoAll(
-			SetArgReferee<0>(worker_1->identity), SetArgReferee<1>(std::vector<std::string>{"state", "arg1", "arg2"})));
+		.WillOnce(DoAll(SetArgReferee<0>(worker_1->identity),
+			SetArgReferee<1>(std::vector<std::string>{"progress", "arg1", "arg2"})));
 
 	// Respond to command - forward arguments to the monitor
 	EXPECT_CALL(*sockets, send_monitor(ElementsAre("arg1", "arg2"))).InSequence(s2);

@@ -10,7 +10,7 @@ workers:
     ping_interval: 1000
 monitor:
     address: "127.0.0.1"
-    port: 5454
+    port: 7894
 logger:
     file: "/var/log/recodex/broker"  # w/o suffix - actual names will be broker.log, broker.1.log, ...
     level: "debug"  # level of logging

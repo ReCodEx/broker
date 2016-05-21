@@ -91,7 +91,7 @@ namespace worker_commands
 	 * Process a "state" message from worker.
 	 */
 	template <typename proxy>
-	void process_state(
+	void process_progress(
 		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
 		context.sockets->send_monitor(arguments);
