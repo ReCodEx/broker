@@ -6,7 +6,7 @@
 #include "commands/command_holder.h"
 #include "commands/worker_commands.h"
 #include "config/broker_config.h"
-#include "helpers/create_logger.h"
+#include "helpers/logger.h"
 #include "helpers/string_to_hex.h"
 #include "worker_registry.h"
 #include <bitset>
@@ -41,7 +41,7 @@ private:
 	 */
 	void remove_worker(worker_registry::worker_ptr expired_worker)
 	{
-		logger_->debug() << "Worker " + helpers::string_to_hex(expired_worker->identity) + " expired";
+		logger_->notice() << "Worker " + helpers::string_to_hex(expired_worker->identity) + " expired";
 
 		workers_->remove_worker(expired_worker);
 		auto requests = expired_worker->terminate();

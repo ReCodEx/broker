@@ -31,14 +31,14 @@ add_test_suite(worker_registry
 	worker_registry.cpp
 	${SRC_DIR}/worker_registry.cpp
 	${SRC_DIR}/worker.cpp
-	${HELPERS_DIR}/create_logger.cpp
+	${HELPERS_DIR}/logger.cpp
 )
 
 add_test_suite(broker
 	broker.cpp
 	${SRC_DIR}/config/broker_config.cpp
 	${HELPERS_DIR}/string_to_hex.cpp
-	${HELPERS_DIR}/create_logger.cpp
+	${HELPERS_DIR}/logger.cpp
 	${SRC_DIR}/worker_registry.cpp
 	${SRC_DIR}/worker.cpp
 )

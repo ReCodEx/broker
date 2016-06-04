@@ -1,7 +1,7 @@
 #ifndef CODEX_BROKER_COMMANDS_BASE_H
 #define CODEX_BROKER_COMMANDS_BASE_H
 
-#include "../helpers/create_logger.h"
+#include "../helpers/logger.h"
 #include "../worker_registry.h"
 #include <functional>
 #include <map>

@@ -36,37 +36,6 @@ public:
 	int log_files_count = 3;
 
 	/**
-	 * For appropriate textual description of logging level returns spdlog::level enumeration.
-	 * @param lev textual description of logging level
-	 * @return enumeration item suitable to textual description
-	 */
-	static spdlog::level::level_enum get_level(const std::string &lev)
-	{
-		if (lev == "off") {
-			return spdlog::level::off;
-		} else if (lev == "emerg") {
-			return spdlog::level::emerg;
-		} else if (lev == "alert") {
-			return spdlog::level::alert;
-		} else if (lev == "critical") {
-			return spdlog::level::critical;
-		} else if (lev == "err") {
-			return spdlog::level::err;
-		} else if (lev == "warn") {
-			return spdlog::level::warn;
-		} else if (lev == "notice") {
-			return spdlog::level::notice;
-		} else if (lev == "info") {
-			return spdlog::level::info;
-		} else if (lev == "debug") {
-			return spdlog::level::debug;
-		}
-
-		return spdlog::level::trace;
-	}
-
-
-	/**
 	 * Classical equality operator on log_config structures.
 	 * @param second
 	 * @return true if this instance and second has the same variables values

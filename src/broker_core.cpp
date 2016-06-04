@@ -111,11 +111,15 @@ void broker_core::log_init()
 		// Make log with name "logger"
 		logger_ = std::make_shared<spdlog::logger>("logger", rotating_sink);
 		// Set logging level to debug
-		logger_->set_level(log_config::get_level(log_conf.log_level));
+		logger_->set_level(helpers::get_log_level(log_conf.log_level));
 		// Print header to log
-		logger_->emerg() << "------------------------------";
-		logger_->emerg() << "    Started ReCodEx broker";
-		logger_->emerg() << "------------------------------";
+		if (helpers::compare_log_levels(spdlog::level::notice, logger_->level()) > 0) {
+			logger_->emerg() << "--- Started ReCodEx broker ---";
+		} else {
+			logger_->notice() << "------------------------------";
+			logger_->notice() << "    Started ReCodEx broker";
+			logger_->notice() << "------------------------------";
+		}
 	} catch (spdlog::spdlog_ex &e) {
 		std::cerr << "Logger: " << e.what() << std::endl;
 		throw;
