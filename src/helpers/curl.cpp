@@ -1,5 +1,11 @@
 #include "curl.h"
 
+// Tweak for older libcurls
+#ifndef CURL_HTTP_VERSION_2_0
+#define CURL_HTTP_VERSION_2_0 CURL_HTTP_VERSION_1_1
+#endif
+
+
 std::string helpers::get_http_query(const curl_params &params)
 {
 	std::string result;
@@ -45,7 +51,7 @@ std::string helpers::curl_get(
 	curl = curl_easy_init();
 	if (curl) {
 		// destination address
-		curl_easy_setopt(curl, CURLOPT_URL, url + "?" + query);
+		curl_easy_setopt(curl, CURLOPT_URL, (url + "?" + query).c_str());
 
 		// set writer wrapper and result string
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, string_write_wrapper);
@@ -97,10 +103,10 @@ std::string helpers::curl_post(
 	curl = curl_easy_init();
 	if (curl) {
 		// destination address
-		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
 		/* Now specify the POST data */
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, query);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, query.c_str());
 
 		// set writer wrapper and result string
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, string_write_wrapper);
