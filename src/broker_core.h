@@ -8,6 +8,7 @@
 #include <thread>
 #include <vector>
 #include <yaml-cpp/yaml.h>
+#include <curl/curl.h>
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #define BOOST_NO_CXX11_SCOPED_ENUMS
@@ -56,7 +57,7 @@ public:
 
 	/**
 	 * Constructors initializes all things,	all we have to do now is launch all the fun.
-	 * This method creates separate thread for broker_connection and starts job_evaluator service.
+	 * This method starts broker service.
 	 */
 	void run();
 
@@ -72,6 +73,16 @@ private:
 	void broker_init();
 
 	/**
+	 * Globally initializes CURL
+	 */
+	void curl_init();
+
+	/**
+	 * CURL cleanup
+	 */
+	void curl_fini();
+
+	/**
 	 * Exit whole application with return code 1.
 	 * @param msg string which is copied to stderr and logger if initialized.
 	 */
@@ -83,7 +94,7 @@ private:
 	void parse_params();
 
 	/**
-	 * Load default worker configuration from default config file
+	 * Load default broker configuration from default config file
 	 * or from file given in cmd parameters.
 	 */
 	void load_config();
@@ -107,7 +118,7 @@ private:
 	/** Pointer to sockets */
 	std::shared_ptr<connection_proxy> sockets_;
 
-	/** Main broker class */
+	/** Main broker class which handles incoming and outgoing connections */
 	std::shared_ptr<broker_connect<connection_proxy>> broker_;
 };
 

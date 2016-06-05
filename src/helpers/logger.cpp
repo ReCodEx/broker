@@ -39,26 +39,16 @@ int helpers::get_log_level_number(spdlog::level::level_enum lev)
 	using namespace spdlog::level;
 
 	switch (lev) {
-	case trace:
-		return 9;
-	case debug:
-		return 8;
-	case info:
-		return 7;
-	case notice:
-		return 6;
-	case warn:
-		return 5;
-	case err:
-		return 4;
-	case critical:
-		return 3;
-	case alert:
-		return 2;
-	case emerg:
-		return 1;
-	default:
-		return 0;
+	case trace: return 9;
+	case debug: return 8;
+	case info: return 7;
+	case notice: return 6;
+	case warn: return 5;
+	case err: return 4;
+	case critical: return 3;
+	case alert: return 2;
+	case emerg: return 1;
+	default: return 0;
 	}
 }
 

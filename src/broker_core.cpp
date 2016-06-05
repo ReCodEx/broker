@@ -9,12 +9,16 @@ broker_core::broker_core(std::vector<std::string> args)
 	load_config();
 	// initialize logger
 	log_init();
+	// initialize curl
+	curl_init();
 	// construct and setup broker connection
 	broker_init();
 }
 
 broker_core::~broker_core()
 {
+	// curl finalize
+	curl_fini();
 }
 
 void broker_core::run()
@@ -135,6 +139,27 @@ void broker_core::broker_init()
 	sockets_ = std::make_shared<connection_proxy>();
 	broker_ = std::make_shared<broker_connect<connection_proxy>>(config_, sockets_, workers_, logger_);
 	logger_->info() << "Broker connection initialized.";
+
+	return;
+}
+
+void broker_core::curl_init()
+{
+	// Globally init curl library
+
+	logger_->info() << "Initializing CURL...";
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	logger_->info() << "CURL initialized.";
+
+	return;
+}
+
+void broker_core::curl_fini()
+{
+	// Clean after curl library
+	logger_->info() << "Cleanup after CURL...";
+	curl_global_cleanup();
+	logger_->info() << "CURL cleaned.";
 
 	return;
 }

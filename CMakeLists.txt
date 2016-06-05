@@ -11,6 +11,10 @@ include_directories(AFTER, vendor/cppzmq)
 # Spdlog logging library
 include_directories(AFTER, vendor/spdlog/include)
 
+# Find CURL
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIRS})
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
@@ -31,6 +35,8 @@ set(SOURCE_FILES
 	src/helpers/string_to_hex.cpp
 	src/helpers/logger.h
 	src/helpers/logger.cpp
+	src/helpers/curl.h
+	src/helpers/curl.cpp
 	src/worker.cpp
 )
 
@@ -40,6 +46,7 @@ target_link_libraries(${EXEC_NAME} -lzmq)
 target_link_libraries(${EXEC_NAME} -lboost_system)
 target_link_libraries(${EXEC_NAME} -lboost_filesystem)
 target_link_libraries(${EXEC_NAME} -lboost_program_options)
+target_link_libraries(${EXEC_NAME} ${CURL_LIBRARIES})
 
 # Include Google Test libraries and then our very own unit tests
 add_subdirectory(vendor/googletest EXCLUDE_FROM_ALL)
