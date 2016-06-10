@@ -39,8 +39,9 @@ set(SOURCE_FILES
 	src/helpers/curl.h
 	src/helpers/curl.cpp
 	src/worker.cpp
-	src/http_poller.h
-	src/http_poller.cpp
+	src/notifier/status_notifier.h
+	src/notifier/http_status_notifier.h
+	src/notifier/http_status_notifier.cpp
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})

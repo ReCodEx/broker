@@ -1,6 +1,6 @@
-#include "http_poller.h"
+#include "http_status_notifier.h"
 
-http_poller::http_poller(const frontend_config &config, std::shared_ptr<spdlog::logger> logger)
+http_status_notifier::http_status_notifier(const frontend_config &config, std::shared_ptr<spdlog::logger> logger)
 	: config_(config), logger_(logger)
 {
 	if (logger_ == nullptr) {
@@ -10,7 +10,11 @@ http_poller::http_poller(const frontend_config &config, std::shared_ptr<spdlog::
 	address_ = config.address + ":" + std::to_string(config.port);
 }
 
-void http_poller::send_error(std::string desc)
+http_status_notifier::~http_status_notifier()
+{
+}
+
+void http_status_notifier::send_error(std::string desc)
 {
 	std::string addr = address_ + "/error";
 	try {
@@ -20,7 +24,7 @@ void http_poller::send_error(std::string desc)
 	}
 }
 
-void http_poller::send_job_done(std::string job_id)
+void http_status_notifier::send_job_done(std::string job_id)
 {
 	std::string addr = address_ + "/job_done";
 	try {

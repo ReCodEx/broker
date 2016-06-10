@@ -11,8 +11,8 @@ broker_core::broker_core(std::vector<std::string> args)
 	log_init();
 	// initialize curl
 	curl_init();
-	// http_poller init
-	poller_init();
+	// notifier init
+	notifier_init();
 	// construct and setup broker connection
 	broker_init();
 }
@@ -166,7 +166,7 @@ void broker_core::curl_fini()
 	return;
 }
 
-void broker_core::poller_init()
+void broker_core::notifier_init()
 {
-	http_poller_ = std::make_shared<http_poller>(config_->get_frontend_config());
+	status_notifier_ = std::make_shared<http_status_notifier>(config_->get_frontend_config());
 }
