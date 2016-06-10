@@ -11,6 +11,8 @@ broker_core::broker_core(std::vector<std::string> args)
 	log_init();
 	// initialize curl
 	curl_init();
+	// http_poller init
+	poller_init();
 	// construct and setup broker connection
 	broker_init();
 }
@@ -162,4 +164,9 @@ void broker_core::curl_fini()
 	logger_->info() << "CURL cleaned.";
 
 	return;
+}
+
+void broker_core::poller_init()
+{
+	http_poller_ = std::make_shared<http_poller>(config_->get_frontend_config());
 }

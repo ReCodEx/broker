@@ -33,8 +33,7 @@ static size_t string_write_wrapper(void *ptr, size_t size, size_t nmemb, std::st
 {
 	size_t length = size * nmemb;
 
-	str->resize(length);
-	std::copy((char *) ptr, (char *) ptr + length, str->begin());
+	std::copy((char *) ptr, (char *) ptr + length, std::back_inserter(*str));
 
 	return length;
 }
@@ -44,6 +43,7 @@ std::string helpers::curl_get(
 {
 	std::string result;
 	std::string query = get_http_query(params);
+	std::string url_query = url + "?" + query;
 	CURL *curl;
 	CURLcode res;
 
@@ -51,7 +51,7 @@ std::string helpers::curl_get(
 	curl = curl_easy_init();
 	if (curl) {
 		// destination address
-		curl_easy_setopt(curl, CURLOPT_URL, (url + "?" + query).c_str());
+		curl_easy_setopt(curl, CURLOPT_URL, url_query.c_str());
 
 		// set writer wrapper and result string
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, string_write_wrapper);
@@ -83,7 +83,7 @@ std::string helpers::curl_get(
 
 		// Check for errors
 		if (res != CURLE_OK) {
-			auto error_message = "GET request failed to " + url + "?" + query + ". Error: " + curl_easy_strerror(res);
+			auto error_message = "GET request failed to " + url_query + ". Error: " + curl_easy_strerror(res);
 			throw curl_exception(error_message);
 		}
 	}
@@ -96,6 +96,7 @@ std::string helpers::curl_post(
 {
 	std::string result;
 	std::string query = get_http_query(params);
+	std::string url_query = url + "?" + query;
 	CURL *curl;
 	CURLcode res;
 
@@ -138,7 +139,7 @@ std::string helpers::curl_post(
 
 		// Check for errors
 		if (res != CURLE_OK) {
-			auto error_message = "GET request failed to " + url + "?" + query + ". Error: " + curl_easy_strerror(res);
+			auto error_message = "POST request failed to " + url_query + ". Error: " + curl_easy_strerror(res);
 			throw curl_exception(error_message);
 		}
 	}

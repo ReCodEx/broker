@@ -23,6 +23,7 @@ namespace fs = boost::filesystem;
 #include "config/broker_config.h"
 #include "config/log_config.h"
 #include "connection_proxy.h"
+#include "http_poller.h"
 
 
 /**
@@ -83,6 +84,11 @@ private:
 	void curl_fini();
 
 	/**
+	 * Initialization of frontend http_poller.
+	 */
+	void poller_init();
+
+	/**
 	 * Exit whole application with return code 1.
 	 * @param msg string which is copied to stderr and logger if initialized.
 	 */
@@ -117,6 +123,9 @@ private:
 
 	/** Pointer to sockets */
 	std::shared_ptr<connection_proxy> sockets_;
+
+	/** Handles request which has to be sent to frontend application */
+	std::shared_ptr<http_poller> http_poller_;
 
 	/** Main broker class which handles incoming and outgoing connections */
 	std::shared_ptr<broker_connect<connection_proxy>> broker_;

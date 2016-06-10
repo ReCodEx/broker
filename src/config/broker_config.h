@@ -12,6 +12,7 @@
 namespace fs = boost::filesystem;
 
 #include "log_config.h"
+#include "frontend_config.h"
 
 
 /**
@@ -64,6 +65,11 @@ public:
 	 * @return constant reference to log_config structure
 	 */
 	const log_config &get_log_config() const;
+	/**
+	 * Get wrapper for frontend poller configuration.
+	 * @return constant reference to frontend_config structure
+	 */
+	const frontend_config &get_frontend_config() const;
 
 private:
 	/** Client socket address (from frontend) */
@@ -87,6 +93,8 @@ private:
 	std::chrono::milliseconds worker_ping_interval_ = std::chrono::milliseconds(1000);
 	/** Configuration of logger */
 	log_config log_config_;
+	/** Configuration of frontend poller */
+	frontend_config frontend_config_;
 };
 
 

@@ -28,8 +28,10 @@ namespace helpers
 	 * @return body of response from server
 	 * @throws curl_exception if request was not succesfull
 	 */
-	std::string curl_get(
-		const std::string &url, const curl_params &params, const std::string &username, const std::string &passwd);
+	std::string curl_get(const std::string &url,
+		const curl_params &params,
+		const std::string &username = "",
+		const std::string &passwd = "");
 
 	/**
 	 * Sends POST request with curl to given url with given parameters.
@@ -41,8 +43,10 @@ namespace helpers
 	 * @return body of response from server
 	 * @throws curl_exception if request was not succesfull
 	 */
-	std::string curl_post(
-		const std::string &url, const curl_params &params, const std::string &username, const std::string &passwd);
+	std::string curl_post(const std::string &url,
+		const curl_params &params,
+		const std::string &username = "",
+		const std::string &passwd = "");
 
 
 	/**

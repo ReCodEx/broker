@@ -47,6 +47,22 @@ broker_config::broker_config(const YAML::Node &config)
 			} // no throw... can be omitted
 		}
 
+		// load frontend address and port
+		if (config["frontend"] && config["frontend"].IsMap()) {
+			if (config["frontend"]["address"] && config["frontend"]["address"].IsScalar()) {
+				frontend_config_.address = config["frontend"]["address"].as<std::string>();
+			} // no throw... can be omitted
+			if (config["frontend"]["port"] && config["frontend"]["port"].IsScalar()) {
+				frontend_config_.port = config["frontend"]["port"].as<uint16_t>();
+			} // no throw... can be omitted
+			if (config["frontend"]["username"] && config["frontend"]["username"].IsScalar()) {
+				frontend_config_.username = config["frontend"]["username"].as<std::string>();
+			} // no throw... can be omitted
+			if (config["frontend"]["password"] && config["frontend"]["password"].IsScalar()) {
+				frontend_config_.password = config["frontend"]["password"].as<std::string>();
+			} // no throw... can be omitted
+		} // no throw... can be omitted
+
 		// load logger
 		if (config["logger"] && config["logger"].IsMap()) {
 			if (config["logger"]["file"] && config["logger"]["file"].IsScalar()) {
@@ -112,4 +128,9 @@ std::chrono::milliseconds broker_config::get_worker_ping_interval() const
 const log_config &broker_config::get_log_config() const
 {
 	return log_config_;
+}
+
+const frontend_config &broker_config::get_frontend_config() const
+{
+	return frontend_config_;
 }
