@@ -5,6 +5,7 @@
 /**
  * Status notifier defines interface which can be used to report errors
  *   or some other states of broker.
+ * All methods should be exceptionless and logging mechanism is advised to used on errors.
  */
 class status_notifier
 {

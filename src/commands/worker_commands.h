@@ -59,7 +59,21 @@ namespace worker_commands
 			return;
 		}
 
+		// TODO: is throwing it in garbage proper solution?
+		if (arguments.empty()) {
+			context.logger->warn() << "Got 'done' message without job_id";
+			return;
+		}
+
+		// TODO: is throwing it in garbage proper solution?
+		std::shared_ptr<const request> current = worker->get_current_request();
+		if (arguments.front() != current->data.at(1)) {
+			context.logger->warn() << "Got 'done' message with different job_id than original one";
+			return;
+		}
+
 		worker->complete_request();
+		context.notifier->send_job_done(arguments.front());
 
 		if (worker->next_request()) {
 			context.sockets->send_workers(worker->identity, worker->get_current_request()->data);

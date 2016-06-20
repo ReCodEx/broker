@@ -139,7 +139,8 @@ void broker_core::broker_init()
 	logger_->info() << "Initializing broker connection...";
 	workers_ = std::make_shared<worker_registry>();
 	sockets_ = std::make_shared<connection_proxy>();
-	broker_ = std::make_shared<broker_connect<connection_proxy>>(config_, sockets_, workers_, logger_);
+	broker_ =
+		std::make_shared<broker_connect<connection_proxy>>(config_, sockets_, workers_, status_notifier_, logger_);
 	logger_->info() << "Broker connection initialized.";
 
 	return;
