@@ -3,6 +3,8 @@
 
 #include "../helpers/logger.h"
 #include "../worker_registry.h"
+#include "../notifier/status_notifier.h"
+#include "../notifier/empty_status_notifier.h"
 #include <functional>
 #include <map>
 #include <memory>

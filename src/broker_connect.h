@@ -9,6 +9,8 @@
 #include "helpers/logger.h"
 #include "helpers/string_to_hex.h"
 #include "worker_registry.h"
+#include "notifier/status_notifier.h"
+#include "notifier/empty_status_notifier.h"
 #include <bitset>
 #include <chrono>
 #include <memory>
@@ -34,6 +36,8 @@ private:
 	std::shared_ptr<command_holder<proxy>> client_cmds_;
 	std::shared_ptr<spdlog::logger> logger_;
 	std::shared_ptr<worker_registry> workers_;
+	/** Notifier which can be used to indicate frontend issues or some "good to know messages" */
+	std::shared_ptr<status_notifier> status_notifier_;
 
 	/**
 	 * Remove an expired worker.
@@ -65,11 +69,16 @@ public:
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> router,
+		std::shared_ptr<status_notifier> notifier,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: config_(config), sockets_(sockets), logger_(logger), workers_(router)
+		: config_(config), sockets_(sockets), status_notifier_(notifier), logger_(logger), workers_(router)
 	{
 		if (logger_ == nullptr) {
 			logger_ = helpers::create_null_logger();
+		}
+
+		if (status_notifier_ == nullptr) {
+			status_notifier_ = std::make_shared<empty_status_notifier>();
 		}
 
 		// init worker commands

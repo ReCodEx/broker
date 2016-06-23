@@ -70,6 +70,7 @@ private:
 
 	/**
 	 * Construct and setup broker connection.
+	 * CURL and status_notifier should be initialized before this.
 	 */
 	void broker_init();
 

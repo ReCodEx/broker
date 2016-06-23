@@ -84,7 +84,7 @@ TEST(broker, bind)
 		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(SetArgReferee<2>(true));
 	}
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
 	broker.start_brokering();
 }
 
@@ -150,7 +150,7 @@ TEST(broker, worker_init)
 
 	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
 	broker.start_brokering();
 }
 
@@ -235,7 +235,7 @@ TEST(broker, queuing)
 	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
 	broker.start_brokering();
 }
 
@@ -297,7 +297,7 @@ TEST(broker, ping_unknown_worker)
 	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
 	broker.start_brokering();
 }
 
@@ -336,7 +336,7 @@ TEST(broker, ping_known_worker)
 	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
 	broker.start_brokering();
 }
 
@@ -369,7 +369,7 @@ TEST(broker, worker_expiration)
 	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
 	broker.start_brokering();
 }
 
@@ -409,6 +409,6 @@ TEST(broker, worker_state_message)
 	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, workers);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
 	broker.start_brokering();
 }

@@ -23,13 +23,3 @@ void http_status_notifier::send_error(std::string desc)
 		logger_->emerg() << e.what();
 	}
 }
-
-void http_status_notifier::send_job_done(std::string job_id)
-{
-	std::string addr = address_ + "/job_done";
-	try {
-		helpers::curl_post(addr, {{"job_id", job_id}}, config_.username, config_.password);
-	} catch (helpers::curl_exception e) {
-		logger_->emerg() << e.what();
-	}
-}

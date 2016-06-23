@@ -59,6 +59,19 @@ namespace worker_commands
 			return;
 		}
 
+		if (arguments.empty()) {
+			context.logger->error() << "Got 'done' message without job_id from worker '"
+									<< helpers::string_to_hex(identity) << "'";
+			return;
+		}
+
+		std::shared_ptr<const request> current = worker->get_current_request();
+		if (arguments.front() != current->data.at(1)) {
+			context.logger->error() << "Got 'done' message with different job_id than original one from worker '"
+									<< helpers::string_to_hex(identity) << "'";
+			return;
+		}
+
 		worker->complete_request();
 
 		if (worker->next_request()) {

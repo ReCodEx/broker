@@ -42,6 +42,7 @@ set(SOURCE_FILES
 	src/notifier/status_notifier.h
 	src/notifier/http_status_notifier.h
 	src/notifier/http_status_notifier.cpp
+	src/notifier/empty_status_notifier.h
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
