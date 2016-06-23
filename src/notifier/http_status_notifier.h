@@ -37,12 +37,6 @@ public:
 	http_status_notifier(const frontend_config &config, std::shared_ptr<spdlog::logger> logger = nullptr);
 
 	/**
-	 * Send job_done message to frontend.
-	 * @param job_id identification of executed job
-	 */
-	virtual void send_job_done(std::string job_id);
-
-	/**
 	 * Basically tells frontend that there was some serious problem which has to be solved by administrator.
 	 * @param desc description of error which was caused in broker
 	 */

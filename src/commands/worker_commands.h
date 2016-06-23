@@ -73,7 +73,6 @@ namespace worker_commands
 		}
 
 		worker->complete_request();
-		context.notifier->send_job_done(arguments.front());
 
 		if (worker->next_request()) {
 			context.sockets->send_workers(worker->identity, worker->get_current_request()->data);

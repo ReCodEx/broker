@@ -23,24 +23,17 @@ public:
 	 */
 	command_context(std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> workers,
-		std::shared_ptr<status_notifier> notifier,
 		std::shared_ptr<spdlog::logger> logger)
-		: sockets(sockets), workers(workers), notifier(notifier), logger(logger)
+		: sockets(sockets), workers(workers), logger(logger)
 	{
 		if (this->logger == nullptr) {
 			this->logger = helpers::create_null_logger();
-		}
-
-		if (this->notifier == nullptr) {
-			this->notifier = std::make_shared<empty_status_notifier>();
 		}
 	}
 	/** Pointer to communication proxy (see @ref connection_proxy for possible implementation. */
 	std::shared_ptr<proxy> sockets;
 	/** Pointer to @ref worker_registry class - info about workers and routing preferences to them. */
 	std::shared_ptr<worker_registry> workers;
-	/** Notifier which can be used to indicate frontend issues or some "good to know messages" */
-	std::shared_ptr<status_notifier> notifier;
 	/** System logger. */
 	std::shared_ptr<spdlog::logger> logger;
 };
@@ -63,9 +56,8 @@ public:
 	/** Constructor with initialization of all members. */
 	command_holder(std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> router,
-		std::shared_ptr<status_notifier> notifier,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: context_(sockets, router, notifier, logger)
+		: context_(sockets, router, logger)
 	{
 	}
 	/**

@@ -19,14 +19,6 @@ public:
 
 	/**
 	 * Empty implementation.
-	 * @param job_id identification of executed job
-	 */
-	virtual void send_job_done(std::string job_id)
-	{
-	}
-
-	/**
-	 * Empty implementation.
 	 * @param desc description of error which was caused in broker
 	 */
 	virtual void send_error(std::string desc)

@@ -18,12 +18,6 @@ public:
 	}
 
 	/**
-	 * Send job_done message.
-	 * @param job_id identification of executed job
-	 */
-	virtual void send_job_done(std::string job_id) = 0;
-
-	/**
 	 * Basically tells that there was some serious problem which cannot be solved.
 	 * @param desc description of error which was caused in broker
 	 */
