@@ -188,15 +188,21 @@ public:
 
 			// Received a message from the monitor
 			if (result.test(message_origin::MONITOR)) {
-				// this shoud not happen
+				// this should not happen
 				logger_->error() << "Received message from monitor, but none expected.";
 			}
 
 			// Handle dead workers
+			std::list<worker_registry::worker_ptr> to_remove;
+			
 			for (auto worker : workers_->get_workers()) {
 				if (worker->liveness == 0) {
-					remove_worker(worker);
+					to_remove.push_back(worker);
 				}
+			}
+			
+			for (auto worker: to_remove) {
+				remove_worker(worker);
 			}
 		}
 
