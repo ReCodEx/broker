@@ -1,14 +1,14 @@
-#ifndef CODEX_BROKER_CORE_H
-#define CODEX_BROKER_CORE_H
+#ifndef RECODEX_BROKER_CORE_H
+#define RECODEX_BROKER_CORE_H
 
 #include "spdlog/spdlog.h"
+#include <curl/curl.h>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <thread>
 #include <vector>
 #include <yaml-cpp/yaml.h>
-#include <curl/curl.h>
 
 #define BOOST_FILESYSTEM_NO_DEPRECATED
 #define BOOST_NO_CXX11_SCOPED_ENUMS
@@ -132,4 +132,4 @@ private:
 	std::shared_ptr<broker_connect<connection_proxy>> broker_;
 };
 
-#endif // CODEX_BROKER_CORE_H
+#endif // RECODEX_BROKER_CORE_H

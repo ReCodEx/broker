@@ -1,5 +1,5 @@
-#ifndef CODEX_BROKER_BROKER_HPP
-#define CODEX_BROKER_BROKER_HPP
+#ifndef RECODEX_BROKER_BROKER_HPP
+#define RECODEX_BROKER_BROKER_HPP
 
 
 #include "commands/client_commands.h"
@@ -8,9 +8,9 @@
 #include "config/broker_config.h"
 #include "helpers/logger.h"
 #include "helpers/string_to_hex.h"
-#include "worker_registry.h"
-#include "notifier/status_notifier.h"
 #include "notifier/empty_status_notifier.h"
+#include "notifier/status_notifier.h"
+#include "worker_registry.h"
 #include <bitset>
 #include <chrono>
 #include <memory>
@@ -205,4 +205,4 @@ public:
 };
 
 
-#endif // CODEX_BROKER_BROKER_HPP
+#endif // RECODEX_BROKER_BROKER_HPP

@@ -1,5 +1,5 @@
-#ifndef CODEX_BROKER_LOG_CONFIG_H
-#define CODEX_BROKER_LOG_CONFIG_H
+#ifndef RECODEX_BROKER_LOG_CONFIG_H
+#define RECODEX_BROKER_LOG_CONFIG_H
 
 #include "spdlog/spdlog.h"
 
@@ -58,4 +58,4 @@ public:
 	}
 };
 
-#endif // CODEX_BROKER_LOG_CONFIG_H
+#endif // RECODEX_BROKER_LOG_CONFIG_H

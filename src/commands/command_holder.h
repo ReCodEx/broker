@@ -1,10 +1,10 @@
-#ifndef CODEX_BROKER_COMMANDS_BASE_H
-#define CODEX_BROKER_COMMANDS_BASE_H
+#ifndef RECODEX_BROKER_COMMANDS_BASE_H
+#define RECODEX_BROKER_COMMANDS_BASE_H
 
 #include "../helpers/logger.h"
-#include "../worker_registry.h"
-#include "../notifier/status_notifier.h"
 #include "../notifier/empty_status_notifier.h"
+#include "../notifier/status_notifier.h"
+#include "../worker_registry.h"
 #include <functional>
 #include <map>
 #include <memory>
@@ -94,4 +94,4 @@ private:
 	const command_context<proxy> context_;
 };
 
-#endif // CODEX_BROKER_COMMANDS_BASE_H
+#endif // RECODEX_BROKER_COMMANDS_BASE_H

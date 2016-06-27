@@ -1,11 +1,11 @@
-#ifndef CODEX_HTTP_STATUS_NOTIFIER_H
-#define CODEX_HTTP_STATUS_NOTIFIER_H
+#ifndef RECODEX_HTTP_STATUS_NOTIFIER_H
+#define RECODEX_HTTP_STATUS_NOTIFIER_H
 
-#include <spdlog/spdlog.h>
+#include "../config/frontend_config.h"
 #include "../helpers/curl.h"
 #include "../helpers/logger.h"
-#include "../config/frontend_config.h"
 #include "status_notifier.h"
+#include <spdlog/spdlog.h>
 
 
 /**
@@ -43,4 +43,4 @@ public:
 	virtual void send_error(std::string desc);
 };
 
-#endif // CODEX_HTTP_STATUS_NOTIFIER_H
+#endif // RECODEX_HTTP_STATUS_NOTIFIER_H

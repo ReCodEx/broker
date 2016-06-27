@@ -1,5 +1,5 @@
-#ifndef CODEX_BROKER_STRING_TO_HEX_H
-#define CODEX_BROKER_STRING_TO_HEX_H
+#ifndef RECODEX_BROKER_STRING_TO_HEX_H
+#define RECODEX_BROKER_STRING_TO_HEX_H
 
 #include <iomanip>
 #include <sstream>
@@ -11,4 +11,4 @@ namespace helpers
 }
 
 
-#endif // CODEX_BROKER_STRING_TO_HEX_H
+#endif // RECODEX_BROKER_STRING_TO_HEX_H

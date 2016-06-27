@@ -1,4 +1,4 @@
-project(codex_broker_tests)
+project(recodex-broker_tests)
 
 set(SRC_DIR ../src)
 set(LIBS_DIR ../vendor)

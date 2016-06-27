@@ -1,5 +1,5 @@
-#ifndef CODEX_BROKER_HELPERS_CURL_H
-#define CODEX_BROKER_HELPERS_CURL_H
+#ifndef RECODEX_BROKER_HELPERS_CURL_H
+#define RECODEX_BROKER_HELPERS_CURL_H
 
 #include <curl/curl.h>
 #include <map>
@@ -90,4 +90,4 @@ namespace helpers
 }
 
 
-#endif // CODEX_BROKER_HELPERS_CURL_H
+#endif // RECODEX_BROKER_HELPERS_CURL_H

@@ -1,5 +1,5 @@
-#ifndef CODEX_BROKER_CONFIG_H
-#define CODEX_BROKER_CONFIG_H
+#ifndef RECODEX_BROKER_CONFIG_H
+#define RECODEX_BROKER_CONFIG_H
 
 #include <iostream>
 #include <map>
@@ -11,8 +11,8 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-#include "log_config.h"
 #include "frontend_config.h"
+#include "log_config.h"
 
 
 /**
@@ -113,4 +113,4 @@ public:
 	}
 };
 
-#endif // CODEX_BROKER_CONFIG_H
+#endif // RECODEX_BROKER_CONFIG_H

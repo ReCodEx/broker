@@ -1,5 +1,5 @@
-#ifndef CODEX_BROKER_ROUTER_H
-#define CODEX_BROKER_ROUTER_H
+#ifndef RECODEX_BROKER_ROUTER_H
+#define RECODEX_BROKER_ROUTER_H
 
 #include <map>
 #include <memory>
@@ -37,4 +37,4 @@ public:
 	virtual const std::vector<worker_ptr> &get_workers() const;
 };
 
-#endif // CODEX_BROKER_ROUTER_H
+#endif // RECODEX_BROKER_ROUTER_H

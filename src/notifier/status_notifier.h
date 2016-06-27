@@ -1,5 +1,5 @@
-#ifndef CODEX_STATUS_NOTIFIER_H
-#define CODEX_STATUS_NOTIFIER_H
+#ifndef RECODEX_STATUS_NOTIFIER_H
+#define RECODEX_STATUS_NOTIFIER_H
 
 
 /**
@@ -24,4 +24,4 @@ public:
 	virtual void send_error(std::string desc) = 0;
 };
 
-#endif // CODEX_STATUS_NOTIFIER_H
+#endif // RECODEX_STATUS_NOTIFIER_H

@@ -1,5 +1,5 @@
-#ifndef CODEX_BROKER_CLIENT_COMMANDS_H
-#define CODEX_BROKER_CLIENT_COMMANDS_H
+#ifndef RECODEX_BROKER_CLIENT_COMMANDS_H
+#define RECODEX_BROKER_CLIENT_COMMANDS_H
 
 #include "../commands/command_holder.h"
 #include "../helpers/string_to_hex.h"
@@ -80,4 +80,4 @@ namespace client_commands
 } // namespace
 
 
-#endif // CODEX_BROKER_CLIENT_COMMANDS_H
+#endif // RECODEX_BROKER_CLIENT_COMMANDS_H

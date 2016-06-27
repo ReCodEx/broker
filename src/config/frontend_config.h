@@ -1,5 +1,7 @@
-#ifndef CODEX_FRONTEND_CONFIG_H
-#define CODEX_FRONTEND_CONFIG_H
+#ifndef RECODEX_FRONTEND_CONFIG_H
+#define RECODEX_FRONTEND_CONFIG_H
+
+#include <string>
 
 
 /**
@@ -26,4 +28,4 @@ public:
 	std::string password;
 };
 
-#endif // CODEX_FRONTEND_CONFIG_H
+#endif // RECODEX_FRONTEND_CONFIG_H
