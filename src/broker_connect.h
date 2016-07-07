@@ -142,54 +142,60 @@ public:
 				break;
 			}
 
-			// Received a message from the frontend
-			if (result.test(message_origin::CLIENT)) {
-				std::string identity;
-				std::vector<std::string> message;
+			// Log errors during message processing and command evaluation, but
+			// don't let the broker die.
+			try {
+				// Received a message from the frontend
+				if (result.test(message_origin::CLIENT)) {
+					std::string identity;
+					std::vector<std::string> message;
 
-				sockets_->recv_clients(identity, message, &terminate);
-				if (terminate) {
-					break;
+					sockets_->recv_clients(identity, message, &terminate);
+					if (terminate) {
+						break;
+					}
+
+					// Get command and remove it from its arguments
+					std::string type = message.front();
+					message.erase(message.begin());
+
+					logger_->debug() << "Received message '" << type << "' from frontend";
+
+					client_cmds_->call_function(type, identity, message);
 				}
 
-				// Get command and remove it from its arguments
-				std::string type = message.front();
-				message.erase(message.begin());
+				// Received a message from the backend
+				if (result.test(message_origin::WORKER)) {
+					std::string identity;
+					std::vector<std::string> message;
 
-				logger_->debug() << "Received message '" << type << "' from frontend";
+					sockets_->recv_workers(identity, message, &terminate);
+					if (terminate) {
+						break;
+					}
 
-				client_cmds_->call_function(type, identity, message);
-			}
+					// Get command and remove it from its arguments
+					std::string type = message.front();
+					message.erase(message.begin());
 
-			// Received a message from the backend
-			if (result.test(message_origin::WORKER)) {
-				std::string identity;
-				std::vector<std::string> message;
+					logger_->debug() << "Received message '" << type << "' from workers";
 
-				sockets_->recv_workers(identity, message, &terminate);
-				if (terminate) {
-					break;
+					worker_cmds_->call_function(type, identity, message);
+
+					// An incoming message means the worker is alive
+					auto worker = workers_->find_worker_by_identity(identity);
+					if (worker != nullptr) {
+						worker->liveness = max_liveness;
+					}
 				}
 
-				// Get command and remove it from its arguments
-				std::string type = message.front();
-				message.erase(message.begin());
-
-				logger_->debug() << "Received message '" << type << "' from workers";
-
-				worker_cmds_->call_function(type, identity, message);
-
-				// An incoming message means the worker is alive
-				auto worker = workers_->find_worker_by_identity(identity);
-				if (worker != nullptr) {
-					worker->liveness = max_liveness;
+				// Received a message from the monitor
+				if (result.test(message_origin::MONITOR)) {
+					// this should not happen
+					logger_->error() << "Received message from monitor, but none expected.";
 				}
-			}
-
-			// Received a message from the monitor
-			if (result.test(message_origin::MONITOR)) {
-				// this should not happen
-				logger_->error() << "Received message from monitor, but none expected.";
+			} catch (std::exception &e) {
+				logger_->error() << "Unexpected exception during evaluation: " << e.what();
 			}
 
 			// Handle dead workers
