@@ -194,14 +194,14 @@ public:
 
 			// Handle dead workers
 			std::list<worker_registry::worker_ptr> to_remove;
-			
+
 			for (auto worker : workers_->get_workers()) {
 				if (worker->liveness == 0) {
 					to_remove.push_back(worker);
 				}
 			}
-			
-			for (auto worker: to_remove) {
+
+			for (auto worker : to_remove) {
 				remove_worker(worker);
 			}
 		}

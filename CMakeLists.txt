@@ -15,7 +15,7 @@ include_directories(AFTER, vendor/spdlog/include)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
 set(SOURCE_FILES
 	src/main.cpp
