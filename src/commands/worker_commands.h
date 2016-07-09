@@ -20,6 +20,9 @@ namespace worker_commands
 	void process_init(
 		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
+		// first let us know that message arrived (logging moved from main loop)
+		context.logger->debug() << "Received message 'init' from workers";
+
 		// There must be at least on argument
 		if (arguments.size() < 1) {
 			context.logger->warn() << "Init command without argument. Nothing to do.";
@@ -52,6 +55,9 @@ namespace worker_commands
 	void process_done(
 		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
+		// first let us know that message arrived (logging moved from main loop)
+		context.logger->debug() << "Received message 'done' from workers";
+
 		worker_registry::worker_ptr worker = context.workers->find_worker_by_identity(identity);
 
 		if (worker == nullptr) {
@@ -90,6 +96,9 @@ namespace worker_commands
 	void process_ping(
 		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
+		// first let us know that message arrived (logging moved from main loop)
+		// context.logger->debug() << "Received message 'ping' from workers";
+
 		worker_registry::worker_ptr worker = context.workers->find_worker_by_identity(identity);
 
 		if (worker == nullptr) {
@@ -107,6 +116,9 @@ namespace worker_commands
 	void process_progress(
 		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
+		// first let us know that message arrived (logging moved from main loop)
+		// context.logger->debug() << "Received message 'progress' from workers";
+
 		context.sockets->send_monitor(arguments);
 	}
 

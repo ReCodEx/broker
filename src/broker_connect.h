@@ -66,6 +66,14 @@ private:
 	}
 
 public:
+	/**
+	 * TODO: doc
+	 * @param config
+	 * @param sockets
+	 * @param router
+	 * @param notifier
+	 * @param logger
+	 */
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> router,
@@ -160,7 +168,6 @@ public:
 					message.erase(message.begin());
 
 					logger_->debug() << "Received message '" << type << "' from frontend";
-
 					client_cmds_->call_function(type, identity, message);
 				}
 
@@ -178,8 +185,7 @@ public:
 					std::string type = message.front();
 					message.erase(message.begin());
 
-					logger_->debug() << "Received message '" << type << "' from workers";
-
+					// ! Receive message logging was moved to particular worker commands callbacks.
 					worker_cmds_->call_function(type, identity, message);
 
 					// An incoming message means the worker is alive
