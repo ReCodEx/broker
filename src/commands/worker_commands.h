@@ -15,6 +15,9 @@ namespace worker_commands
 	/**
 	 * Process an "init" request from a worker.
 	 * That means storing the identity and headers of the worker so that we can forward jobs to it.
+	 * @param identity unique identification of message sender
+	 * @param arguments received multipart message without leading command
+	 * @param context command context of command holder
 	 */
 	template <typename proxy>
 	void process_init(
@@ -50,6 +53,11 @@ namespace worker_commands
 
 	/**
 	 * Process a "done" message from a worker.
+	 * Things which has to be done here is telling workers registry
+	 *   that worker with given identity just finished its current job and can serve another one.
+	 * @param identity unique identification of message sender
+	 * @param arguments received multipart message without leading command
+	 * @param context command context of command holder
 	 */
 	template <typename proxy>
 	void process_done(
@@ -91,6 +99,10 @@ namespace worker_commands
 
 	/**
 	 * Process a "ping" message from worker.
+	 * Find worker in registry and send him back "pong" message.
+	 * @param identity unique identification of message sender
+	 * @param arguments received multipart message without leading command
+	 * @param context command context of command holder
 	 */
 	template <typename proxy>
 	void process_ping(
@@ -111,6 +123,10 @@ namespace worker_commands
 
 	/**
 	 * Process a "state" message from worker.
+	 * Resend "state" message to monitor service.
+	 * @param identity unique identification of message sender
+	 * @param arguments received multipart message without leading command
+	 * @param context command context of command holder
 	 */
 	template <typename proxy>
 	void process_progress(

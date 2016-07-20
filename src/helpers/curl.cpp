@@ -24,8 +24,8 @@ std::string helpers::get_http_query(const curl_params &params)
 /**
  * Wrapper function for CURL for writing result into given string.
  * @param ptr base location of result
- * @param size
- * @param nmemb
+ * @param size size of result in nmemb items (size in bytes is size * nmemb)
+ * @param nmemb size of one pointer item
  * @param str result string in which return body will be stored
  * @return length of data which were written into str
  */

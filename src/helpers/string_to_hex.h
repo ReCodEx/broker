@@ -7,6 +7,11 @@
 
 namespace helpers
 {
+	/**
+	 * Converts all characters to its hexadecimal representation and return it in form of textual concatenation.
+	 * @param string text which will be converted to its binary representation
+	 * @return textual description of hexadecimal characters from given string
+	 */
 	std::string string_to_hex(const std::string &string);
 }
 

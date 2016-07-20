@@ -7,20 +7,21 @@
 namespace helpers
 {
 	/**
-	 * Defines std::map as keeper of http parameters.
+	 * Defines std::map as keeper of http parameters, aka associative array.
 	 */
 	typedef std::map<std::string, std::string> curl_params;
 
 	/**
 	 * Construct standard http query and return it.
+	 * @note Leading question mark is not included in returned string.
 	 * @param params source of parameters
-	 * @return textual representation of params
+	 * @return textual representation of params without leading question mark
 	 */
 	std::string get_http_query(const curl_params &params);
 
 	/**
 	 * Sends GET request with curl to given url with given parameters.
-	 * Http authentication will be executed when username or password will be non-empty.
+	 * @note Http authentication will be executed when username or password will be non-empty.
 	 * @param url address which will be getted
 	 * @param params http query will be constructed from this
 	 * @param username http authentication
@@ -35,7 +36,7 @@ namespace helpers
 
 	/**
 	 * Sends POST request with curl to given url with given parameters.
-	 * Http authentication will be executed when username or password will be non-empty.
+	 * @note Http authentication will be executed when username or password will be non-empty.
 	 * @param url address which will be requested with post
 	 * @param params http query will be constructed from this
 	 * @param username http authentication
@@ -63,17 +64,19 @@ namespace helpers
 		}
 		/**
 		 * Constructor with further description.
-		 * @param what circumstances of not-standard action
+		 * @param what circumstances of non-standard action
 		 */
 		curl_exception(const std::string &what) : what_(what)
 		{
 		}
+
 		/**
 		 * Stated for completion.
 		 */
 		virtual ~curl_exception()
 		{
 		}
+
 		/**
 		 * Returns circumstances of this exception.
 		 * @return c-like textual value

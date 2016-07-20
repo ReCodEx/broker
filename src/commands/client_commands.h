@@ -13,7 +13,12 @@
 namespace client_commands
 {
 	/**
-	 * Process an "eval" request from a client
+	 * Process an "eval" request from a client.
+	 * Client requested evaluation, so hand it over to proper worker with corresponding headers.
+	 * "accept" or "reject" message is send back to client.
+	 * @param identity unique identification of message sender
+	 * @param arguments received multipart message without leading command
+	 * @param context command context of command holder
 	 */
 	template <typename proxy>
 	void process_eval(

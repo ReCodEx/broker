@@ -12,7 +12,7 @@
 
 
 /**
- * Context for all commands.This class is templated by used communication proxy (mainly @ref connection_proxy class).
+ * Context for all commands. This class is templated by used communication proxy (mainly @ref connection_proxy class).
  * For more info, see @ref command_holder class.
  */
 template <typename proxy> class command_context
@@ -20,6 +20,9 @@ template <typename proxy> class command_context
 public:
 	/**
 	 * Constructor with initialization of all members.
+	 * @param sockets sockets for communication
+	 * @param workers registry of all active workers right now
+	 * @param logger system logger
 	 */
 	command_context(std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> workers,
@@ -30,6 +33,7 @@ public:
 			this->logger = helpers::create_null_logger();
 		}
 	}
+
 	/** Pointer to communication proxy (see @ref connection_proxy for possible implementation. */
 	std::shared_ptr<proxy> sockets;
 	/** Pointer to @ref worker_registry class - info about workers and routing preferences to them. */
@@ -53,13 +57,20 @@ public:
 	/** Type of callback function for easier use. */
 	typedef std::function<void(const std::string &, const std::vector<std::string> &, const command_context<proxy> &)>
 		callback_fn;
-	/** Constructor with initialization of all members. */
+
+	/**
+	 * Constructor with initialization of all members.
+	 * @param sockets sockets for communication
+	 * @param router registry of all active workers right now
+	 * @param logger system logger
+	 */
 	command_holder(std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> router,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
 		: context_(sockets, router, logger)
 	{
 	}
+
 	/**
 	 * Invoke registered callback for given command (if any).
 	 * @param command String reprezentation of command for processing.
