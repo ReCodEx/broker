@@ -23,22 +23,22 @@ public:
 	std::string log_suffix = "log";
 	/**
 	 * Level of logging.
-	 * Currently 4 levels are available: emerg, warn, info, debug
+	 * One of: trace, debug, info, notice, warn, err, critical, alert, emerg
 	 */
 	std::string log_level = "debug";
 	/**
-	 * File size of one log file.
+	 * File size of one rotation of log file.
 	 */
 	int log_file_size = 1024 * 1024;
 	/**
-	 * Number of rotations which will be used.
+	 * Number of rotations which will be kept saved.
 	 */
 	int log_files_count = 3;
 
 	/**
-	 * Classical equality operator on log_config structures.
-	 * @param second
-	 * @return true if this instance and second has the same variables values
+	 * Equality operator on @ref log_config structures.
+	 * @param second Other config for comparison.
+	 * @return @a true if this instance and second has the same variable values, @a false otherwise.
 	 */
 	bool operator==(const log_config &second) const
 	{
@@ -49,8 +49,8 @@ public:
 
 	/**
 	 * Opposite of equality operator
-	 * @param second
-	 * @return true if compared structured has different values
+	 * @param second Other config for comparison.
+	 * @return @a true if this instance and second has different variable values, @a false otherwise.
 	 */
 	bool operator!=(const log_config &second) const
 	{

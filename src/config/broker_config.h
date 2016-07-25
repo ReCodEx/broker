@@ -24,50 +24,58 @@ public:
 	/** A default constructor */
 	broker_config();
 	/**
-	 * A constructor that loads the configuration from a YAML document
-	 * @param config The input document
+	 * A constructor that loads the configuration from a YAML document.
+	 * @param config The input document.
 	 */
 	broker_config(const YAML::Node &config);
 	/**
-	 * Return IP address for client connections (from frontend)
+	 * Get IP address for client connections (from frontend).
+	 * @return Broker's IP address for client connections.
 	 */
 	virtual const std::string &get_client_address() const;
 	/**
-	 * Get the port to listen for incoming tasks
+	 * Get the port to listen for incoming tasks.
+	 * @return Broker's port for client connections.
 	 */
 	virtual uint16_t get_client_port() const;
 	/**
-	 * Return IP address for worker connections
+	 * Get IP address for worker connections.
+	 * @return Broker's IP address for worker connections.
 	 */
 	virtual const std::string &get_worker_address() const;
 	/**
-	 * Get the port for communication with workers
+	 * Get the port for communication with workers.
+	 * @return Broker's port for worker connections.
 	 */
 	virtual uint16_t get_worker_port() const;
 	/**
-	 * Return IP address for monitor connections
+	 * Get IP address for monitor connections.
+	 * @return Broker's IP address for monitor connections.
 	 */
 	virtual const std::string &get_monitor_address() const;
 	/**
-	 * Get the port for communication with monitor
+	 * Get the port for communication with monitor.
+	 * @return Broker's port for monitor connections.
 	 */
 	virtual uint16_t get_monitor_port() const;
 	/**
-	 * Get the maximum (i.e. initial) liveness of a worker
+	 * Get the maximum (i.e. initial) liveness of a worker.
+	 * @return Maximum liveness of worker.
 	 */
 	virtual size_t get_max_worker_liveness() const;
 	/**
-	 * Get the time (in milliseconds) expected to pass between pings from the worker
+	 * Get the time (in milliseconds) expected to pass between pings from the worker.
+	 * @return Interval between two concurrent pings.
 	 */
 	virtual std::chrono::milliseconds get_worker_ping_interval() const;
 	/**
 	 * Get wrapper for logger configuration.
-	 * @return constant reference to log_config structure
+	 * @return Logging config as @ref log_config structure.
 	 */
 	const log_config &get_log_config() const;
 	/**
 	 * Get wrapper for frontend poller configuration.
-	 * @return constant reference to frontend_config structure
+	 * @return Frontend connection information as @ref frontend_config structure.
 	 */
 	const frontend_config &get_frontend_config() const;
 
@@ -105,7 +113,7 @@ class config_error : public std::runtime_error
 {
 public:
 	/**
-	 * Construction with message returned with @ref what() method.
+	 * Construction with message returned with @a what method.
 	 * @param msg description of exception circumstances
 	 */
 	explicit config_error(const std::string &msg) : std::runtime_error(msg)
