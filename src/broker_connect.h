@@ -16,32 +16,40 @@
 #include <memory>
 
 /**
- * Contains type definitions used by the proxy poll function
+ * Contains type definitions used by the proxy poll function.
  */
 struct message_origin {
+	/** Types of used sockets (by destination). */
 	enum type { CLIENT = 0, WORKER = 1, MONITOR = 2 };
 
+	/** Type used for describing which socket has a message while polling. */
 	typedef std::bitset<3> set;
 };
 
 /**
- * Receives requests from clients and forwards them to workers
+ * Receives requests from clients and forwards them to correct workers.
  */
 template <typename proxy> class broker_connect
 {
 private:
+	/** Loaded broker configuration. */
 	std::shared_ptr<const broker_config> config_;
+	/** Thin wrapper around all connected sockets. */
 	std::shared_ptr<proxy> sockets_;
+	/** Command handlers for messages from workers. */
 	std::shared_ptr<command_holder<proxy>> worker_cmds_;
+	/** Command handlers for messages from clients (fronted). */
 	std::shared_ptr<command_holder<proxy>> client_cmds_;
+	/** System logger. */
 	std::shared_ptr<spdlog::logger> logger_;
+	/** Registry of connected and alive workers. */
 	std::shared_ptr<worker_registry> workers_;
 	/** Notifier which can be used to indicate frontend issues or some "good to know messages" */
 	std::shared_ptr<status_notifier> status_notifier_;
 
 	/**
-	 * Remove an expired worker.
-	 * Also try to reassign the requests it was processing
+	 * Remove an expired worker. Also try to reassign the requests it was processing.
+	 * @param expired_worker Pointer to expired worker.
 	 */
 	void remove_worker(worker_registry::worker_ptr expired_worker)
 	{
@@ -67,12 +75,12 @@ private:
 
 public:
 	/**
-	 * TODO: doc
-	 * @param config
-	 * @param sockets
-	 * @param router
-	 * @param notifier
-	 * @param logger
+	 * Constructor with initialization.
+	 * @param config Loaded broker configuration from config file.
+	 * @param sockets Instance of socket wrapper (now @ref connection_proxy).
+	 * @param router Instance of class managing connected workers and routing jobs to them.
+	 * @param notifier Endpoint for reporting unexpected errors back to frontend.
+	 * @param logger System logger.
 	 */
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,

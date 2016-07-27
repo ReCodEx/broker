@@ -7,19 +7,28 @@
 
 /**
  * A trivial wrapper for the ZeroMQ sockets used by the broker,
- * whose purpose is to facilitate testing of the broker class
+ * whose main purpose is to facilitate testing of the @ref broker_connect class.
  */
 class connection_proxy
 {
 private:
+	/** How many sockets do we hold. */
 	static const size_t sockets_count_ = 3;
+	/** ZeroMQ context. */
 	zmq::context_t context_;
+	/** Socket for client connections (frontend). */
 	zmq::socket_t clients_;
+	/** Socket for worker connections. */
 	zmq::socket_t workers_;
+	/** Socket for monitor connections. */
 	zmq::socket_t monitor_;
+	/** Structure used for polling new messages over all available sockets. */
 	zmq_pollitem_t items_[sockets_count_];
 
 public:
+	/**
+	 * Default constructor. All sockets are initialized as ZMQ_ROUTER. Polling structure is initialized.
+	 */
 	connection_proxy()
 		: context_(1), clients_(context_, ZMQ_ROUTER), workers_(context_, ZMQ_ROUTER), monitor_(context_, ZMQ_ROUTER)
 	{
@@ -40,7 +49,10 @@ public:
 	}
 
 	/**
-	 * Bind the sockets to given addresses
+	 * Bind or connect the sockets to given addresses.
+	 * @param clients_addr Address with port used for clients (server).
+	 * @param workers_addr Address with port used for workers (server).
+	 * @param monitor_addr Address with port used for monitor (client).
 	 */
 	void set_addresses(
 		const std::string &clients_addr, const std::string &workers_addr, const std::string &monitor_addr)
@@ -52,10 +64,10 @@ public:
 
 	/**
 	 * Block execution until a message arrives to either socket.
-	 * @param result If a message arrived to a socket, the corresponding bit field is set to true
-	 * @param timeout The maximum time this function is allowed to block execution
-	 * @param terminate If the underlying connection is terminated, the referenced variable is set to true
-	 * @param elapsed_time Set to the time spent polling on success
+	 * @param result If a message arrived to a socket, the corresponding bit field is set to @a true.
+	 * @param timeout The maximum time this function is allowed to block execution.
+	 * @param terminate If the underlying connection is terminated, the referenced variable is set to @a true.
+	 * @param elapsed_time Set to the time spent polling on success.
 	 */
 	void poll(message_origin::set &result,
 		std::chrono::milliseconds timeout,
@@ -89,7 +101,11 @@ public:
 	}
 
 	/**
-	 * Receive a message frame from the worker socket
+	 * Receive a message frame from the worker socket.
+	 * @param identity This variable is set to identifier of worker, which sends the message.
+	 * @param target Vector to be filled with message body, split by message parts.
+	 * @param terminate Indicator whether connection is broken and must be terminated or operates correctly (optional).
+	 * @return @a true if all ZeroMQ receiving calls succeeded, @a false otherwise.
 	 */
 	bool recv_workers(std::string &identity, std::vector<std::string> &target, bool *terminate = nullptr)
 	{
@@ -126,7 +142,11 @@ public:
 	}
 
 	/**
-	 * Receive a message frame from the client socket
+	 * Receive a message frame from the client socket.
+	 * @param identity This variable is set to identifier of worker, which sends the message.
+	 * @param target Vector to be filled with message body, split by message parts.
+	 * @param terminate Indicator whether connection is broken and must be terminated or operates correctly (optional).
+	 * @return @a true if all ZeroMQ receiving calls succeeded, @a false otherwise.
 	 */
 	bool recv_clients(std::string &identity, std::vector<std::string> &target, bool *terminate = nullptr)
 	{
@@ -169,7 +189,10 @@ public:
 	}
 
 	/**
-	 * Send a message through the worker socket
+	 * Send a message through the worker socket.
+	 * @param identity This variable identifies exact worker instance.
+	 * @param msg Vector of message parts to be sent, frame by frame.
+	 * @return @a true if all ZeroMQ sending calls succeeded, @a false otherwise.
 	 */
 	bool send_workers(const std::string &identity, const std::vector<std::string> &msg)
 	{
@@ -192,7 +215,10 @@ public:
 	}
 
 	/**
-	 * Send a message through the client socket
+	 * Send a message through the client socket.
+	 * @param identity This variable identifies exact worker instance.
+	 * @param msg Vector of message parts to be sent, frame by frame.
+	 * @return @a true if all ZeroMQ sending calls succeeded, @a false otherwise.
 	 */
 	bool send_clients(const std::string &identity, const std::vector<std::string> &msg)
 	{
@@ -221,10 +247,11 @@ public:
 	}
 
 	/**
-	 * Send a message through monitor socket
-	 *
+	 * Send a message through monitor socket.
 	 * If monitor is connected, send a message through the open socket. Otherwise, messages are queued for
-	 * some time and then dropped automatically.
+	 * some time and then dropped automatically - ZeroMQ internal message handling.
+	 * @param msg Vector of message parts to be sent, frame by frame.
+	 * @return @a true if all ZeroMQ sending calls succeeded, @a false otherwise.
 	 */
 	bool send_monitor(const std::vector<std::string> &msg)
 	{
