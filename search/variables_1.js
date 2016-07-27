@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['failure_5fcount',['failure_count',['../structrequest.html#ab50518c0e1045a37b9bd5b0f0a0933a3',1,'request']]],
-  ['functions_5f',['functions_',['../classcommand__holder.html#ad48d77799427cd5a0c4ffd1b35463bd7',1,'command_holder']]]
+  ['data',['data',['../structrequest.html#a9c13c2e2a7b6ce529f4192fa72e22ef9',1,'request']]],
+  ['delimiter',['delimiter',['../classmultiple__string__matcher.html#ab0a5bc824ab7c523ec6a04238c6aa307',1,'multiple_string_matcher']]]
 ];

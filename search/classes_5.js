@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['request',['request',['../structrequest.html',1,'']]]
+  ['log_5fconfig',['log_config',['../structlog__config.html',1,'']]]
 ];

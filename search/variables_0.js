@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['data',['data',['../structrequest.html#a9c13c2e2a7b6ce529f4192fa72e22ef9',1,'request']]]
+  ['address',['address',['../structfrontend__config.html#a6849295fecfdc879315af41f7a71f15c',1,'frontend_config']]]
 ];

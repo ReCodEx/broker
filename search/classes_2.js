@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['header_5fmatcher',['header_matcher',['../classheader__matcher.html',1,'']]]
+  ['empty_5fstatus_5fnotifier',['empty_status_notifier',['../classempty__status__notifier.html',1,'']]]
 ];

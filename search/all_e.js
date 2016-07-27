@@ -1,7 +1,10 @@
 var searchData=
 [
-  ['send_5fclients',['send_clients',['../classconnection__proxy.html#af7eba0b0b82ba54f3ae8caadf9ed5c31',1,'connection_proxy']]],
-  ['send_5fworkers',['send_workers',['../classconnection__proxy.html#adc6d52c211372d404bf37f1587d8f6ff',1,'connection_proxy']]],
-  ['sockets',['sockets',['../classcommand__context.html#a03e0f9a97992500b1d3322fd75d7da45',1,'command_context']]],
-  ['start_5fbrokering',['start_brokering',['../classbroker__connect.html#ac547ceb1a43f27cf26594487931d4aa8',1,'broker_connect']]]
+  ['recv_5fclients',['recv_clients',['../classconnection__proxy.html#a62a6b71f00bf4e396554b6ba1ea48996',1,'connection_proxy']]],
+  ['recv_5fworkers',['recv_workers',['../classconnection__proxy.html#a9a54d2d306b606b36833bf839339b976',1,'connection_proxy']]],
+  ['register_5fcommand',['register_command',['../classcommand__holder.html#a06872b447a9adb7389bd7b1faa0dd4e6',1,'command_holder']]],
+  ['remove_5fworker',['remove_worker',['../classworker__registry.html#a8d4b8a55fee30ea4098cbe3e928c7581',1,'worker_registry']]],
+  ['request',['request',['../structrequest.html',1,'request'],['../structrequest.html#ad188ea3b201b6ea43140a6f91f1e231e',1,'request::request()']]],
+  ['request_5fptr',['request_ptr',['../classworker.html#a773b16906d38bea8d73a65b0d845a515',1,'worker']]],
+  ['run',['run',['../classbroker__core.html#a3f8c3cce94f1b7a739edf1dcba61c3f2',1,'broker_core']]]
 ];

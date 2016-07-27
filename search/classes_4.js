@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['message_5forigin',['message_origin',['../structmessage__origin.html',1,'']]],
-  ['multiple_5fstring_5fmatcher',['multiple_string_matcher',['../classmultiple__string__matcher.html',1,'']]]
+  ['header_5fmatcher',['header_matcher',['../classheader__matcher.html',1,'']]],
+  ['http_5fstatus_5fnotifier',['http_status_notifier',['../classhttp__status__notifier.html',1,'']]]
 ];

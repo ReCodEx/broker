@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['poll',['poll',['../classconnection__proxy.html#a229e4bce6726bbd0c386f339710c2ac7',1,'connection_proxy']]],
-  ['process_5fdone',['process_done',['../namespaceworker__commands.html#a8aca8d10e3a5639214f950d228db3965',1,'worker_commands']]],
-  ['process_5feval',['process_eval',['../namespaceclient__commands.html#a048793e35610d770ef15e2f5a680e4c3',1,'client_commands']]],
-  ['process_5finit',['process_init',['../namespaceworker__commands.html#a1e867e3f6a20ff2e2689205b0a319e07',1,'worker_commands']]]
+  ['operator_21_3d',['operator!=',['../structlog__config.html#a088944cfa772f4f407ecd6141e232dc9',1,'log_config']]],
+  ['operator_3d',['operator=',['../classbroker__core.html#a542609cfb82f94ce6e44652774950c99',1,'broker_core::operator=(const broker_core &amp;source)=delete'],['../classbroker__core.html#aca1ea415cab039ea03e42af2a7758311',1,'broker_core::operator=(const broker_core &amp;&amp;source)=delete']]],
+  ['operator_3d_3d',['operator==',['../structlog__config.html#a3cf20004492f7d7288c153385682ff1d',1,'log_config']]]
 ];

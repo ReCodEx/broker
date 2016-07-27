@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['worker',['worker',['../classworker.html',1,'']]],
-  ['worker_5fcommands',['worker_commands',['../namespaceworker__commands.html',1,'']]],
-  ['worker_5fregistry',['worker_registry',['../classworker__registry.html',1,'']]],
-  ['workers',['workers',['../classcommand__context.html#a052b3e046a890a999379f53bdc1c3b26',1,'command_context']]]
+  ['taskbroker',['TaskBroker',['../index.html',1,'']]],
+  ['terminate',['terminate',['../classworker.html#a9caab0bbf46cfdaa9cbcc3cfb16ab51e',1,'worker']]],
+  ['type',['type',['../structmessage__origin.html#a03a75b912db8d66e120b00caf13bbf53',1,'message_origin']]]
 ];
