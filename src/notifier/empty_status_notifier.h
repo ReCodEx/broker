@@ -5,18 +5,11 @@
 
 
 /**
- * This status notifier has all methods implementation empty.
+ * A status notifier that does nothing when an error occurs.
  */
 class empty_status_notifier : public status_notifier
 {
 public:
-	/**
-	 * Stated for completion.
-	 */
-	virtual ~empty_status_notifier()
-	{
-	}
-
 	/**
 	 * Empty implementation.
 	 * @param desc description of error which was caused in broker

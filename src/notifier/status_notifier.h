@@ -11,14 +11,7 @@ class status_notifier
 {
 public:
 	/**
-	 * Stated for completion.
-	 */
-	virtual ~status_notifier()
-	{
-	}
-
-	/**
-	 * Basically tells that there was some serious problem which cannot be solved.
+	 * Basically tells frontend that there was some serious problem which has to be solved by administrator.
 	 * @param desc description of error which was caused in broker
 	 */
 	virtual void send_error(std::string desc) = 0;

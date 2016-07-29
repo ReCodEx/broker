@@ -10,10 +10,6 @@ http_status_notifier::http_status_notifier(const frontend_config &config, std::s
 	address_ = config.address + ":" + std::to_string(config.port);
 }
 
-http_status_notifier::~http_status_notifier()
-{
-}
-
 void http_status_notifier::send_error(std::string desc)
 {
 	std::string addr = address_ + "/error";
