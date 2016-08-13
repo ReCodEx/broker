@@ -24,7 +24,7 @@ set(SOURCE_FILES
 	src/config/broker_config.cpp
 	src/config/broker_config.h
 	src/config/log_config.h
-	src/config/frontend_config.h
+	src/config/notifier_config.h
 	src/broker_connect.h
 	src/broker_core.h
 	src/broker_core.cpp

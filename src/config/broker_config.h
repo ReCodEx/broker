@@ -11,8 +11,8 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-#include "frontend_config.h"
 #include "log_config.h"
+#include "notifier_config.h"
 
 
 /**
@@ -74,10 +74,10 @@ public:
 	 */
 	const log_config &get_log_config() const;
 	/**
-	 * Get wrapper for frontend poller configuration.
-	 * @return Frontend connection information as @ref frontend_config structure.
+	 * Get wrapper for frontend notifier configuration.
+	 * @return Frontend connection information as @ref notifier_config structure.
 	 */
-	const frontend_config &get_frontend_config() const;
+	const notifier_config &get_notifier_config() const;
 
 private:
 	/** Client socket address (from frontend) */
@@ -101,8 +101,8 @@ private:
 	std::chrono::milliseconds worker_ping_interval_ = std::chrono::milliseconds(1000);
 	/** Configuration of logger */
 	log_config log_config_;
-	/** Configuration of frontend poller */
-	frontend_config frontend_config_;
+	/** Configuration of frontend notifier */
+	notifier_config notifier_config_;
 };
 
 

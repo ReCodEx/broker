@@ -130,7 +130,7 @@ private:
 	std::shared_ptr<connection_proxy> sockets_;
 
 	/** Handles request which has to be sent back to frontend application. */
-	std::shared_ptr<status_notifier> status_notifier_;
+	std::shared_ptr<status_notifier_interface> status_notifier_;
 
 	/** Main broker class which handles incoming and outgoing connections. */
 	std::shared_ptr<broker_connect<connection_proxy>> broker_;

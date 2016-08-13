@@ -1,5 +1,5 @@
-#ifndef RECODEX_FRONTEND_CONFIG_H
-#define RECODEX_FRONTEND_CONFIG_H
+#ifndef RECODEX_NOTIFIER_CONFIG_H
+#define RECODEX_NOTIFIER_CONFIG_H
 
 #include <string>
 
@@ -7,7 +7,7 @@
 /**
  * Configuration of frontend connection and where to find it.
  */
-struct frontend_config {
+struct notifier_config {
 public:
 	/**
 	 * Address which frontend occupies.
@@ -28,4 +28,4 @@ public:
 	std::string password;
 };
 
-#endif // RECODEX_FRONTEND_CONFIG_H
+#endif // RECODEX_NOTIFIER_CONFIG_H

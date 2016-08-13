@@ -48,18 +48,18 @@ broker_config::broker_config(const YAML::Node &config)
 		}
 
 		// load frontend address and port
-		if (config["frontend"] && config["frontend"].IsMap()) {
-			if (config["frontend"]["address"] && config["frontend"]["address"].IsScalar()) {
-				frontend_config_.address = config["frontend"]["address"].as<std::string>();
+		if (config["notifier"] && config["notifier"].IsMap()) {
+			if (config["notifier"]["address"] && config["notifier"]["address"].IsScalar()) {
+				notifier_config_.address = config["notifier"]["address"].as<std::string>();
 			} // no throw... can be omitted
-			if (config["frontend"]["port"] && config["frontend"]["port"].IsScalar()) {
-				frontend_config_.port = config["frontend"]["port"].as<uint16_t>();
+			if (config["notifier"]["port"] && config["notifier"]["port"].IsScalar()) {
+				notifier_config_.port = config["notifier"]["port"].as<uint16_t>();
 			} // no throw... can be omitted
-			if (config["frontend"]["username"] && config["frontend"]["username"].IsScalar()) {
-				frontend_config_.username = config["frontend"]["username"].as<std::string>();
+			if (config["notifier"]["username"] && config["notifier"]["username"].IsScalar()) {
+				notifier_config_.username = config["notifier"]["username"].as<std::string>();
 			} // no throw... can be omitted
-			if (config["frontend"]["password"] && config["frontend"]["password"].IsScalar()) {
-				frontend_config_.password = config["frontend"]["password"].as<std::string>();
+			if (config["notifier"]["password"] && config["notifier"]["password"].IsScalar()) {
+				notifier_config_.password = config["notifier"]["password"].as<std::string>();
 			} // no throw... can be omitted
 		} // no throw... can be omitted
 
@@ -130,7 +130,7 @@ const log_config &broker_config::get_log_config() const
 	return log_config_;
 }
 
-const frontend_config &broker_config::get_frontend_config() const
+const notifier_config &broker_config::get_notifier_config() const
 {
-	return frontend_config_;
+	return notifier_config_;
 }

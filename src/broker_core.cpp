@@ -169,5 +169,5 @@ void broker_core::curl_fini()
 
 void broker_core::notifier_init()
 {
-	status_notifier_ = std::make_shared<http_status_notifier>(config_->get_frontend_config());
+	status_notifier_ = std::make_shared<http_status_notifier>(config_->get_notifier_config());
 }

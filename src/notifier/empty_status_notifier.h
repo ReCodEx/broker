@@ -7,14 +7,18 @@
 /**
  * A status notifier that does nothing when an error occurs.
  */
-class empty_status_notifier : public status_notifier
+class empty_status_notifier : public status_notifier_interface
 {
 public:
-	/**
-	 * Empty implementation.
-	 * @param desc description of error which was caused in broker
-	 */
-	virtual void send_error(std::string desc)
+	virtual void error(std::string desc)
+	{
+	}
+
+	virtual void rejected_jobs(std::vector<std::string> job_ids)
+	{
+	}
+
+	virtual void job_failed(std::string job_id)
 	{
 	}
 };

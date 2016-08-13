@@ -45,7 +45,7 @@ private:
 	/** Registry of connected and alive workers. */
 	std::shared_ptr<worker_registry> workers_;
 	/** Notifier which can be used to indicate frontend issues or some "good to know messages" */
-	std::shared_ptr<status_notifier> status_notifier_;
+	std::shared_ptr<status_notifier_interface> status_notifier_;
 
 	/**
 	 * Remove an expired worker. Also try to reassign the requests it was processing.
@@ -85,7 +85,7 @@ public:
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> router,
-		std::shared_ptr<status_notifier> notifier,
+		std::shared_ptr<status_notifier_interface> notifier,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
 		: config_(config), sockets_(sockets), status_notifier_(notifier), logger_(logger), workers_(router)
 	{

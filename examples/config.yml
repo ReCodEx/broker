@@ -9,7 +9,7 @@ workers:
     max_liveness: 4
     ping_interval: 1000
 # Frontend address which will be used for notifying on certain events
-frontend:
+notifier:
     address: "127.0.0.1"
     port: 8080
     username: ""
