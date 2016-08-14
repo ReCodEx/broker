@@ -79,11 +79,17 @@ namespace worker_commands
 			return;
 		}
 
+		// TODO: obtain job_id better from request (current->data.at(1))
 		std::shared_ptr<const request> current = worker->get_current_request();
 		if (arguments.front() != current->data.at(1)) {
 			context.logger->error() << "Got 'done' message with different job_id than original one from worker '"
 									<< helpers::string_to_hex(identity) << "'";
 			return;
+		}
+
+		// job ended with non-OK result, notify frontend about it
+		if (arguments.size() == 3 && arguments.at(1) != "OK") {
+			context.status_notifier->job_failed(arguments.front(), arguments.at(2));
 		}
 
 		worker->complete_request();

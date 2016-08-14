@@ -22,15 +22,21 @@ public:
 	 * Constructor with initialization of all members.
 	 * @param sockets sockets for communication
 	 * @param workers registry of all active workers right now
+	 * @param status_notifier error frontend notifier
 	 * @param logger system logger
 	 */
 	command_context(std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> workers,
+		std::shared_ptr<status_notifier_interface> status_notifier,
 		std::shared_ptr<spdlog::logger> logger)
 		: sockets(sockets), workers(workers), logger(logger)
 	{
 		if (this->logger == nullptr) {
 			this->logger = helpers::create_null_logger();
+		}
+
+		if (this->status_notifier == nullptr) {
+			this->status_notifier = std::make_shared<empty_status_notifier>();
 		}
 	}
 
@@ -38,6 +44,8 @@ public:
 	std::shared_ptr<proxy> sockets;
 	/** Pointer to @ref worker_registry class - info about workers and routing preferences to them. */
 	std::shared_ptr<worker_registry> workers;
+	/** Pointer to notifier which can send messages to frontend application. */
+	std::shared_ptr<status_notifier_interface> status_notifier;
 	/** System logger. */
 	std::shared_ptr<spdlog::logger> logger;
 };
@@ -62,12 +70,14 @@ public:
 	 * Constructor with initialization of all members.
 	 * @param sockets sockets for communication
 	 * @param router registry of all active workers right now
+	 * @param status_notifier error frontend notifier
 	 * @param logger system logger
 	 */
 	command_holder(std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> router,
+		std::shared_ptr<status_notifier_interface> status_notifier = nullptr,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: context_(sockets, router, logger)
+		: context_(sockets, router, status_notifier, logger)
 	{
 	}
 

@@ -14,11 +14,15 @@ public:
 	{
 	}
 
-	virtual void rejected_jobs(std::vector<std::string> job_ids)
+	virtual void rejected_job(std::string job_id, std::string desc = "")
 	{
 	}
 
-	virtual void job_failed(std::string job_id)
+	virtual void rejected_jobs(std::vector<std::string> job_ids, std::string desc = "")
+	{
+	}
+
+	virtual void job_failed(std::string job_id, std::string desc = "")
 	{
 	}
 };

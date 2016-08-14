@@ -25,17 +25,23 @@ void http_status_notifier::error(std::string desc)
 	send("/error", {{"desc", desc}});
 }
 
-void http_status_notifier::rejected_jobs(std::vector<std::string> job_ids)
+void http_status_notifier::rejected_job(std::string job_id, std::string desc)
+{
+	rejected_jobs({job_id}, desc);
+}
+
+void http_status_notifier::rejected_jobs(std::vector<std::string> job_ids, std::string desc)
 {
 	helpers::curl_params params;
 	for (auto &id : job_ids) {
 		params.insert({"job_id[]", id});
 	}
+	params.insert({"desc", desc});
 
 	send("/rejected-jobs", params);
 }
 
-void http_status_notifier::job_failed(std::string job_id)
+void http_status_notifier::job_failed(std::string job_id, std::string desc)
 {
-	send("/job-failed", {{"job_id", job_id}});
+	send("/job-failed", {{"job_id", job_id}, {"desc", desc}});
 }

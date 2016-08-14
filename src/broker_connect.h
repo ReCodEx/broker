@@ -57,6 +57,7 @@ private:
 
 		workers_->remove_worker(expired_worker);
 		auto requests = expired_worker->terminate();
+		std::vector<worker::request_ptr> unassigned_requests;
 
 		for (auto request : *requests) {
 			worker_registry::worker_ptr substitute_worker = workers_->find_worker(request->headers);
@@ -68,8 +69,19 @@ private:
 					sockets_->send_workers(substitute_worker->identity, substitute_worker->get_current_request()->data);
 				}
 			} else {
-				// TODO evaluation failed - notify the frontend
+				unassigned_requests.push_back(request);
 			}
+		}
+
+		// there are requests which cannot be assigned, notify frontend about it
+		if (!unassigned_requests.empty()) {
+			std::string worker_id = helpers::string_to_hex(expired_worker->identity);
+			std::vector<std::string> job_ids;
+			for (auto request : unassigned_requests) {
+				job_ids.push_back(request->data.at(1)); // TODO: obtain job_id better from request
+			}
+
+			status_notifier_->rejected_jobs(job_ids, "Worker " + worker_id + " dieded");
 		}
 	}
 
@@ -85,7 +97,7 @@ public:
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<proxy> sockets,
 		std::shared_ptr<worker_registry> router,
-		std::shared_ptr<status_notifier_interface> notifier,
+		std::shared_ptr<status_notifier_interface> notifier = nullptr,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
 		: config_(config), sockets_(sockets), status_notifier_(notifier), logger_(logger), workers_(router)
 	{
@@ -98,14 +110,14 @@ public:
 		}
 
 		// init worker commands
-		worker_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, logger_);
+		worker_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, status_notifier_, logger_);
 		worker_cmds_->register_command("init", worker_commands::process_init<proxy>);
 		worker_cmds_->register_command("done", worker_commands::process_done<proxy>);
 		worker_cmds_->register_command("ping", worker_commands::process_ping<proxy>);
 		worker_cmds_->register_command("progress", worker_commands::process_progress<proxy>);
 
 		// init client commands
-		client_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, logger_);
+		client_cmds_ = std::make_shared<command_holder<proxy>>(sockets_, router, status_notifier_, logger_);
 		client_cmds_->register_command("eval", client_commands::process_eval<proxy>);
 	}
 
