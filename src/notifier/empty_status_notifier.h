@@ -10,19 +10,19 @@
 class empty_status_notifier : public status_notifier_interface
 {
 public:
-	virtual void error(std::string desc)
+	virtual void error(const std::string &desc)
 	{
 	}
 
-	virtual void rejected_job(std::string job_id, std::string desc = "")
+	virtual void rejected_job(const std::string &job_id, const std::string &desc = "")
 	{
 	}
 
-	virtual void rejected_jobs(std::vector<std::string> job_ids, std::string desc = "")
+	virtual void rejected_jobs(std::vector<std::string> job_ids, const std::string &desc = "")
 	{
 	}
 
-	virtual void job_failed(std::string job_id, std::string desc = "")
+	virtual void job_failed(const std::string &job_id, const std::string &desc = "")
 	{
 	}
 };

@@ -1,65 +1,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "../src/broker_connect.h"
-#include "../src/worker.h"
+#include "mocks.h"
 
 using namespace testing;
 
-class mock_broker_config : public broker_config
-{
-public:
-	const std::string address = "*";
-	const std::string localhost = "127.0.0.1";
-
-	mock_broker_config() : broker_config()
-	{
-		ON_CALL(*this, get_worker_ping_interval()).WillByDefault(Return(std::chrono::milliseconds(1000)));
-
-		ON_CALL(*this, get_client_address()).WillByDefault(ReturnRef(address));
-
-		ON_CALL(*this, get_client_port()).WillByDefault(Return(1234));
-
-		ON_CALL(*this, get_worker_address()).WillByDefault(ReturnRef(address));
-
-		ON_CALL(*this, get_worker_port()).WillByDefault(Return(4321));
-
-		ON_CALL(*this, get_monitor_address()).WillByDefault(ReturnRef(localhost));
-
-		ON_CALL(*this, get_monitor_port()).WillByDefault(Return(7894));
-	}
-
-	MOCK_CONST_METHOD0(get_client_address, const std::string &());
-	MOCK_CONST_METHOD0(get_client_port, uint16_t());
-	MOCK_CONST_METHOD0(get_worker_address, const std::string &());
-	MOCK_CONST_METHOD0(get_worker_port, uint16_t());
-	MOCK_CONST_METHOD0(get_monitor_address, const std::string &());
-	MOCK_CONST_METHOD0(get_monitor_port, uint16_t());
-	MOCK_CONST_METHOD0(get_worker_ping_interval, std::chrono::milliseconds());
-};
-
-class mock_worker_registry : public worker_registry
-{
-public:
-	MOCK_METHOD1(add_worker, void(worker_registry::worker_ptr));
-	MOCK_METHOD1(remove_worker, void(worker_registry::worker_ptr));
-	MOCK_METHOD1(deprioritize_worker, void(worker_registry::worker_ptr));
-	MOCK_METHOD1(find_worker, worker_registry::worker_ptr(const request::headers_t &));
-	MOCK_METHOD1(find_worker_by_identity, worker_registry::worker_ptr(const std::string &));
-	MOCK_CONST_METHOD0(get_workers, const std::vector<std::shared_ptr<worker>> &());
-};
-
-class mock_connection_proxy
-{
-public:
-	MOCK_METHOD3(set_addresses, void(const std::string &, const std::string &, const std::string &));
-	MOCK_METHOD4(poll, void(message_origin::set &, std::chrono::milliseconds, bool &, std::chrono::milliseconds &));
-	MOCK_METHOD3(recv_workers, bool(std::string &, std::vector<std::string> &, bool *));
-	MOCK_METHOD3(recv_clients, bool(std::string &, std::vector<std::string> &, bool *));
-	MOCK_METHOD2(send_workers, bool(const std::string &, const std::vector<std::string> &));
-	MOCK_METHOD2(send_clients, bool(const std::string &, const std::vector<std::string> &));
-	MOCK_METHOD1(send_monitor, bool(const std::vector<std::string> &));
-};
 
 /** Check if worker satisfies given header value */
 MATCHER_P2(HasHeader, header, value, std::string("Worker satisfies header ") + header + "=" + value)
@@ -345,14 +290,21 @@ TEST(broker, worker_expiration)
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
+	auto notifier = std::make_shared<mock_status_notifier>();
 
 	request::headers_t headers = {{"env", "c"}};
-	worker_registry::worker_ptr worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
+	auto worker_1 = std::make_shared<mock_worker>("identity1", "group_1", headers);
 	worker_1->liveness = 1;
+
+	// prepare request list which will be returned on worker termination
+	std::vector<std::string> request_data = {"eval", "job_id"};
+	auto req = std::make_shared<request>(headers, request_data);
+	auto reqs = std::make_shared<std::vector<worker::request_ptr>>();
+	reqs->push_back(req);
 
 	std::vector<std::shared_ptr<worker>> worker_vector{worker_1};
 
-	Sequence s1, s2, s3;
+	Sequence s1, s2;
 
 	EXPECT_CALL(*sockets, set_addresses(_, _, _)).InSequence(s1, s2);
 
@@ -364,13 +316,26 @@ TEST(broker, worker_expiration)
 	EXPECT_CALL(*workers, get_workers()).WillRepeatedly(ReturnRef(worker_vector));
 
 	// Liveness got decreased to zero -> get rid of the worker
-	EXPECT_CALL(*workers, remove_worker(worker_1)).InSequence(s2);
+	EXPECT_CALL(*workers, remove_worker(Eq(worker_1))).InSequence(s2);
+
+	// On worker termination return list of active requests
+	EXPECT_CALL(*worker_1, terminate()).InSequence(s2).WillOnce(Return(reqs));
+
+	// No substitute workers are available for reassignment
+	EXPECT_CALL(*workers, find_worker(_)).InSequence(s2).WillRepeatedly(Return(nullptr));
+
+	// Worker was terminated but had some jobs which cannot be assigned to different worker
+	// frontend has to be notified through notifier
+	EXPECT_CALL(*notifier, rejected_jobs(_, _)).InSequence(s2);
 
 	// Last poll
 	EXPECT_CALL(*sockets, poll(_, _, _, _)).InSequence(s1).WillOnce(SetArgReferee<2>(true));
 
-	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, notifier);
 	broker.start_brokering();
+
+	// Cleanup
+	Mock::VerifyAndClearExpectations(worker_1.get());
 }
 
 TEST(broker, worker_state_message)
@@ -411,4 +376,62 @@ TEST(broker, worker_state_message)
 
 	broker_connect<mock_connection_proxy> broker(config, sockets, workers, nullptr);
 	broker.start_brokering();
+}
+
+TEST(broker, worker_job_failed)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
+	auto notifier = std::make_shared<mock_status_notifier>();
+
+	request::headers_t headers = {{"env", "c"}};
+	auto worker_1 = std::make_shared<mock_worker>("identity1", "group_1", headers);
+	worker_1->liveness = 1;
+
+	// prepare request list which will be returned on worker termination
+	std::string job_id = "job_id";
+	std::vector<std::string> request_data = {"eval", job_id};
+	auto req = std::make_shared<request>(headers, request_data);
+	std::vector<std::string> done_message = {"done", job_id, "ERR", "Testing failure"};
+
+	std::vector<std::shared_ptr<worker>> worker_vector{worker_1};
+	EXPECT_CALL(*workers, get_workers()).WillRepeatedly(ReturnRef(worker_vector));
+
+	{
+		InSequence s1;
+
+		EXPECT_CALL(*sockets, set_addresses(_, _, _));
+
+		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(DoAll(ClearFlags(), SetFlag(message_origin::WORKER)));
+
+		// A job done message appeared from worker
+		EXPECT_CALL(*sockets, recv_workers(_, _, _))
+			.WillOnce(DoAll(SetArgReferee<0>(worker_1->identity), SetArgReferee<1>(done_message)));
+
+		// find worker after job done message was received
+		EXPECT_CALL(*workers, find_worker_by_identity(_)).WillOnce(Return(worker_1));
+
+		// get current worker request
+		EXPECT_CALL(*worker_1, get_current_request()).WillOnce(Return(req));
+
+		// notifier should notify frontend about job failure
+		EXPECT_CALL(*notifier, job_failed(StrEq(job_id), StrEq(done_message.at(3))));
+
+		EXPECT_CALL(*worker_1, complete_request());
+
+		EXPECT_CALL(*worker_1, next_request()).WillOnce(Return(false));
+
+		// worker liveness
+		EXPECT_CALL(*workers, find_worker_by_identity(_)).WillOnce(Return(worker_1));
+
+		// Last poll
+		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(SetArgReferee<2>(true));
+	}
+
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, notifier);
+	broker.start_brokering();
+
+	// Cleanup
+	Mock::VerifyAndClearExpectations(worker_1.get());
 }

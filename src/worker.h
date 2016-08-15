@@ -108,42 +108,47 @@ public:
 	worker(const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers);
 
 	/**
+	 * Stated for completion.
+	 */
+	virtual ~worker();
+
+	/**
 	 * Check if the worker satisfies given header.
 	 * @param header Name of the header.
 	 * @param value Value to be checked against the header.
 	 */
-	bool check_header(const std::string &header, const std::string &value);
+	virtual bool check_header(const std::string &header, const std::string &value);
 
 	/**
 	 * Insert a request into the workers queue.
 	 * @param request A pointer to the request.
 	 */
-	void enqueue_request(request_ptr request);
+	virtual void enqueue_request(request_ptr request);
 
 	/**
 	 * Consider the current request complete.
 	 * Called when the actual worker machine successfully processes the request.
 	 */
-	void complete_request();
+	virtual void complete_request();
 
 	/**
 	 * If possible, take a request from the queue and start processing it.
 	 * @return @a true if and only if the worker started processing a new request.
 	 */
-	bool next_request();
+	virtual bool next_request();
 
 	/**
 	 * Get the request that is now being processed.
 	 * @return Pointer to currently processed request or @a nullptr.
 	 */
-	std::shared_ptr<const request> get_current_request() const;
+	virtual std::shared_ptr<const request> get_current_request() const;
 
 	/**
 	 * Forget all requests (currently processed and queued).
 	 * Called when the worker is considered dead.
 	 * @return Current request and all requests from waiting queue.
 	 */
-	std::shared_ptr<std::vector<request_ptr>> terminate();
+	virtual std::shared_ptr<std::vector<request_ptr>> terminate();
 };
 
 #endif // RECODEX_BROKER_WORKER_H

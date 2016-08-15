@@ -102,6 +102,10 @@ worker::worker(
 	}
 }
 
+worker::~worker()
+{
+}
+
 void worker::enqueue_request(request_ptr request)
 {
 	request_queue_.push(request);

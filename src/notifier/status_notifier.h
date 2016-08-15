@@ -19,7 +19,7 @@ public:
 	 * @param desc description of error which was caused in broker
 	 * @note Implementation has to be exceptionless.
 	 */
-	virtual void error(std::string desc) = 0;
+	virtual void error(const std::string &desc) = 0;
 
 	/**
 	 * Nofity frontend that broker cannot assign one particular job.
@@ -27,7 +27,7 @@ public:
 	 * @param desc description why job was rejected
 	 * @note Implementation has to be exceptionless.
 	 */
-	virtual void rejected_job(std::string job_id, std::string desc = "") = 0;
+	virtual void rejected_job(const std::string &job_id, const std::string &desc = "") = 0;
 
 	/**
 	 * Notify frontend that broker had to throw away some jobs and they have to be execute again.
@@ -36,7 +36,7 @@ public:
 	 * @param desc description why jobs were rejected
 	 * @note Implementation has to be exceptionless.
 	 */
-	virtual void rejected_jobs(std::vector<std::string> job_ids, std::string desc = "") = 0;
+	virtual void rejected_jobs(std::vector<std::string> job_ids, const std::string &desc = "") = 0;
 
 	/**
 	 * Is called when worker return job results with status not equal to OK.
@@ -44,7 +44,7 @@ public:
 	 * @param desc description which come with results from worker
 	 * @note Implementation has to be exceptionless.
 	 */
-	virtual void job_failed(std::string job_id, std::string desc = "") = 0;
+	virtual void job_failed(const std::string &job_id, const std::string &desc = "") = 0;
 };
 
 #endif // RECODEX_STATUS_NOTIFIER_H

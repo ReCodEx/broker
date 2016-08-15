@@ -29,7 +29,7 @@ public:
 		std::shared_ptr<worker_registry> workers,
 		std::shared_ptr<status_notifier_interface> status_notifier,
 		std::shared_ptr<spdlog::logger> logger)
-		: sockets(sockets), workers(workers), logger(logger)
+		: sockets(sockets), workers(workers), status_notifier(status_notifier), logger(logger)
 	{
 		if (this->logger == nullptr) {
 			this->logger = helpers::create_null_logger();

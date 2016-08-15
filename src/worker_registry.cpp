@@ -9,21 +9,21 @@ worker_registry::worker_registry()
 
 void worker_registry::add_worker(worker_ptr worker)
 {
-	workers.push_back(worker);
+	workers_.push_back(worker);
 }
 
 void worker_registry::remove_worker(worker_ptr worker)
 {
-	auto it = std::find(std::begin(workers), std::end(workers), worker);
+	auto it = std::find(std::begin(workers_), std::end(workers_), worker);
 
-	if (it != std::end(workers)) {
-		workers.erase(it);
+	if (it != std::end(workers_)) {
+		workers_.erase(it);
 	}
 }
 
 worker_registry::worker_ptr worker_registry::find_worker(const request::headers_t &headers)
 {
-	for (auto &worker : workers) {
+	for (auto &worker : workers_) {
 		bool is_worker_suitable = true;
 
 		for (auto &header : headers) {
@@ -43,7 +43,7 @@ worker_registry::worker_ptr worker_registry::find_worker(const request::headers_
 
 worker_registry::worker_ptr worker_registry::find_worker_by_identity(const std::string &identity)
 {
-	for (auto &worker : workers) {
+	for (auto &worker : workers_) {
 		if (worker->identity == identity) {
 			return worker;
 		}
@@ -54,15 +54,15 @@ worker_registry::worker_ptr worker_registry::find_worker_by_identity(const std::
 
 void worker_registry::deprioritize_worker(worker_registry::worker_ptr worker)
 {
-	auto it = std::find(std::begin(workers), std::end(workers), worker);
+	auto it = std::find(std::begin(workers_), std::end(workers_), worker);
 
-	if (it != std::end(workers) && (it + 1) != std::end(workers)) {
-		workers.erase(it);
-		workers.push_back(worker);
+	if (it != std::end(workers_) && (it + 1) != std::end(workers_)) {
+		workers_.erase(it);
+		workers_.push_back(worker);
 	}
 }
 
 const std::vector<worker_registry::worker_ptr> &worker_registry::get_workers() const
 {
-	return workers;
+	return workers_;
 }

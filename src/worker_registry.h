@@ -19,7 +19,7 @@ public:
 
 private:
 	/** List of known workers. */
-	std::vector<worker_ptr> workers;
+	std::vector<worker_ptr> workers_;
 
 public:
 	/** Default constructor, initializes empty list of workers. */

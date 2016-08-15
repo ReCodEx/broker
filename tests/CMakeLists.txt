@@ -23,11 +23,13 @@ function(add_test_suite name)
 endfunction()
 
 add_test_suite(broker_config
+	mocks.h
 	broker_config.cpp
 	${SRC_DIR}/config/broker_config.cpp
 )
 
 add_test_suite(worker_registry
+	mocks.h
 	worker_registry.cpp
 	${SRC_DIR}/worker_registry.cpp
 	${SRC_DIR}/worker.cpp
@@ -35,6 +37,7 @@ add_test_suite(worker_registry
 )
 
 add_test_suite(broker
+	mocks.h
 	broker.cpp
 	${SRC_DIR}/config/broker_config.cpp
 	${HELPERS_DIR}/string_to_hex.cpp
@@ -44,6 +47,7 @@ add_test_suite(broker
 )
 
 add_test_suite(worker
+	mocks.h
 	worker.cpp
 	${SRC_DIR}/worker.cpp
 )
