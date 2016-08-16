@@ -22,12 +22,17 @@ private:
 	/** Logger class */
 	std::shared_ptr<spdlog::logger> logger_;
 
+	/**
+	 * Internal helper function which is used for actual sending of HTTP requests.
+	 * @param route defines route to which base address will be added
+	 * @param params parameters which will be added to request
+	 */
 	void send(std::string route, helpers::curl_params params);
 
 public:
 	/**
 	 * @param config configuration of frontend connection
-	 * @param logger a logger object used when errors happen @ref send_error
+	 * @param logger a logger object used when errors happen
 	 */
 	http_status_notifier(const notifier_config &config, std::shared_ptr<spdlog::logger> logger = nullptr);
 
