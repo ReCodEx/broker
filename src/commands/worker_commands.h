@@ -92,6 +92,8 @@ namespace worker_commands
 			context.status_notifier->job_failed(arguments.front(), arguments.at(2));
 		}
 
+		// notify frontend that job ended successfully and complete it internally
+		context.status_notifier->job_done(arguments.front());
 		worker->complete_request();
 
 		if (worker->next_request()) {

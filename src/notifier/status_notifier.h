@@ -39,6 +39,13 @@ public:
 	virtual void rejected_jobs(std::vector<std::string> job_ids, const std::string &desc = "") = 0;
 
 	/**
+	 * Notify that job with given id was successfully executed.
+	 * @param job_id identification of job
+	 * @note Implementation has to be exceptionless.
+	 */
+	virtual void job_done(const std::string &job_id) = 0;
+
+	/**
 	 * Is called when worker return job results with status not equal to OK.
 	 * @param job_id identification of failed job
 	 * @param desc description which come with results from worker

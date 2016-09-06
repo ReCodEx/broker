@@ -41,6 +41,11 @@ void http_status_notifier::rejected_jobs(std::vector<std::string> job_ids, const
 	send("/rejected-jobs", params);
 }
 
+void http_status_notifier::job_done(const std::__cxx11::string &job_id)
+{
+	send("/job-done", {{"job_id", job_id}});
+}
+
 void http_status_notifier::job_failed(const std::string &job_id, const std::string &desc)
 {
 	send("/job-failed", {{"job_id", job_id}, {"desc", desc}});

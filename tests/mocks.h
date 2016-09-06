@@ -75,6 +75,7 @@ public:
 	MOCK_METHOD1(error, void(const std::string &));
 	MOCK_METHOD2(rejected_job, void(const std::string &, const std::string &));
 	MOCK_METHOD2(rejected_jobs, void(std::vector<std::string>, const std::string &));
+	MOCK_METHOD1(job_done, void(const std::string &));
 	MOCK_METHOD2(job_failed, void(const std::string &, const std::string &));
 };
 

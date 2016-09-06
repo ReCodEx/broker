@@ -435,3 +435,61 @@ TEST(broker, worker_job_failed)
 	// Cleanup
 	Mock::VerifyAndClearExpectations(worker_1.get());
 }
+
+TEST(broker, worker_job_done)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
+	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
+	auto notifier = std::make_shared<mock_status_notifier>();
+
+	request::headers_t headers = {{"env", "c"}};
+	auto worker_1 = std::make_shared<mock_worker>("identity1", "group_1", headers);
+	worker_1->liveness = 1;
+
+	// prepare request list which will be returned on worker termination
+	std::string job_id = "job_id";
+	std::vector<std::string> request_data = {"eval", job_id};
+	auto req = std::make_shared<request>(headers, request_data);
+	std::vector<std::string> done_message = {"done", job_id, "OK", ""};
+
+	std::vector<std::shared_ptr<worker>> worker_vector{worker_1};
+	EXPECT_CALL(*workers, get_workers()).WillRepeatedly(ReturnRef(worker_vector));
+
+	{
+		InSequence s1;
+
+		EXPECT_CALL(*sockets, set_addresses(_, _, _));
+
+		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(DoAll(ClearFlags(), SetFlag(message_origin::WORKER)));
+
+		// A job done message appeared from worker
+		EXPECT_CALL(*sockets, recv_workers(_, _, _))
+			.WillOnce(DoAll(SetArgReferee<0>(worker_1->identity), SetArgReferee<1>(done_message)));
+
+		// find worker after job done message was received
+		EXPECT_CALL(*workers, find_worker_by_identity(_)).WillOnce(Return(worker_1));
+
+		// get current worker request
+		EXPECT_CALL(*worker_1, get_current_request()).WillOnce(Return(req));
+
+		// notifier should notify frontend about job failure
+		EXPECT_CALL(*notifier, job_done(StrEq(job_id)));
+
+		EXPECT_CALL(*worker_1, complete_request());
+
+		EXPECT_CALL(*worker_1, next_request()).WillOnce(Return(false));
+
+		// worker liveness
+		EXPECT_CALL(*workers, find_worker_by_identity(_)).WillOnce(Return(worker_1));
+
+		// Last poll
+		EXPECT_CALL(*sockets, poll(_, _, _, _)).WillOnce(SetArgReferee<2>(true));
+	}
+
+	broker_connect<mock_connection_proxy> broker(config, sockets, workers, notifier);
+	broker.start_brokering();
+
+	// Cleanup
+	Mock::VerifyAndClearExpectations(worker_1.get());
+}

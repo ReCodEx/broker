@@ -22,6 +22,10 @@ public:
 	{
 	}
 
+	virtual void job_done(const std::string &job_id)
+	{
+	}
+
 	virtual void job_failed(const std::string &job_id, const std::string &desc = "")
 	{
 	}
