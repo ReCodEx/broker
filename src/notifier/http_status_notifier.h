@@ -16,8 +16,10 @@ class http_status_notifier : public status_notifier_interface
 private:
 	/** Configuration of frontend address and connection */
 	notifier_config config_;
-	/** Textual representation of url with port included */
-	std::string address_;
+	/** General error route */
+	std::string error_route_ = "/error/";
+	/** General route for job concerning messages */
+	std::string job_status_route_ = "/job-status/";
 
 	/** Logger class */
 	std::shared_ptr<spdlog::logger> logger_;

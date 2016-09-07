@@ -6,15 +6,13 @@ http_status_notifier::http_status_notifier(const notifier_config &config, std::s
 	if (logger_ == nullptr) {
 		logger_ = helpers::create_null_logger();
 	}
-
-	address_ = config.address + ":" + std::to_string(config.port);
 }
 
 void http_status_notifier::send(std::string route, helpers::curl_params params)
 {
-	std::string addr = address_ + route;
+	std::string addr = config_.address + route;
 	try {
-		helpers::curl_post(addr, params, config_.username, config_.password);
+		helpers::curl_post(addr, config_.port, params, config_.username, config_.password);
 	} catch (helpers::curl_exception e) {
 		logger_->emerg() << e.what();
 	}
@@ -22,7 +20,7 @@ void http_status_notifier::send(std::string route, helpers::curl_params params)
 
 void http_status_notifier::error(const std::string &desc)
 {
-	send("/error", {{"desc", desc}});
+	send(error_route_, {{"message", desc}});
 }
 
 void http_status_notifier::rejected_job(const std::string &job_id, const std::string &desc)
@@ -32,21 +30,17 @@ void http_status_notifier::rejected_job(const std::string &job_id, const std::st
 
 void http_status_notifier::rejected_jobs(std::vector<std::string> job_ids, const std::string &desc)
 {
-	helpers::curl_params params;
 	for (auto &id : job_ids) {
-		params.insert({"job_id[]", id});
+		send(job_status_route_ + id, {{"status", "FAILED"}, {"message", desc}});
 	}
-	params.insert({"desc", desc});
-
-	send("/rejected-jobs", params);
 }
 
 void http_status_notifier::job_done(const std::string &job_id)
 {
-	send("/job-done", {{"job_id", job_id}});
+	send(job_status_route_ + job_id, {{"status", "OK"}});
 }
 
 void http_status_notifier::job_failed(const std::string &job_id, const std::string &desc)
 {
-	send("/job-failed", {{"job_id", job_id}, {"desc", desc}});
+	send(job_status_route_ + job_id, {{"status", "FAILED"}, {"message", desc}});
 }

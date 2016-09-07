@@ -169,7 +169,5 @@ void broker_core::curl_fini()
 
 void broker_core::notifier_init()
 {
-	status_notifier_ = std::make_shared<empty_status_notifier>();
-	// TODO: engage http_status_notifier when API will be finished
-	// status_notifier_ = std::make_shared<http_status_notifier>(config_->get_notifier_config());
+	status_notifier_ = std::make_shared<http_status_notifier>(config_->get_notifier_config());
 }

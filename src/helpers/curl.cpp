@@ -38,8 +38,11 @@ static size_t string_write_wrapper(void *ptr, size_t size, size_t nmemb, std::st
 	return length;
 }
 
-std::string helpers::curl_get(
-	const std::string &url, const curl_params &params, const std::string &username, const std::string &passwd)
+std::string helpers::curl_get(const std::string &url,
+	const long port,
+	const curl_params &params,
+	const std::string &username,
+	const std::string &passwd)
 {
 	std::string result;
 	std::string query = get_http_query(params);
@@ -52,6 +55,9 @@ std::string helpers::curl_get(
 	if (curl) {
 		// destination address
 		curl_easy_setopt(curl, CURLOPT_URL, url_query.c_str());
+
+		// set port
+		curl_easy_setopt(curl, CURLOPT_PORT, port);
 
 		// set writer wrapper and result string
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, string_write_wrapper);
@@ -91,8 +97,11 @@ std::string helpers::curl_get(
 	return result;
 }
 
-std::string helpers::curl_post(
-	const std::string &url, const curl_params &params, const std::string &username, const std::string &passwd)
+std::string helpers::curl_post(const std::string &url,
+	const long port,
+	const curl_params &params,
+	const std::string &username,
+	const std::string &passwd)
 {
 	std::string result;
 	std::string query = get_http_query(params);
@@ -105,6 +114,9 @@ std::string helpers::curl_post(
 	if (curl) {
 		// destination address
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+		// set port
+		curl_easy_setopt(curl, CURLOPT_PORT, port);
 
 		/* Now specify the POST data */
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, query.c_str());

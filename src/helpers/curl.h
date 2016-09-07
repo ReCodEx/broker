@@ -23,6 +23,7 @@ namespace helpers
 	 * Sends GET request with curl to given url with given parameters.
 	 * @note Http authentication will be executed when username or password will be non-empty.
 	 * @param url address which will be getted
+	 * @param port port of remote host
 	 * @param params http query will be constructed from this
 	 * @param username http authentication
 	 * @param passwd http authentication
@@ -30,6 +31,7 @@ namespace helpers
 	 * @throws curl_exception if request was not succesfull
 	 */
 	std::string curl_get(const std::string &url,
+		const long port,
 		const curl_params &params,
 		const std::string &username = "",
 		const std::string &passwd = "");
@@ -38,6 +40,7 @@ namespace helpers
 	 * Sends POST request with curl to given url with given parameters.
 	 * @note Http authentication will be executed when username or password will be non-empty.
 	 * @param url address which will be requested with post
+	 * @param port port of remote host
 	 * @param params http query will be constructed from this
 	 * @param username http authentication
 	 * @param passwd http authentication
@@ -45,6 +48,7 @@ namespace helpers
 	 * @throws curl_exception if request was not succesfull
 	 */
 	std::string curl_post(const std::string &url,
+		const long port,
 		const curl_params &params,
 		const std::string &username = "",
 		const std::string &passwd = "");

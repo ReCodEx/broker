@@ -10,8 +10,8 @@ workers:
     ping_interval: 1000
 # Frontend address which will be used for notifying on certain events
 notifier:
-    address: "127.0.0.1"
-    port: 8080
+    address: "http://localhost/v1/broker-reports"
+    port: 4000
     username: ""
     password: ""
 monitor:
