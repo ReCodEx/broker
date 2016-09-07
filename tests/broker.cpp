@@ -473,7 +473,7 @@ TEST(broker, worker_job_done)
 		// get current worker request
 		EXPECT_CALL(*worker_1, get_current_request()).WillOnce(Return(req));
 
-		// notifier should notify frontend about job failure
+		// notifier should notify frontend about job done
 		EXPECT_CALL(*notifier, job_done(StrEq(job_id)));
 
 		EXPECT_CALL(*worker_1, complete_request());

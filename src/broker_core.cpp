@@ -28,7 +28,6 @@ void broker_core::run()
 	logger_->info() << "Broker will now start brokering.";
 	broker_->start_brokering();
 	logger_->info() << "Broker will now end.";
-	return;
 }
 
 void broker_core::parse_params()
@@ -58,8 +57,6 @@ void broker_core::parse_params()
 	if (vm.count("config")) {
 		config_filename_ = vm["config"].as<std::string>();
 	}
-
-	return;
 }
 
 void broker_core::load_config()
@@ -70,8 +67,6 @@ void broker_core::load_config()
 	} catch (std::exception &e) {
 		force_exit("Error loading config file: " + std::string(e.what()));
 	}
-
-	return;
 }
 
 void broker_core::force_exit(std::string msg)
@@ -130,8 +125,6 @@ void broker_core::log_init()
 		std::cerr << "Logger: " << e.what() << std::endl;
 		throw;
 	}
-
-	return;
 }
 
 void broker_core::broker_init()
@@ -142,8 +135,6 @@ void broker_core::broker_init()
 	broker_ =
 		std::make_shared<broker_connect<connection_proxy>>(config_, sockets_, workers_, status_notifier_, logger_);
 	logger_->info() << "Broker connection initialized.";
-
-	return;
 }
 
 void broker_core::curl_init()
@@ -153,8 +144,6 @@ void broker_core::curl_init()
 	logger_->info() << "Initializing CURL...";
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 	logger_->info() << "CURL initialized.";
-
-	return;
 }
 
 void broker_core::curl_fini()
@@ -163,11 +152,10 @@ void broker_core::curl_fini()
 	logger_->info() << "Cleanup after CURL...";
 	curl_global_cleanup();
 	logger_->info() << "CURL cleaned.";
-
-	return;
 }
 
 void broker_core::notifier_init()
 {
-	status_notifier_ = std::make_shared<http_status_notifier>(config_->get_notifier_config());
+	logger_->info() << "Initializing status notifier...";
+	status_notifier_ = std::make_shared<http_status_notifier>(config_->get_notifier_config(), logger_);
 }
