@@ -6,6 +6,53 @@
 #include <queue>
 #include <vector>
 
+
+/**
+ * Wrapper for request data which holds actual request frames which will be sent to worker
+ *   and some more usefull information.
+ */
+class job_request_data
+{
+private:
+	/** Identification of job. */
+	std::string job_id_;
+	/** Data frames which will be sent as request to worker. */
+	std::vector<std::string> data_;
+
+public:
+	/**
+	 * Classical constructor with all possible information.
+	 * @param job_id identification of job
+	 * @param additional additional information which will be added to standard message
+	 */
+	job_request_data(const std::string &job_id, const std::vector<std::string> &additional)
+	{
+		job_id_ = job_id;
+		data_ = {"eval", job_id};
+		for (auto &i : additional) {
+			data_.push_back(i);
+		}
+	}
+
+	/**
+	 * Gets job identification of this request.
+	 * @return constant reference to string
+	 */
+	const std::string &get_job_id() const
+	{
+		return job_id_;
+	}
+
+	/**
+	 * Gets actual list of frames which will be sent to worker.
+	 * @return multipart message
+	 */
+	std::vector<std::string> get() const
+	{
+		return data_;
+	}
+};
+
 /**
  * An evaluation request.
  */
@@ -17,7 +64,7 @@ struct request {
 	const headers_t headers;
 
 	/** The data of the request. */
-	const std::vector<std::string> data;
+	const job_request_data data;
 
 	/** The amount of failed attempts at processing this request. */
 	size_t failure_count = 0;
@@ -27,7 +74,7 @@ struct request {
 	 * @param headers Request headers that specify requirements on workers.
 	 * @param data Body of the request.
 	 */
-	request(const headers_t &headers, const std::vector<std::string> &data) : headers(headers), data(data)
+	request(const headers_t &headers, const job_request_data &data) : headers(headers), data(data)
 	{
 	}
 };

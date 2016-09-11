@@ -79,9 +79,8 @@ namespace worker_commands
 			return;
 		}
 
-		// TODO: obtain job_id better from request (current->data.at(1))
 		std::shared_ptr<const request> current = worker->get_current_request();
-		if (arguments.front() != current->data.at(1)) {
+		if (arguments.front() != current->data.get_job_id()) {
 			context.logger->error() << "Got 'done' message with different job_id than original one from worker '"
 									<< helpers::string_to_hex(identity) << "'";
 			return;
@@ -97,7 +96,7 @@ namespace worker_commands
 		worker->complete_request();
 
 		if (worker->next_request()) {
-			context.sockets->send_workers(worker->identity, worker->get_current_request()->data);
+			context.sockets->send_workers(worker->identity, worker->get_current_request()->data.get());
 			context.logger->debug() << " - new job sent to worker '" << helpers::string_to_hex(identity)
 									<< "' from queue";
 		} else {

@@ -54,20 +54,21 @@ namespace client_commands
 		worker_registry::worker_ptr worker = context.workers->find_worker(headers);
 
 		if (worker != nullptr) {
-			std::vector<std::string> request_data = {"eval", job_id};
 			context.logger->debug() << " - incomming job '" << job_id << "'";
 
 			// Forward remaining messages to the worker without actually understanding them
+			std::vector<std::string> additional_data;
 			for (; it != std::end(arguments); ++it) {
-				request_data.push_back(*it);
+				additional_data.push_back(*it);
 			}
+			job_request_data request_data(job_id, additional_data);
 
 			auto eval_request = std::make_shared<request>(headers, request_data);
 			worker->enqueue_request(eval_request);
 
 			if (worker->next_request()) {
 				// If the worker isn't doing anything, just forward the request
-				context.sockets->send_workers(worker->identity, worker->get_current_request()->data);
+				context.sockets->send_workers(worker->identity, worker->get_current_request()->data.get());
 				context.logger->debug() << " - sent to worker '" << helpers::string_to_hex(worker->identity) << "'";
 			} else {
 				// If the worker is occupied, queue the request

@@ -66,7 +66,8 @@ private:
 				substitute_worker->enqueue_request(request);
 
 				if (substitute_worker->next_request()) {
-					sockets_->send_workers(substitute_worker->identity, substitute_worker->get_current_request()->data);
+					sockets_->send_workers(
+						substitute_worker->identity, substitute_worker->get_current_request()->data.get());
 				}
 			} else {
 				unassigned_requests.push_back(request);
@@ -78,7 +79,7 @@ private:
 			std::string worker_id = helpers::string_to_hex(expired_worker->identity);
 			std::vector<std::string> job_ids;
 			for (auto request : unassigned_requests) {
-				job_ids.push_back(request->data.at(1)); // TODO: obtain job_id better from request
+				job_ids.push_back(request->data.get_job_id());
 			}
 
 			status_notifier_->rejected_jobs(job_ids, "Worker " + worker_id + " dieded");

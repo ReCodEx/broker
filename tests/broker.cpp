@@ -297,7 +297,7 @@ TEST(broker, worker_expiration)
 	worker_1->liveness = 1;
 
 	// prepare request list which will be returned on worker termination
-	std::vector<std::string> request_data = {"eval", "job_id"};
+	job_request_data request_data("job_id", {});
 	auto req = std::make_shared<request>(headers, request_data);
 	auto reqs = std::make_shared<std::vector<worker::request_ptr>>();
 	reqs->push_back(req);
@@ -391,7 +391,7 @@ TEST(broker, worker_job_failed)
 
 	// prepare request list which will be returned on worker termination
 	std::string job_id = "job_id";
-	std::vector<std::string> request_data = {"eval", job_id};
+	job_request_data request_data(job_id, {});
 	auto req = std::make_shared<request>(headers, request_data);
 	std::vector<std::string> done_message = {"done", job_id, "ERR", "Testing failure"};
 
@@ -449,7 +449,7 @@ TEST(broker, worker_job_done)
 
 	// prepare request list which will be returned on worker termination
 	std::string job_id = "job_id";
-	std::vector<std::string> request_data = {"eval", job_id};
+	job_request_data request_data(job_id, {});
 	auto req = std::make_shared<request>(headers, request_data);
 	std::vector<std::string> done_message = {"done", job_id, "OK", ""};
 
