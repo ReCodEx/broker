@@ -162,12 +162,6 @@ public:
 
 		identity = std::string(static_cast<char *>(msg.data()), msg.size());
 
-		retval = clients_.recv(&msg, 0); // Empty frame
-
-		if (!retval) {
-			return false;
-		}
-
 		while (msg.more()) {
 			try {
 				retval = clients_.recv(&msg, 0);
