@@ -34,6 +34,7 @@ add_test_suite(worker_registry
 	${SRC_DIR}/worker_registry.cpp
 	${SRC_DIR}/worker.cpp
 	${HELPERS_DIR}/logger.cpp
+	${HELPERS_DIR}/string_to_hex.cpp
 )
 
 add_test_suite(broker
@@ -44,10 +45,12 @@ add_test_suite(broker
 	${HELPERS_DIR}/logger.cpp
 	${SRC_DIR}/worker_registry.cpp
 	${SRC_DIR}/worker.cpp
+	${SRC_DIR}/helpers/string_to_hex.cpp
 )
 
 add_test_suite(worker
 	mocks.h
 	worker.cpp
 	${SRC_DIR}/worker.cpp
+	${SRC_DIR}/helpers/string_to_hex.cpp
 )

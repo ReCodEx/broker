@@ -127,6 +127,9 @@ private:
 	/** Headers that describe the workers capabilities. */
 	std::multimap<std::string, std::unique_ptr<header_matcher>> headers_;
 
+	/** A copy of the headers used to instantiate the worker (used by comparison) */
+	const std::multimap<std::string, std::string> headers_copy_;
+
 	/** @a false if the worker is processing a request. */
 	bool free_;
 
@@ -158,6 +161,12 @@ public:
 	 * Stated for completion.
 	 */
 	virtual ~worker();
+
+	/**
+	 * Check if the worker's headers are equal to given set of headers
+	 * @param other The set of headers to check
+	 */
+	bool headers_equal(const std::multimap<std::string, std::string> &other);
 
 	/**
 	 * Check if the worker satisfies given header.
@@ -196,6 +205,12 @@ public:
 	 * @return Current request and all requests from waiting queue.
 	 */
 	virtual std::shared_ptr<std::vector<request_ptr>> terminate();
+
+	/**
+	 * Get a textual description of the worker
+	 * @return textual description of the worker
+	 */
+	std::string get_description () const;
 };
 
 #endif // RECODEX_BROKER_WORKER_H

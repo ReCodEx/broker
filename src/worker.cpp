@@ -1,4 +1,5 @@
 #include "worker.h"
+#include "helpers/string_to_hex.h"
 
 /**
  * Takes string containing multiple values (separated by "|" character) and checks, if any of them is equal to
@@ -87,7 +88,7 @@ public:
 
 worker::worker(
 	const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers)
-	: identity(id), hwgroup(hwgroup), free_(true), current_request_(nullptr)
+	: identity(id), hwgroup(hwgroup), free_(true), current_request_(nullptr), headers_copy_(headers)
 {
 	headers_.emplace("hwgroup", std::unique_ptr<header_matcher>(new multiple_string_matcher(hwgroup)));
 
@@ -167,4 +168,14 @@ bool worker::check_header(const std::string &header, const std::string &value)
 
 	// If we found nothing, return false
 	return false;
+}
+
+
+bool worker::headers_equal(const std::multimap<std::string, std::string> &other) {
+	return other == headers_copy_;
+}
+
+std::string worker::get_description () const
+{
+	return helpers::string_to_hex(identity);
 }

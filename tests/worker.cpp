@@ -130,3 +130,13 @@ TEST(worker, worker_headers_hwgroup)
 	ASSERT_FALSE(worker_1.check_header("hwgroup", "group_4"));
 	ASSERT_FALSE(worker_1.check_header("hwgroup", "group_4||group_3"));
 }
+
+TEST(worker, worker_headers_equal)
+{
+	std::multimap<std::string, std::string> headers = {{"threads", "8"}};
+	std::multimap<std::string, std::string> headers_copy = {{"threads", "8"}};
+
+	worker worker_1("identity1", "group_1", headers);
+
+	ASSERT_TRUE(worker_1.headers_equal(headers_copy));
+}

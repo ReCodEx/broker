@@ -1,7 +1,6 @@
 #ifndef RECODEX_BROKER_WORKER_COMMANDS_H
 #define RECODEX_BROKER_WORKER_COMMANDS_H
 
-#include "../helpers/string_to_hex.h"
 #include "../worker.h"
 #include <sstream>
 
@@ -44,10 +43,27 @@ namespace worker_commands
 			headers.emplace(header.substr(0, pos), header.substr(pos + 1, value_size));
 		}
 
-		context.workers->add_worker(worker_registry::worker_ptr(new worker(identity, hwgroup, headers)));
+		// Check if we know a worker with given identity
+		worker_registry::worker_ptr current_worker = context.workers->find_worker_by_identity(identity);
+
+		if (current_worker != nullptr) {
+			if (current_worker->headers_equal(headers)) {
+				// We don't have to update anything
+				return;
+			}
+
+			context.status_notifier->error(
+				"Received two different INIT messages from the same worker ("
+				+ current_worker->get_description() + ")"
+			);
+		}
+
+
+		const std::shared_ptr<worker> &new_worker = worker_registry::worker_ptr(new worker(identity, hwgroup, headers));
+		context.workers->add_worker(new_worker);
 		std::stringstream ss;
 		std::copy(arguments.begin(), arguments.end(), std::ostream_iterator<std::string>(ss, " "));
-		context.logger->debug() << " - added new worker '" << helpers::string_to_hex(identity)
+		context.logger->debug() << " - added new worker '" << new_worker->get_description()
 								<< "' with headers: " << ss.str();
 	}
 
@@ -75,14 +91,14 @@ namespace worker_commands
 
 		if (arguments.empty()) {
 			context.logger->error() << "Got 'done' message without job_id from worker '"
-									<< helpers::string_to_hex(identity) << "'";
+									<< worker->get_description() << "'";
 			return;
 		}
 
 		std::shared_ptr<const request> current = worker->get_current_request();
 		if (arguments.front() != current->data.get_job_id()) {
 			context.logger->error() << "Got 'done' message with different job_id than original one from worker '"
-									<< helpers::string_to_hex(identity) << "'";
+									<< worker->get_description() << "'";
 			return;
 		}
 
@@ -97,10 +113,10 @@ namespace worker_commands
 
 		if (worker->next_request()) {
 			context.sockets->send_workers(worker->identity, worker->get_current_request()->data.get());
-			context.logger->debug() << " - new job sent to worker '" << helpers::string_to_hex(identity)
+			context.logger->debug() << " - new job sent to worker '" << worker->get_description()
 									<< "' from queue";
 		} else {
-			context.logger->debug() << " - worker '" << helpers::string_to_hex(identity) << "' is now free";
+			context.logger->debug() << " - worker '" << worker->get_description() << "' is now free";
 		}
 	}
 
