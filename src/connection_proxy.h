@@ -223,12 +223,6 @@ public:
 			return false;
 		}
 
-		retval = clients_.send("", 0, ZMQ_SNDMORE) >= 0; // Empty frame
-
-		if (!retval) {
-			return false;
-		}
-
 		for (auto it = std::begin(msg); it != std::end(msg); ++it) {
 			retval = clients_.send(it->c_str(), it->size(), std::next(it) != std::end(msg) ? ZMQ_SNDMORE : 0) >= 0;
 
