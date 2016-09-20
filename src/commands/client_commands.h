@@ -24,6 +24,10 @@ namespace client_commands
 	void process_eval(
 		const std::string &identity, const std::vector<std::string> &arguments, const command_context<proxy> &context)
 	{
+		// At first, let client know that we are alive and well
+		context.sockets->send_clients(identity, {"ack"});
+
+		// Get job identification and parse headers
 		std::string job_id = arguments.front();
 		request::headers_t headers;
 

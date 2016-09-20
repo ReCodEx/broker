@@ -138,6 +138,9 @@ TEST(broker, queuing)
 		.WillOnce(DoAll(SetArgReferee<0>(client_id),
 			SetArgReferee<1>(std::vector<std::string>{"eval", "job1", "env=c", "", "1", "2"})));
 
+	// Send ack back to client after successful arrival of request
+	EXPECT_CALL(*sockets, send_clients(StrEq(client_id), ElementsAre("ack"))).InSequence(s2);
+
 	EXPECT_CALL(*workers, deprioritize_worker(worker_1)).InSequence(s3);
 
 	// Let the worker process it
@@ -156,6 +159,9 @@ TEST(broker, queuing)
 		.InSequence(s2, s3)
 		.WillOnce(DoAll(SetArgReferee<0>(client_id),
 			SetArgReferee<1>(std::vector<std::string>{"eval", "job2", "env=c", "", "3", "4"})));
+
+	// Send ack back to client after successful arrival of request
+	EXPECT_CALL(*sockets, send_clients(StrEq(client_id), ElementsAre("ack"))).InSequence(s2);
 
 	EXPECT_CALL(*workers, deprioritize_worker(worker_1)).InSequence(s3);
 
