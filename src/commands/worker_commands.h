@@ -52,10 +52,8 @@ namespace worker_commands
 				return;
 			}
 
-			context.status_notifier->error(
-				"Received two different INIT messages from the same worker ("
-				+ current_worker->get_description() + ")"
-			);
+			context.status_notifier->error("Received two different INIT messages from the same worker (" +
+				current_worker->get_description() + ")");
 		}
 
 
@@ -90,8 +88,8 @@ namespace worker_commands
 		}
 
 		if (arguments.empty()) {
-			context.logger->error() << "Got 'done' message without job_id from worker '"
-									<< worker->get_description() << "'";
+			context.logger->error() << "Got 'done' message without job_id from worker '" << worker->get_description()
+									<< "'";
 			return;
 		}
 
@@ -113,8 +111,7 @@ namespace worker_commands
 
 		if (worker->next_request()) {
 			context.sockets->send_workers(worker->identity, worker->get_current_request()->data.get());
-			context.logger->debug() << " - new job sent to worker '" << worker->get_description()
-									<< "' from queue";
+			context.logger->debug() << " - new job sent to worker '" << worker->get_description() << "' from queue";
 		} else {
 			context.logger->debug() << " - worker '" << worker->get_description() << "' is now free";
 		}

@@ -89,7 +89,10 @@ std::string helpers::curl_get(const std::string &url,
 
 		// Check for errors
 		if (res != CURLE_OK) {
-			auto error_message = "GET request failed to " + url_query + ". Error: " + curl_easy_strerror(res);
+			long response_code;
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+			auto error_message = "GET request failed to " + url_query + ". Error: (" + std::to_string(response_code) +
+				") " + curl_easy_strerror(res);
 			throw curl_exception(error_message);
 		}
 	}
@@ -151,7 +154,10 @@ std::string helpers::curl_post(const std::string &url,
 
 		// Check for errors
 		if (res != CURLE_OK) {
-			auto error_message = "POST request failed to " + url_query + ". Error: " + curl_easy_strerror(res);
+			long response_code;
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+			auto error_message = "POST request failed to " + url_query + ". Error: (" + std::to_string(response_code) +
+				") " + curl_easy_strerror(res);
 			throw curl_exception(error_message);
 		}
 	}

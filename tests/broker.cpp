@@ -105,11 +105,9 @@ TEST(broker, worker_repeated_init_same_headers)
 	auto sockets = std::make_shared<StrictMock<mock_connection_proxy>>();
 	auto workers = std::make_shared<StrictMock<mock_worker_registry>>();
 
-	EXPECT_CALL(*workers, add_worker(_))
-		.Times(0);
+	EXPECT_CALL(*workers, add_worker(_)).Times(0);
 
-	EXPECT_CALL(*workers, remove_worker(_))
-		.Times(0);
+	EXPECT_CALL(*workers, remove_worker(_)).Times(0);
 
 	Sequence s1, s2;
 
