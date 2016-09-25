@@ -43,11 +43,16 @@ set(SOURCE_FILES
 	src/notifier/http_status_notifier.h
 	src/notifier/http_status_notifier.cpp
 	src/notifier/empty_status_notifier.h
-)
+	src/reactor/reactor.cpp
+	src/reactor/socket_wrapper_base.cpp
+	src/reactor/socket_wrapper_base.h
+	src/reactor/message_container.cpp
+	src/reactor/handler_interface.h src/reactor/router_socket_wrapper.h src/reactor/router_socket_wrapper.cpp)
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
 target_link_libraries(${EXEC_NAME} yaml-cpp)
 target_link_libraries(${EXEC_NAME} -lzmq)
+target_link_libraries(${EXEC_NAME} -lpthread)
 target_link_libraries(${EXEC_NAME} -lboost_system)
 target_link_libraries(${EXEC_NAME} -lboost_filesystem)
 target_link_libraries(${EXEC_NAME} -lboost_program_options)
