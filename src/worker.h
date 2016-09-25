@@ -210,7 +210,7 @@ public:
 	 * Get a textual description of the worker
 	 * @return textual description of the worker
 	 */
-	std::string get_description () const;
+	std::string get_description() const;
 };
 
 #endif // RECODEX_BROKER_WORKER_H

@@ -171,11 +171,12 @@ bool worker::check_header(const std::string &header, const std::string &value)
 }
 
 
-bool worker::headers_equal(const std::multimap<std::string, std::string> &other) {
+bool worker::headers_equal(const std::multimap<std::string, std::string> &other)
+{
 	return other == headers_copy_;
 }
 
-std::string worker::get_description () const
+std::string worker::get_description() const
 {
 	return helpers::string_to_hex(identity);
 }
