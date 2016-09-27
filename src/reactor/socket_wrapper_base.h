@@ -1,8 +1,8 @@
 #ifndef RECODEX_BROKER_SOCKET_WRAPPER_BASE_HPP
 #define RECODEX_BROKER_SOCKET_WRAPPER_BASE_HPP
 
-#include <zmq.hpp>
 #include <memory>
+#include <zmq.hpp>
 
 #include "message_container.h"
 
