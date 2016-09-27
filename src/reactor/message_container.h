@@ -9,7 +9,7 @@ struct message_container {
 	std::string key;
 
 	/** Identity of the peer we are communicating with (optional) */
-	std::string identity;
+	std::string identity = "";
 
 	/** Frames of the message */
 	std::vector<std::string> data;
