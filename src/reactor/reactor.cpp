@@ -60,6 +60,7 @@ void reactor::start_loop()
 
 	// Poll all registered sockets
 	for (auto it : sockets_) {
+		it.second->initialize();
 		pollitems.push_back(it.second->get_pollitem());
 		pollitem_names.push_back(it.first);
 	}
