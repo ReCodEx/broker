@@ -13,6 +13,19 @@ struct message_container {
 
 	/** Frames of the message */
 	std::vector<std::string> data;
+
+	/**
+	 * The default constructor
+	 */
+	message_container();
+
+	/**
+	 * A shorthand constructor for creating a message container in a single expression
+	 * @param key name of the origin or destinarion
+	 * @param identity identity of the peer we're communicating with
+	 * @param data frames of the message
+	 */
+	message_container(const std::string &key, const std::string &identity, const std::vector<std::string> &data);
 };
 
 #endif // RECODEX_BROKER_MESSAGE_CONTAINER_H
