@@ -26,6 +26,8 @@ struct message_container {
 	 * @param data frames of the message
 	 */
 	message_container(const std::string &key, const std::string &identity, const std::vector<std::string> &data);
+
+	bool operator==(const message_container &other);
 };
 
 #endif // RECODEX_BROKER_MESSAGE_CONTAINER_H
