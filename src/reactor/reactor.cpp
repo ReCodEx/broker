@@ -2,6 +2,8 @@
 
 #include "reactor.h"
 
+const std::string reactor::KEY_TIMER = "timer";
+
 reactor::reactor(std::shared_ptr<zmq::context_t> context)
 	: context_(context), async_handler_socket_(*context, zmq::socket_type::router),
 	  unique_id("reactor_" + std::to_string((uintptr_t) this))

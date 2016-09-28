@@ -65,7 +65,7 @@ public:
 	/**
 	 * An origin identifier for messages about elapsed time
 	 */
-	const std::string KEY_TIMER = "timer";
+	const static std::string KEY_TIMER;
 
 	/**
 	 * A unique identifier for the asynchronous handler socket
