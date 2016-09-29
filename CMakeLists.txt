@@ -28,10 +28,7 @@ set(SOURCE_FILES
 	src/broker_connect.h
 	src/broker_core.h
 	src/broker_core.cpp
-	src/connection_proxy.h
 	src/commands/command_holder.h
-	src/commands/client_commands.h
-	src/commands/worker_commands.h
 	src/helpers/string_to_hex.h
 	src/helpers/string_to_hex.cpp
 	src/helpers/logger.h
@@ -47,7 +44,7 @@ set(SOURCE_FILES
 	src/reactor/socket_wrapper_base.cpp
 	src/reactor/socket_wrapper_base.h
 	src/reactor/message_container.cpp
-	src/reactor/handler_interface.h src/reactor/router_socket_wrapper.h src/reactor/router_socket_wrapper.cpp)
+	src/reactor/handler_interface.h src/reactor/router_socket_wrapper.h src/reactor/router_socket_wrapper.cpp src/handlers/broker_handler.h src/handlers/status_notifier_handler.h src/handlers/status_notifier_handler.cpp src/handlers/broker_handler.cpp src/notifier/reactor_status_notifier.cpp src/notifier/reactor_status_notifier.h src/broker_connect.cpp)
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})
 target_link_libraries(${EXEC_NAME} yaml-cpp)

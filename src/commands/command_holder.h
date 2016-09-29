@@ -12,46 +12,6 @@
 
 
 /**
- * Context for all commands. This class is templated by used communication proxy (mainly @ref connection_proxy class).
- * For more info, see @ref command_holder class.
- */
-template <typename proxy> class command_context
-{
-public:
-	/**
-	 * Constructor with initialization of all members.
-	 * @param sockets sockets for communication
-	 * @param workers registry of all active workers right now
-	 * @param status_notifier error frontend notifier
-	 * @param logger system logger
-	 */
-	command_context(std::shared_ptr<proxy> sockets,
-		std::shared_ptr<worker_registry> workers,
-		std::shared_ptr<status_notifier_interface> status_notifier,
-		std::shared_ptr<spdlog::logger> logger)
-		: sockets(sockets), workers(workers), status_notifier(status_notifier), logger(logger)
-	{
-		if (this->logger == nullptr) {
-			this->logger = helpers::create_null_logger();
-		}
-
-		if (this->status_notifier == nullptr) {
-			this->status_notifier = std::make_shared<empty_status_notifier>();
-		}
-	}
-
-	/** Pointer to communication proxy (see @ref connection_proxy for possible implementation. */
-	std::shared_ptr<proxy> sockets;
-	/** Pointer to @ref worker_registry class - info about workers and routing preferences to them. */
-	std::shared_ptr<worker_registry> workers;
-	/** Pointer to notifier which can send messages to frontend application. */
-	std::shared_ptr<status_notifier_interface> status_notifier;
-	/** System logger. */
-	std::shared_ptr<spdlog::logger> logger;
-};
-
-
-/**
  * Command holder.
  *
  * This class can handle, register and execute commands with corresponding callbacks. Command is @a std::string,
@@ -59,12 +19,11 @@ public:
  * const command_context<proxy> &context". @a proxy is templated argument, which specifies type of used communication
  * class.
  */
-template <typename proxy> class command_holder
+class command_holder
 {
 public:
 	/** Type of callback function for easier use. */
-	typedef std::function<void(const std::string &, const std::vector<std::string> &, const command_context<proxy> &)>
-		callback_fn;
+	typedef std::function<void(const std::string &, const std::vector<std::string> &)> callback_fn;
 
 	/**
 	 * Constructor with initialization of all members.
@@ -73,11 +32,9 @@ public:
 	 * @param status_notifier error frontend notifier
 	 * @param logger system logger
 	 */
-	command_holder(std::shared_ptr<proxy> sockets,
-		std::shared_ptr<worker_registry> router,
+	command_holder(std::shared_ptr<worker_registry> router,
 		std::shared_ptr<status_notifier_interface> status_notifier = nullptr,
 		std::shared_ptr<spdlog::logger> logger = nullptr)
-		: context_(sockets, router, status_notifier, logger)
 	{
 	}
 
@@ -91,7 +48,7 @@ public:
 	{
 		auto it = functions_.find(command);
 		if (it != functions_.end()) {
-			(it->second)(identity, message, context_);
+			(it->second)(identity, message);
 		}
 	}
 	/**
@@ -109,10 +66,6 @@ public:
 protected:
 	/** Container for <command, callback> pairs with fast searching. */
 	std::map<std::string, callback_fn> functions_;
-
-private:
-	/** Inner context to be passed to callback when invoked. */
-	const command_context<proxy> context_;
 };
 
 #endif // RECODEX_BROKER_COMMANDS_BASE_H

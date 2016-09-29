@@ -57,18 +57,6 @@ public:
 	MOCK_CONST_METHOD0(get_workers, const std::vector<std::shared_ptr<worker>> &());
 };
 
-class mock_connection_proxy
-{
-public:
-	MOCK_METHOD3(set_addresses, void(const std::string &, const std::string &, const std::string &));
-	MOCK_METHOD4(poll, void(message_origin::set &, std::chrono::milliseconds, bool &, std::chrono::milliseconds &));
-	MOCK_METHOD3(recv_workers, bool(std::string &, std::vector<std::string> &, bool *));
-	MOCK_METHOD3(recv_clients, bool(std::string &, std::vector<std::string> &, bool *));
-	MOCK_METHOD2(send_workers, bool(const std::string &, const std::vector<std::string> &));
-	MOCK_METHOD2(send_clients, bool(const std::string &, const std::vector<std::string> &));
-	MOCK_METHOD1(send_monitor, bool(const std::vector<std::string> &));
-};
-
 class mock_status_notifier : public status_notifier_interface
 {
 public:
