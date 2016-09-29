@@ -22,7 +22,6 @@ namespace fs = boost::filesystem;
 #include "commands/command_holder.h"
 #include "config/broker_config.h"
 #include "config/log_config.h"
-#include "connection_proxy.h"
 #include "notifier/http_status_notifier.h"
 
 
@@ -89,11 +88,6 @@ private:
 	void curl_fini();
 
 	/**
-	 * Initialization of frontend notifier.
-	 */
-	void notifier_init();
-
-	/**
 	 * Exit whole application with return code 1.
 	 * @param msg String which is copied to stderr and logger if initialized (emerg level).
 	 */
@@ -126,14 +120,11 @@ private:
 	/** Pointer to task router (handles alive worker and routing tasks between them). */
 	std::shared_ptr<worker_registry> workers_;
 
-	/** Pointer to sockets wrapper class. */
-	std::shared_ptr<connection_proxy> sockets_;
-
-	/** Handles request which has to be sent back to frontend application. */
-	std::shared_ptr<status_notifier_interface> status_notifier_;
+	/** Pointer to ZeroMQ context. */
+	std::shared_ptr<zmq::context_t> context_;
 
 	/** Main broker class which handles incoming and outgoing connections. */
-	std::shared_ptr<broker_connect<connection_proxy>> broker_;
+	std::shared_ptr<broker_connect> broker_;
 };
 
 #endif // RECODEX_BROKER_CORE_H

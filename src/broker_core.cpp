@@ -11,8 +11,6 @@ broker_core::broker_core(std::vector<std::string> args)
 	log_init();
 	// initialize curl
 	curl_init();
-	// notifier init
-	notifier_init();
 	// construct and setup broker connection
 	broker_init();
 }
@@ -131,9 +129,8 @@ void broker_core::broker_init()
 {
 	logger_->info() << "Initializing broker connection...";
 	workers_ = std::make_shared<worker_registry>();
-	sockets_ = std::make_shared<connection_proxy>();
-	broker_ =
-		std::make_shared<broker_connect<connection_proxy>>(config_, sockets_, workers_, status_notifier_, logger_);
+	context_ = std::make_shared<zmq::context_t>(1);
+	broker_ = std::make_shared<broker_connect>(config_, context_, workers_, logger_);
 	logger_->info() << "Broker connection initialized.";
 }
 
@@ -152,10 +149,4 @@ void broker_core::curl_fini()
 	logger_->info() << "Cleanup after CURL...";
 	curl_global_cleanup();
 	logger_->info() << "CURL cleaned.";
-}
-
-void broker_core::notifier_init()
-{
-	logger_->info() << "Initializing status notifier...";
-	status_notifier_ = std::make_shared<http_status_notifier>(config_->get_notifier_config(), logger_);
 }

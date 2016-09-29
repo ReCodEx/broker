@@ -13,6 +13,7 @@ set(LIBS
 	gmock gmock_main
 	yaml-cpp
 	-lzmq
+	-lcurl
 	-lboost_system -lboost_filesystem
 )
 
@@ -41,11 +42,20 @@ add_test_suite(broker
 	mocks.h
 	broker.cpp
 	${SRC_DIR}/config/broker_config.cpp
+	${SRC_DIR}/broker_connect.cpp
+	${SRC_DIR}/handlers/broker_handler.cpp
+	${SRC_DIR}/handlers/status_notifier_handler.cpp
 	${HELPERS_DIR}/string_to_hex.cpp
 	${HELPERS_DIR}/logger.cpp
 	${SRC_DIR}/worker_registry.cpp
 	${SRC_DIR}/worker.cpp
 	${SRC_DIR}/helpers/string_to_hex.cpp
+	${SRC_DIR}/helpers/curl.cpp
+	${SRC_DIR}/reactor/message_container.cpp
+	${SRC_DIR}/reactor/reactor.cpp
+	${SRC_DIR}/reactor/socket_wrapper_base.cpp
+	${SRC_DIR}/reactor/router_socket_wrapper.cpp
+	${SRC_DIR}/notifier/reactor_status_notifier.cpp
 )
 
 add_test_suite(worker
