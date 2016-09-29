@@ -83,7 +83,8 @@ void reactor::start_loop()
 		for (auto item : pollitems) {
 			if (item.revents & ZMQ_POLLIN) {
 				message_container received_msg;
-				sockets_.at(pollitem_names.at(i))->receive_message(received_msg);
+				received_msg.key = pollitem_names.at(i);
+				sockets_.at(received_msg.key)->receive_message(received_msg);
 				process_message(received_msg);
 			}
 
