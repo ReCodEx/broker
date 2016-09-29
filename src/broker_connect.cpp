@@ -4,7 +4,9 @@ const std::string broker_connect::KEY_WORKERS = "workers";
 const std::string broker_connect::KEY_CLIENTS = "clients";
 const std::string broker_connect::KEY_MONITOR = "monitor";
 const std::string broker_connect::KEY_STATUS_NOTIFIER = "status_notifier";
-const std::string broker_connect::KEY_TIMER = reactor::KEY_TIMER;
+
+// FIXME This must be equal to reactor::KEY_TIMER, but we can't assign that directly
+const std::string broker_connect::KEY_TIMER = "timer";
 
 broker_connect::broker_connect(std::shared_ptr<const broker_config> config,
 	std::shared_ptr<zmq::context_t> context,
