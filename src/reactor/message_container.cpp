@@ -10,7 +10,7 @@ message_container::message_container(
 {
 }
 
-bool message_container::operator==(const message_container &other)
+bool message_container::operator==(const message_container &other) const
 {
 	return key == other.key && identity == other.identity && data == other.data;
 }

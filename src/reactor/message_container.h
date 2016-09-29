@@ -27,7 +27,7 @@ struct message_container {
 	 */
 	message_container(const std::string &key, const std::string &identity, const std::vector<std::string> &data);
 
-	bool operator==(const message_container &other);
+	bool operator==(const message_container &other) const;
 };
 
 #endif // RECODEX_BROKER_MESSAGE_CONTAINER_H
