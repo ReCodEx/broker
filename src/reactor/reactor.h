@@ -1,10 +1,10 @@
 #ifndef RECODEX_BROKER_REACTOR_H
 #define RECODEX_BROKER_REACTOR_H
 
+#include <atomic>
 #include <map>
 #include <memory>
 #include <zmq.hpp>
-#include <atomic>
 
 #include "handler_interface.h"
 #include "message_container.h"
