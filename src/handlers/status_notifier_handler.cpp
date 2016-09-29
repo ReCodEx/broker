@@ -7,7 +7,8 @@
 const std::string status_notifier_handler::TYPE_ERROR = "error";
 const std::string status_notifier_handler::TYPE_JOB_STATUS = "job_status";
 
-status_notifier_handler::status_notifier_handler(const notifier_config &config) : config_(config)
+status_notifier_handler::status_notifier_handler(const notifier_config &config, std::shared_ptr<spdlog::logger> logger)
+	: config_(config), logger_(logger)
 {
 }
 
@@ -45,5 +46,9 @@ void status_notifier_handler::on_request(const message_container &message, handl
 		ss << "/" << id;
 	}
 
-	helpers::curl_post(ss.str(), config_.port, params, config_.username, config_.password);
+	try {
+		helpers::curl_post(ss.str(), config_.port, params, config_.username, config_.password);
+	} catch (helpers::curl_exception &exception) {
+		logger_->emerg() << "curl failed: " << exception.what();
+	}
 }

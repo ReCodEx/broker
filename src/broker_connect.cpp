@@ -33,7 +33,7 @@ broker_connect::broker_connect(std::shared_ptr<const broker_config> config,
 	reactor_.add_handler(
 		{KEY_CLIENTS, KEY_WORKERS, KEY_TIMER}, std::make_shared<broker_handler>(config_, workers_, logger_));
 	reactor_.add_async_handler(
-		{KEY_STATUS_NOTIFIER}, std::make_shared<status_notifier_handler>(config_->get_notifier_config()));
+		{KEY_STATUS_NOTIFIER}, std::make_shared<status_notifier_handler>(config_->get_notifier_config(), logger_));
 }
 
 void broker_connect::start_brokering()
