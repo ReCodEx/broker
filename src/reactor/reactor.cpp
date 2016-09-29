@@ -113,7 +113,7 @@ void handler_wrapper::operator()(const message_container &message)
 	handler_->on_request(message, [this](const message_container &response) { reactor_.send_message(response); });
 }
 
-static const std::string asynchronous_handler_wrapper::TERMINATE_MSG = "TERMINATE";
+const std::string asynchronous_handler_wrapper::TERMINATE_MSG = "TERMINATE";
 
 asynchronous_handler_wrapper::asynchronous_handler_wrapper(zmq::context_t &context,
 	zmq::socket_t &async_handler_socket,
