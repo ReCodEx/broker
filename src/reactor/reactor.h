@@ -44,6 +44,11 @@ public:
 
 private:
 	/**
+	 * A message used to signal that the worker thread should terminate
+	 */
+	static const std::string TERMINATE_MSG;
+
+	/**
 	 * A reference to the socket used by the reactor to communicate with asynchronous handlers.
 	 * It can only be used by the main reactor thread (i.e. not by the worker thread)
 	 */
@@ -63,11 +68,6 @@ private:
 	 * The worker thread function
 	 */
 	void handler_thread();
-
-	/**
-	 * A flag used to tell the worker thread it can terminate
-	 */
-	std::atomic<bool> running_;
 
 	/**
 	 * Send a message back to the reactor through the inprocess socket
