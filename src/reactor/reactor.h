@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <zmq.hpp>
+#include <atomic>
 
 #include "handler_interface.h"
 #include "message_container.h"
@@ -42,11 +43,31 @@ public:
 	virtual void operator()(const message_container &message);
 
 private:
+	/**
+	 * A reference to the socket used by the reactor to communicate with asynchronous handlers.
+	 * It can only be used by the main reactor thread (i.e. not by the worker thread)
+	 */
 	zmq::socket_t &reactor_socket_;
 
+	/**
+	 * The other side of the reactor socket, owned by the handler thread
+	 */
 	zmq::socket_t handler_thread_socket_;
 
+	/**
+	 * A reference to the worker thread
+	 */
+	std::thread worker_;
+
+	/**
+	 * The worker thread function
+	 */
 	void handler_thread();
+
+	/**
+	 * A flag used to tell the worker thread it can terminate
+	 */
+	std::atomic<bool> running_;
 
 	/**
 	 * Send a message back to the reactor through the inprocess socket

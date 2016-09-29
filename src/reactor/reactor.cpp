@@ -117,14 +117,22 @@ asynchronous_handler_wrapper::asynchronous_handler_wrapper(zmq::context_t &conte
 	reactor &reactor_ref,
 	std::shared_ptr<handler_interface> handler)
 	: handler_wrapper(reactor_ref, handler), reactor_socket_(async_handler_socket),
-	  unique_id_(std::to_string((uintptr_t) this)), handler_thread_socket_(context, zmq::socket_type::dealer)
+	  unique_id_(std::to_string((uintptr_t) this)), handler_thread_socket_(context, zmq::socket_type::dealer),
+	worker_([this]() {handler_thread();})
 {
-	std::thread worker([this]() { handler_thread(); });
 }
 
 asynchronous_handler_wrapper::~asynchronous_handler_wrapper()
 {
-	// TODO find a way to kill the handling thread
+	// Set a flag for the worker thread that indicates it can terminate
+	running_.store(false);
+
+	// Send a dummy message to wake the worker thread up
+	reactor_socket_.send(unique_id_.data(), unique_id_.size(), ZMQ_SNDMORE);
+	reactor_socket_.send("TERMINATE", 10);
+
+	// Join it
+	worker_.join();
 }
 
 void asynchronous_handler_wrapper::operator()(const message_container &message)
@@ -142,13 +150,18 @@ void asynchronous_handler_wrapper::handler_thread()
 {
 	handler_thread_socket_.setsockopt(ZMQ_IDENTITY, unique_id_.data(), unique_id_.size());
 	handler_thread_socket_.connect("inproc://" + reactor_.unique_id);
+	running_.store(true);
 
-	while (true) {
+	while (running_.load()) {
 		message_container request;
 		zmq::message_t message;
 
 		handler_thread_socket_.recv(&message, 0);
 		request.key = std::string(static_cast<char *>(message.data()), message.size());
+
+		if (!message.more()) {
+			continue;
+		}
 
 		handler_thread_socket_.recv(&message, 0);
 		request.identity = std::string(static_cast<char *>(message.data()), message.size());
