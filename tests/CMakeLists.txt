@@ -64,3 +64,11 @@ add_test_suite(worker
 	${SRC_DIR}/worker.cpp
 	${SRC_DIR}/helpers/string_to_hex.cpp
 )
+
+add_test_suite(reactor
+	reactor.cpp
+	${SRC_DIR}/reactor/message_container.cpp
+	${SRC_DIR}/reactor/reactor.cpp
+	${SRC_DIR}/reactor/socket_wrapper_base.cpp
+	${SRC_DIR}/reactor/router_socket_wrapper.cpp
+)
