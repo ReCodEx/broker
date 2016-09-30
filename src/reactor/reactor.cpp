@@ -71,8 +71,10 @@ void reactor::start_loop()
 	pollitems.push_back(
 		zmq_pollitem_t{.socket = (void *) async_handler_socket_, .fd = 0, .events = ZMQ_POLLIN, .revents = 0});
 
+	termination_flag_.store(false);
+
 	// Enter the poll loop
-	while (true) {
+	while (!termination_flag_.load()) {
 		auto time_before_poll = std::chrono::system_clock::now();
 		zmq::poll(pollitems, std::chrono::milliseconds(100));
 		auto time_after_poll = std::chrono::system_clock::now();
@@ -83,8 +85,26 @@ void reactor::start_loop()
 		for (auto item : pollitems) {
 			if (item.revents & ZMQ_POLLIN) {
 				message_container received_msg;
-				received_msg.key = pollitem_names.at(i);
-				sockets_.at(received_msg.key)->receive_message(received_msg);
+
+				if (i < pollitem_names.size()) {
+					// message came from a registered socket, fill in its key
+					received_msg.key = pollitem_names.at(i);
+					sockets_.at(received_msg.key)->receive_message(received_msg);
+				} else {
+					// message from the asynchronous handler socket
+					zmq::message_t zmessage;
+
+					async_handler_socket_.recv(&zmessage);
+					received_msg.key = std::string(static_cast<char *>(zmessage.data()), zmessage.size());
+
+					async_handler_socket_.recv(&zmessage);
+					received_msg.identity = std::string(static_cast<char *>(zmessage.data()), zmessage.size());
+
+					while (zmessage.more()) {
+						received_msg.data.emplace_back(static_cast<char *>(zmessage.data()), zmessage.size());
+					}
+				}
+
 				process_message(received_msg);
 			}
 
@@ -97,6 +117,13 @@ void reactor::start_loop()
 
 		process_message(timer_msg);
 	}
+
+	handlers_.clear();
+}
+
+void reactor::terminate ()
+{
+	termination_flag_.store(true);
 }
 
 handler_wrapper::handler_wrapper(reactor &reactor_ref, std::shared_ptr<handler_interface> handler)
@@ -120,9 +147,9 @@ asynchronous_handler_wrapper::asynchronous_handler_wrapper(zmq::context_t &conte
 	reactor &reactor_ref,
 	std::shared_ptr<handler_interface> handler)
 	: handler_wrapper(reactor_ref, handler), reactor_socket_(async_handler_socket),
-	  unique_id_(std::to_string((uintptr_t) this)), handler_thread_socket_(context, zmq::socket_type::dealer),
-	  worker_([this]() { handler_thread(); })
+	  unique_id_(std::to_string((uintptr_t) this)), handler_thread_socket_(context, zmq::socket_type::dealer)
 {
+	worker_ = std::thread([this]() { handler_thread(); });
 }
 
 asynchronous_handler_wrapper::~asynchronous_handler_wrapper()
@@ -137,7 +164,6 @@ asynchronous_handler_wrapper::~asynchronous_handler_wrapper()
 
 void asynchronous_handler_wrapper::operator()(const message_container &message)
 {
-	reactor_socket_.send(unique_id_.data(), unique_id_.size(), ZMQ_SNDMORE);
 	reactor_socket_.send(message.key.data(), message.key.size(), ZMQ_SNDMORE);
 	reactor_socket_.send(message.identity.data(), message.identity.size(), ZMQ_SNDMORE);
 
