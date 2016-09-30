@@ -21,7 +21,7 @@ public:
 
 	zmq_pollitem_t get_pollitem();
 
-	void initialize();
+	virtual void initialize();
 
 	void restart();
 
