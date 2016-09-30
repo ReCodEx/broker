@@ -121,7 +121,7 @@ void reactor::start_loop()
 	handlers_.clear();
 }
 
-void reactor::terminate ()
+void reactor::terminate()
 {
 	termination_flag_.store(true);
 }
