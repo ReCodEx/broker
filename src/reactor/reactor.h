@@ -140,6 +140,12 @@ public:
 	 */
 	void start_loop();
 
+	/**
+	 * Tell the reactor to terminate as soon as possible.
+	 * This method is thread-safe.
+	 */
+	void terminate();
+
 private:
 	std::map<std::string, std::shared_ptr<socket_wrapper_base>> sockets_;
 	std::multimap<std::string, std::shared_ptr<handler_wrapper>> handlers_;
@@ -149,6 +155,8 @@ private:
 	 * An in-process socket used to communicate with asynchronous handlers
 	 */
 	zmq::socket_t async_handler_socket_;
+
+	std::atomic<bool> termination_flag_;
 };
 
 #endif // RECODEX_BROKER_REACTOR_H
