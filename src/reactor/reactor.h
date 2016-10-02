@@ -49,15 +49,15 @@ private:
 	static const std::string TERMINATE_MSG;
 
 	/**
+	 * A ZeroMQ context
+	 */
+	zmq::context_t &context_;
+
+	/**
 	 * A reference to the socket used by the reactor to communicate with asynchronous handlers.
 	 * It can only be used by the main reactor thread (i.e. not by the worker thread)
 	 */
 	zmq::socket_t &reactor_socket_;
-
-	/**
-	 * The other side of the reactor socket, owned by the handler thread
-	 */
-	zmq::socket_t handler_thread_socket_;
 
 	/**
 	 * A reference to the worker thread
@@ -72,7 +72,7 @@ private:
 	/**
 	 * Send a message back to the reactor through the inprocess socket
 	 */
-	void send_response(const message_container &message);
+	void send_response(zmq::socket_t &socket, const message_container &message);
 
 	/**
 	 * A unique identifier of the handler used in inprocess communication with the reactor

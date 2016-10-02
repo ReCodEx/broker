@@ -147,7 +147,7 @@ asynchronous_handler_wrapper::asynchronous_handler_wrapper(zmq::context_t &conte
 	reactor &reactor_ref,
 	std::shared_ptr<handler_interface> handler)
 	: handler_wrapper(reactor_ref, handler), reactor_socket_(async_handler_socket),
-	  unique_id_(std::to_string((uintptr_t) this)), handler_thread_socket_(context, zmq::socket_type::dealer)
+	  unique_id_(std::to_string((uintptr_t) this)), context_(context)
 {
 	worker_ = std::thread([this]() { handler_thread(); });
 }
@@ -174,14 +174,15 @@ void asynchronous_handler_wrapper::operator()(const message_container &message)
 
 void asynchronous_handler_wrapper::handler_thread()
 {
-	handler_thread_socket_.setsockopt(ZMQ_IDENTITY, unique_id_.data(), unique_id_.size());
-	handler_thread_socket_.connect("inproc://" + reactor_.unique_id);
+	zmq::socket_t socket(context_, zmq::socket_type::dealer);
+	socket.setsockopt(ZMQ_IDENTITY, unique_id_.data(), unique_id_.size());
+	socket.connect("inproc://" + reactor_.unique_id);
 
 	while (true) {
 		message_container request;
 		zmq::message_t message;
 
-		handler_thread_socket_.recv(&message, 0);
+		socket.recv(&message, 0);
 		request.key = std::string(static_cast<char *>(message.data()), message.size());
 
 		if (request.key == TERMINATE_MSG) {
@@ -192,25 +193,26 @@ void asynchronous_handler_wrapper::handler_thread()
 			continue;
 		}
 
-		handler_thread_socket_.recv(&message, 0);
+		socket.recv(&message, 0);
 		request.identity = std::string(static_cast<char *>(message.data()), message.size());
 
 		while (message.more()) {
-			handler_thread_socket_.recv(&message, 0);
+			socket.recv(&message, 0);
 			request.data.emplace_back(static_cast<char *>(message.data()), message.size());
 		}
 
-		handler_->on_request(request, [this](const message_container &response) { send_response(response); });
+		handler_->on_request(request, [this, &socket](const message_container &response) {
+			send_response(socket, response);
+		});
 	}
 }
 
-void asynchronous_handler_wrapper::send_response(const message_container &message)
+void asynchronous_handler_wrapper::send_response(zmq::socket_t &socket, const message_container &message)
 {
-	handler_thread_socket_.send(unique_id_.data(), unique_id_.size(), ZMQ_SNDMORE);
-	handler_thread_socket_.send(message.key.data(), message.key.size(), ZMQ_SNDMORE);
-	handler_thread_socket_.send(message.identity.data(), message.identity.size(), ZMQ_SNDMORE);
+	socket.send(message.key.data(), message.key.size(), ZMQ_SNDMORE);
+	socket.send(message.identity.data(), message.identity.size(), ZMQ_SNDMORE);
 
 	for (auto it = std::begin(message.data); it != std::end(message.data); ++it) {
-		handler_thread_socket_.send(it->c_str(), it->size(), std::next(it) != std::end(message.data) ? ZMQ_SNDMORE : 0);
+		socket.send(it->c_str(), it->size(), std::next(it) != std::end(message.data) ? ZMQ_SNDMORE : 0);
 	}
 }
