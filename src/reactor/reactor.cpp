@@ -90,9 +90,15 @@ void reactor::start_loop()
 					// message came from a registered socket, fill in its key
 					received_msg.key = pollitem_names.at(i);
 					sockets_.at(received_msg.key)->receive_message(received_msg);
+
+					// messages from sockets must go through a handler
+					process_message(received_msg);
 				} else {
 					// message from the asynchronous handler socket
 					zmq::message_t zmessage;
+
+					// this is the async handler identity - we don't care about that
+					async_handler_socket_.recv(&zmessage);
 
 					async_handler_socket_.recv(&zmessage);
 					received_msg.key = std::string(static_cast<char *>(zmessage.data()), zmessage.size());
@@ -101,11 +107,13 @@ void reactor::start_loop()
 					received_msg.identity = std::string(static_cast<char *>(zmessage.data()), zmessage.size());
 
 					while (zmessage.more()) {
+						async_handler_socket_.recv(&zmessage);
 						received_msg.data.emplace_back(static_cast<char *>(zmessage.data()), zmessage.size());
 					}
-				}
 
-				process_message(received_msg);
+					// messages from async handlers might be destined to a socket
+					send_message(received_msg);
+				}
 			}
 
 			++i;
@@ -164,6 +172,7 @@ asynchronous_handler_wrapper::~asynchronous_handler_wrapper()
 
 void asynchronous_handler_wrapper::operator()(const message_container &message)
 {
+	reactor_socket_.send(unique_id_.data(), unique_id_.size(), ZMQ_SNDMORE);
 	reactor_socket_.send(message.key.data(), message.key.size(), ZMQ_SNDMORE);
 	reactor_socket_.send(message.identity.data(), message.identity.size(), ZMQ_SNDMORE);
 
