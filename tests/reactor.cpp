@@ -187,3 +187,21 @@ TEST(reactor, asynchronous_handler)
 	r.terminate();
 	thread.join();
 }
+
+TEST(reactor, timers)
+{
+	auto context = std::make_shared<zmq::context_t>(1);
+	reactor r(context);
+	auto socket = std::make_shared<pair_socket_wrapper>(context, "inproc://timers_1");
+	auto handler = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) { });
+
+	r.add_async_handler({r.KEY_TIMER}, handler);
+
+	std::thread thread([&r]() { r.start_loop(); });
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+	ASSERT_GE(1, handler->received.size());
+
+	r.terminate();
+	thread.join();
+}
