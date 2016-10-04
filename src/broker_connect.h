@@ -27,21 +27,30 @@ private:
 	std::shared_ptr<spdlog::logger> logger_;
 	/** Registry of connected and alive workers. */
 	std::shared_ptr<worker_registry> workers_;
-
+	/** A reactor that provides us with an event-based API to communicate with the clients and workers */
 	reactor reactor_;
 
 public:
+	/** A string key for the socket connected to the workers */
 	const static std::string KEY_WORKERS;
+
+	/** A string key for the socket connected to the clients */
 	const static std::string KEY_CLIENTS;
+
+	/** A string key for the socket connected to the monitor */
 	const static std::string KEY_MONITOR;
+
+	/** A string key for messages for the status notifier */
 	const static std::string KEY_STATUS_NOTIFIER;
+
+	/** A string key for messages about time elapsed in the poll loop */
 	const static std::string KEY_TIMER;
+
 	/**
-	 * Constructor with initialization.
-	 * @param config Loaded broker configuration from config file.
-	 * @param sockets Instance of socket wrapper (now @ref connection_proxy).
-	 * @param router Instance of class managing connected workers and routing jobs to them.
-	 * @param logger System logger.
+	 * @param config a configuration object used to set up the connections
+	 * @param context ZeroMQ context
+	 * @param router A registry used to track workers and their jobs
+	 * @param logger
 	 */
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<zmq::context_t> context,

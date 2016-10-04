@@ -7,7 +7,7 @@
 #include "status_notifier.h"
 #include <spdlog/logger.h>
 
-/*
+/**
  * A status notifier that forwards status messages to a handler registered in our ZeroMQ reactor.
  * This enables us to send the messages asynchronously - the broker doesn't have to wait for HTTP requests
  */
@@ -21,6 +21,11 @@ private:
 	const std::string key_;
 
 public:
+	/**
+	 * @param callback A callback that sends messages through a reactor. It is expected this class will be used
+	 *                 in reactor event handlers, hence the callback type.
+	 * @param key Reactor event key for messages sent by the notifier
+	 */
 	reactor_status_notifier(handler_interface::response_cb callback, const std::string &key);
 
 	virtual void error(const std::string &desc);
