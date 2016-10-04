@@ -22,6 +22,7 @@ public:
 	broker_handler(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<worker_registry> workers,
 		std::shared_ptr<spdlog::logger> logger);
+
 	void on_request(const message_container &message, response_cb respond);
 
 private:

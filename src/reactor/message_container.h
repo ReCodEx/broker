@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+/**
+ * A helper structure that packs message data together with the associated reactor event key and the identity of the
+ * sender/receiver.
+ */
 struct message_container {
 	/** Name of the origin or destination */
 	std::string key;
@@ -27,6 +31,11 @@ struct message_container {
 	 */
 	message_container(const std::string &key, const std::string &identity, const std::vector<std::string> &data);
 
+	/**
+	 * A natural comparison - two messages are equal if all their fields are equal
+	 * @param other the object we are comparing with
+	 * @return true if and only if the objects are equal
+	 */
 	bool operator==(const message_container &other) const;
 };
 

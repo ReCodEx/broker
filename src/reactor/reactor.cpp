@@ -210,9 +210,8 @@ void asynchronous_handler_wrapper::handler_thread()
 			request.data.emplace_back(static_cast<char *>(message.data()), message.size());
 		}
 
-		handler_->on_request(request, [this, &socket](const message_container &response) {
-			send_response(socket, response);
-		});
+		handler_->on_request(
+			request, [this, &socket](const message_container &response) { send_response(socket, response); });
 	}
 }
 
