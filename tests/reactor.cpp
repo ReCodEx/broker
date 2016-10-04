@@ -192,7 +192,6 @@ TEST(reactor, timers)
 {
 	auto context = std::make_shared<zmq::context_t>(1);
 	reactor r(context);
-	auto socket = std::make_shared<pair_socket_wrapper>(context, "inproc://timers_1");
 	auto handler = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) { });
 
 	r.add_async_handler({r.KEY_TIMER}, handler);
@@ -201,6 +200,51 @@ TEST(reactor, timers)
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
 	ASSERT_GE(1, handler->received.size());
+
+	r.terminate();
+	thread.join();
+}
+
+// Make sure that messages to asynchronous handlers don't get mixed up
+TEST(reactor, multiple_asynchronous_handlers)
+{
+	auto context = std::make_shared<zmq::context_t>(1);
+	reactor r(context);
+
+	auto socket_1 = std::make_shared<pair_socket_wrapper>(context, "inproc://asynchronous_handler_1");
+	auto socket_2 = std::make_shared<pair_socket_wrapper>(context, "inproc://asynchronous_handler_2");
+
+	auto handler_1 = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
+	auto handler_2a = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
+	auto handler_2b = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
+
+	size_t message_count = 100;
+
+	r.add_socket("socket_1", socket_1);
+	r.add_socket("socket_2", socket_2);
+	r.add_async_handler({"socket_1"}, handler_1);
+	r.add_async_handler({"socket_2"}, handler_2a);
+	r.add_async_handler({"socket_2"}, handler_2b);
+
+	std::thread thread([&r]() { r.start_loop(); });
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+	for (size_t i = 0; i < message_count; i++) {
+		socket_1->send_message_local(message_container("", "id1", {"socket_1"}));
+		socket_2->send_message_local(message_container("", "id1", {"socket_2"}));
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+	ASSERT_EQ(message_count, handler_1->received.size());
+	ASSERT_EQ(message_count, handler_2a->received.size());
+	ASSERT_EQ(message_count, handler_2b->received.size());
+
+	for (size_t i = 0; i < message_count; i++) {
+		EXPECT_EQ(handler_1->received.at(i), message_container("socket_1", "id1", {"socket_1"}));
+		EXPECT_EQ(handler_2a->received.at(i), message_container("socket_2", "id1", {"socket_2"}));
+		EXPECT_EQ(handler_2b->received.at(i), message_container("socket_2", "id1", {"socket_2"}));
+	}
 
 	r.terminate();
 	thread.join();
