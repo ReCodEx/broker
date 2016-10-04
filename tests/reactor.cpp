@@ -141,7 +141,6 @@ TEST(reactor, synchronous_handler)
 	r.add_handler({"socket"}, handler);
 
 	std::thread thread([&r]() { r.start_loop(); });
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	socket->send_message_local(message_container("", "id1", {"Hello??"}));
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -171,7 +170,6 @@ TEST(reactor, asynchronous_handler)
 	r.add_async_handler({"socket"}, handler);
 
 	std::thread thread([&r]() { r.start_loop(); });
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	socket->send_message_local(message_container("", "id1", {"Hello??"}));
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -192,7 +190,8 @@ TEST(reactor, timers)
 {
 	auto context = std::make_shared<zmq::context_t>(1);
 	reactor r(context);
-	auto handler = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) { });
+	auto handler =
+		pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
 
 	r.add_async_handler({r.KEY_TIMER}, handler);
 
@@ -214,9 +213,12 @@ TEST(reactor, multiple_asynchronous_handlers)
 	auto socket_1 = std::make_shared<pair_socket_wrapper>(context, "inproc://asynchronous_handler_1");
 	auto socket_2 = std::make_shared<pair_socket_wrapper>(context, "inproc://asynchronous_handler_2");
 
-	auto handler_1 = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
-	auto handler_2a = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
-	auto handler_2b = pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
+	auto handler_1 =
+		pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
+	auto handler_2a =
+		pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
+	auto handler_2b =
+		pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
 
 	size_t message_count = 100;
 
@@ -227,7 +229,6 @@ TEST(reactor, multiple_asynchronous_handlers)
 	r.add_async_handler({"socket_2"}, handler_2b);
 
 	std::thread thread([&r]() { r.start_loop(); });
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	for (size_t i = 0; i < message_count; i++) {
 		socket_1->send_message_local(message_container("", "id1", {"socket_1"}));
