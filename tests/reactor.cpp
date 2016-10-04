@@ -128,6 +128,22 @@ private:
 	fnc_t fnc_;
 };
 
+// Check if the reactor terminates when requested - if this test fails, the other ones will fail too
+TEST(reactor, termination)
+{
+	auto context = std::make_shared<zmq::context_t>(1);
+	reactor r(context);
+	auto socket = std::make_shared<pair_socket_wrapper>(context, "inproc://termination_1");
+
+	r.add_socket("socket", socket);
+
+	std::thread thread([&r]() { r.start_loop(); });
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+	r.terminate();
+	thread.join();
+}
+
 TEST(reactor, synchronous_handler)
 {
 	auto context = std::make_shared<zmq::context_t>(1);
