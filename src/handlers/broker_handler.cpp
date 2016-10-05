@@ -10,12 +10,35 @@ broker_handler::broker_handler(std::shared_ptr<const broker_config> config,
 	if (logger_ == nullptr) {
 		logger_ = helpers::create_null_logger();
 	}
+
+	client_commands_.register_command(
+		"eval", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+			process_client_eval(identity, message, respond);
+		});
+
+	worker_commands_.register_command(
+		"init", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+			process_worker_init(identity, message, respond);
+		});
+
+	worker_commands_.register_command(
+		"done", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+			process_worker_done(identity, message, respond);
+		});
+
+	worker_commands_.register_command(
+		"ping", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+			process_worker_ping(identity, message, respond);
+		});
+
+	worker_commands_.register_command(
+		"progress", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+			process_worker_progress(identity, message, respond);
+		});
 }
 
 void broker_handler::on_request(const message_container &message, response_cb respond)
 {
-	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
-
 	if (message.key == broker_connect::KEY_WORKERS) {
 		auto worker = workers_->find_worker_by_identity(message.identity);
 
@@ -24,50 +47,30 @@ void broker_handler::on_request(const message_container &message, response_cb re
 			worker_timers_[worker] = std::chrono::milliseconds(0);
 		}
 
-		const std::string &command = message.data.at(0);
-
-		if (command == "init") {
-			process_worker_init(message, respond, status_notifier);
-		}
-
-		if (command == "done") {
-			process_worker_done(message, respond, status_notifier);
-		}
-
-		if (command == "ping") {
-			process_worker_ping(message, respond, status_notifier);
-		}
-
-		if (command == "progress") {
-			process_worker_progress(message, respond, status_notifier);
-		}
+		worker_commands_.call_function(message.data.at(0), message.identity, message.data, respond);
 	}
 
 	if (message.key == broker_connect::KEY_CLIENTS) {
-		const std::string &command = message.data.at(0);
-
-		if (command == "eval") {
-			process_client_eval(message, respond, status_notifier);
-		}
+		client_commands_.call_function(message.data.at(0), message.identity, message.data, respond);
 	}
 
 	if (message.key == broker_connect::KEY_TIMER) {
-		process_timer(message, respond, status_notifier);
+		process_timer(message, respond);
 	}
 }
 
 void broker_handler::process_client_eval(
-	const message_container &message, response_cb respond, status_notifier_interface &status_notifier)
+	const std::string &identity, const std::vector<std::string> &message, response_cb respond)
 {
 	// At first, let client know that we are alive and well
-	respond(message_container(broker_connect::KEY_CLIENTS, message.identity, {"ack"}));
+	respond(message_container(broker_connect::KEY_CLIENTS, identity, {"ack"}));
 
 	// Get job identification and parse headers
-	std::string job_id = message.data.at(1);
+	std::string job_id = message.at(1);
 	request::headers_t headers;
 
 	// Load headers terminated by an empty frame
-	auto it = std::begin(message.data) + 2;
+	auto it = std::begin(message) + 2;
 
 	while (true) {
 		// End of headers
@@ -77,7 +80,7 @@ void broker_handler::process_client_eval(
 		}
 
 		// Unexpected end of message - do nothing and return
-		if (std::next(it) == std::end(message.data)) {
+		if (std::next(it) == std::end(message)) {
 			logger_->warn() << "Unexpected end of message from frontend. Skipped.";
 			return;
 		}
@@ -97,7 +100,7 @@ void broker_handler::process_client_eval(
 
 		// Forward remaining messages to the worker without actually understanding them
 		std::vector<std::string> additional_data;
-		for (; it != std::end(message.data); ++it) {
+		for (; it != std::end(message); ++it) {
 			additional_data.push_back(*it);
 		}
 		job_request_data request_data(job_id, additional_data);
@@ -115,32 +118,33 @@ void broker_handler::process_client_eval(
 			logger_->debug() << " - saved to queue for worker '" << worker->get_description() << "'";
 		}
 
-		respond(message_container(broker_connect::KEY_CLIENTS, message.identity, {"accept"}));
+		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"accept"}));
 		workers_->deprioritize_worker(worker);
 	} else {
-		respond(message_container(broker_connect::KEY_CLIENTS, message.identity, {"reject"}));
+		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject"}));
 		logger_->error() << "Request '" << job_id << "' rejected. No worker available.";
 	}
 }
 
-void broker_handler::process_worker_init(const message_container &message,
-	handler_interface::response_cb respond,
-	status_notifier_interface &status_notifier)
+void broker_handler::process_worker_init(
+	const std::string &identity, const std::vector<std::string> &message, response_cb respond)
 {
+	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
+
 	// first let us know that message arrived (logging moved from main loop)
 	logger_->debug() << "Received message 'init' from workers";
 
 	// There must be at least one argument
-	if (message.data.size() < 2) {
+	if (message.size() < 2) {
 		logger_->warn() << "Init command without argument. Nothing to do.";
 		return;
 	}
 
-	std::string hwgroup = message.data.at(1);
+	std::string hwgroup = message.at(1);
 	request::headers_t headers;
 
-	auto headers_start = std::begin(message.data) + 2;
-	for (auto it = headers_start; it != std::end(message.data); ++it) {
+	auto headers_start = std::begin(message) + 2;
+	for (auto it = headers_start; it != std::end(message); ++it) {
 		auto &header = *it;
 		size_t pos = header.find('=');
 		size_t value_size = header.size() - (pos + 1);
@@ -149,7 +153,7 @@ void broker_handler::process_worker_init(const message_container &message,
 	}
 
 	// Check if we know a worker with given identity
-	worker_registry::worker_ptr current_worker = workers_->find_worker_by_identity(message.identity);
+	worker_registry::worker_ptr current_worker = workers_->find_worker_by_identity(identity);
 
 	if (current_worker != nullptr) {
 		if (current_worker->headers_equal(headers)) {
@@ -163,51 +167,52 @@ void broker_handler::process_worker_init(const message_container &message,
 
 
 	const std::shared_ptr<worker> &new_worker =
-		worker_registry::worker_ptr(new worker(message.identity, hwgroup, headers));
+		worker_registry::worker_ptr(new worker(identity, hwgroup, headers));
 	workers_->add_worker(new_worker);
 	worker_timers_.emplace(new_worker, std::chrono::milliseconds(0));
 
 	if (logger_->debug().is_enabled()) {
 		std::stringstream ss;
-		std::copy(message.data.begin() + 1, message.data.end(), std::ostream_iterator<std::string>(ss, " "));
+		std::copy(message.begin() + 1, message.end(), std::ostream_iterator<std::string>(ss, " "));
 		logger_->debug() << " - added new worker '" << new_worker->get_description() << "' with headers: " << ss.str();
 	}
 }
 
-void broker_handler::process_worker_done(const message_container &message,
-	handler_interface::response_cb respond,
-	status_notifier_interface &status_notifier)
+void broker_handler::process_worker_done(
+	const std::string &identity, const std::vector<std::string> &message, response_cb respond)
 {
+	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
+
 	// first let us know that message arrived (logging moved from main loop)
 	logger_->debug() << "Received message 'done' from workers";
 
-	worker_registry::worker_ptr worker = workers_->find_worker_by_identity(message.identity);
+	worker_registry::worker_ptr worker = workers_->find_worker_by_identity(identity);
 
 	if (worker == nullptr) {
 		logger_->warn() << "Got 'done' message from nonexisting worker";
 		return;
 	}
 
-	if (message.data.size() <= 1) {
+	if (message.size() <= 1) {
 		logger_->error() << "Got 'done' message without job_id from worker '" << worker->get_description() << "'";
 		return;
 	}
 
 	std::shared_ptr<const request> current = worker->get_current_request();
-	if (message.data.at(1) != current->data.get_job_id()) {
+	if (message.at(1) != current->data.get_job_id()) {
 		logger_->error() << "Got 'done' message with different job_id than original one from worker '"
 						 << worker->get_description() << "'";
 		return;
 	}
 
 	// job ended with non-OK result, notify frontend about it
-	if (message.data.size() == 4 && message.data.at(2) != "OK") {
-		status_notifier.job_failed(message.data.at(1), message.data.at(3));
+	if (message.size() == 4 && message.at(2) != "OK") {
+		status_notifier.job_failed(message.at(1), message.at(3));
 		return;
 	}
 
 	// notify frontend that job ended successfully and complete it internally
-	status_notifier.job_done(message.data.at(1));
+	status_notifier.job_done(message.at(1));
 	worker->complete_request();
 
 	if (worker->next_request()) {
@@ -219,40 +224,37 @@ void broker_handler::process_worker_done(const message_container &message,
 	}
 }
 
-void broker_handler::process_worker_ping(const message_container &message,
-	handler_interface::response_cb respond,
-	status_notifier_interface &status_notifier)
+void broker_handler::process_worker_ping(
+	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
 {
 	// first let us know that message arrived (logging moved from main loop)
 	// logger_->debug() << "Received message 'ping' from workers";
 
-	worker_registry::worker_ptr worker = workers_->find_worker_by_identity(message.identity);
+	worker_registry::worker_ptr worker = workers_->find_worker_by_identity(identity);
 
 	if (worker == nullptr) {
-		respond(message_container(broker_connect::KEY_WORKERS, message.identity, {"intro"}));
+		respond(message_container(broker_connect::KEY_WORKERS, identity, {"intro"}));
 		return;
 	}
 
-	respond(message_container(broker_connect::KEY_WORKERS, message.identity, {"pong"}));
+	respond(message_container(broker_connect::KEY_WORKERS, identity, {"pong"}));
 }
 
-void broker_handler::process_worker_progress(const message_container &message,
-	handler_interface::response_cb respond,
-	status_notifier_interface &status_notifier)
+void broker_handler::process_worker_progress(
+	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
 {
 	// first let us know that message arrived (logging moved from main loop)
 	// logger_->debug() << "Received message 'progress' from workers";
 
 	std::vector<std::string> monitor_message;
-	monitor_message.resize(message.data.size() - 1);
-	std::copy(message.data.begin() + 1, message.data.end(), monitor_message.begin());
+	monitor_message.resize(message.size() - 1);
+	std::copy(message.begin() + 1, message.end(), monitor_message.begin());
 
 	respond(message_container(broker_connect::KEY_MONITOR, "", monitor_message));
 }
 
-void broker_handler::process_timer(const message_container &message,
-	handler_interface::response_cb respond,
-	status_notifier_interface &status_notifier)
+void broker_handler::process_timer(
+	const message_container &message, handler_interface::response_cb respond)
 {
 	std::chrono::milliseconds time(std::stoll(message.data.front()));
 	std::list<worker_registry::worker_ptr> to_remove;
@@ -273,6 +275,8 @@ void broker_handler::process_timer(const message_container &message,
 			}
 		}
 	}
+
+	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
 	for (auto worker : to_remove) {
 		logger_->notice() << "Worker " + worker->get_description() + " expired";

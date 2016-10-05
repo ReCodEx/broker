@@ -55,6 +55,7 @@ add_test_suite(broker
 	${SRC_DIR}/reactor/reactor.cpp
 	${SRC_DIR}/reactor/socket_wrapper_base.cpp
 	${SRC_DIR}/reactor/router_socket_wrapper.cpp
+	${SRC_DIR}/reactor/command_holder.cpp
 	${SRC_DIR}/notifier/reactor_status_notifier.cpp
 )
 
