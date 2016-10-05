@@ -4,9 +4,9 @@
 #include "../helpers/logger.h"
 #include "../notifier/empty_status_notifier.h"
 #include "../notifier/status_notifier.h"
+#include "../worker_registry.h"
 #include "handler_interface.h"
 #include "message_container.h"
-#include "../worker_registry.h"
 #include <functional>
 #include <map>
 #include <memory>

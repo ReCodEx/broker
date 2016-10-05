@@ -2,13 +2,13 @@
 #define RECODEX_BROKER_BROKER_HPP
 
 
-#include "reactor/command_holder.h"
 #include "config/broker_config.h"
 #include "handlers/broker_handler.h"
 #include "handlers/status_notifier_handler.h"
 #include "helpers/logger.h"
 #include "notifier/empty_status_notifier.h"
 #include "notifier/status_notifier.h"
+#include "reactor/command_holder.h"
 #include "reactor/reactor.h"
 #include "reactor/router_socket_wrapper.h"
 #include "worker_registry.h"
