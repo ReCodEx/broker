@@ -35,6 +35,8 @@ public:
 		ON_CALL(*this, get_monitor_address()).WillByDefault(ReturnRef(localhost));
 
 		ON_CALL(*this, get_monitor_port()).WillByDefault(Return(7894));
+
+		ON_CALL(*this, get_max_request_failures()).WillByDefault(Return(9999));
 	}
 
 	MOCK_CONST_METHOD0(get_client_address, const std::string &());
@@ -44,6 +46,7 @@ public:
 	MOCK_CONST_METHOD0(get_monitor_address, const std::string &());
 	MOCK_CONST_METHOD0(get_monitor_port, uint16_t());
 	MOCK_CONST_METHOD0(get_worker_ping_interval, std::chrono::milliseconds());
+	MOCK_CONST_METHOD0(get_max_request_failures, size_t());
 };
 
 class mock_worker_registry : public worker_registry

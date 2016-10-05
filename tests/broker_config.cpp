@@ -13,6 +13,7 @@ TEST(broker_config, config_basic)
 						   "    address: 10.0.1.2\n"
 						   "    port: 5482\n"
 						   "    max_liveness: 10\n"
+						   "    max_request_failures: 10\n"
 						   "    ping_interval: 1234\n"
 						   "monitor:\n"
 						   "    address: 77.75.76.3\n"
@@ -37,6 +38,7 @@ TEST(broker_config, config_basic)
 	ASSERT_EQ("10.0.1.2", config.get_worker_address());
 	ASSERT_EQ(5482, config.get_worker_port());
 	ASSERT_EQ(10, config.get_max_worker_liveness());
+	ASSERT_EQ(10, config.get_max_request_failures());
 	ASSERT_EQ(1234, config.get_worker_ping_interval().count());
 	ASSERT_EQ("77.75.76.3", config.get_monitor_address());
 	ASSERT_EQ(5454, config.get_monitor_port());

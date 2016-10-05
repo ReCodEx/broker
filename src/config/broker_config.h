@@ -64,6 +64,11 @@ public:
 	 */
 	virtual size_t get_max_worker_liveness() const;
 	/**
+	 * Get the amount of times a request can fail before it's cancelled
+	 * @return Maximum request failure count
+	 */
+	virtual size_t get_max_request_failures() const;
+	/**
 	 * Get the time (in milliseconds) expected to pass between pings from the worker.
 	 * @return Interval between two concurrent pings.
 	 */
@@ -97,6 +102,8 @@ private:
 	 * (the amount of pings the worker can miss before it's considered dead)
 	 */
 	size_t max_worker_liveness_ = 4;
+	/** The amount of times a request can fail before it's cancelled */
+	size_t max_request_failures_ = 3;
 	/** Time (in milliseconds) expected to pass between pings from the worker */
 	std::chrono::milliseconds worker_ping_interval_ = std::chrono::milliseconds(1000);
 	/** Configuration of logger */

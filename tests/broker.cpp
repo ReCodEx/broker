@@ -10,9 +10,10 @@ typedef std::multimap<std::string, std::string> worker_headers_t;
 
 void PrintTo(const message_container &msg, std::ostream *out)
 {
-	*out << "key: " << msg.key << std::endl;
-	*out << "identity: " << msg.identity << std::endl;
-	*out << "message: ";
+	*out << "{" << std::endl;
+	*out << "\tkey: " << msg.key << std::endl;
+	*out << "\tidentity: " << msg.identity << std::endl;
+	*out << "\tmessage: ";
 
 	for (auto it = std::begin(msg.data); it != std::end(msg.data); ++it) {
 		*out << *it;
@@ -22,6 +23,7 @@ void PrintTo(const message_container &msg, std::ostream *out)
 	}
 
 	*out << std::endl;
+	*out << "}" << std::endl;
 }
 
 TEST(broker, worker_init)
@@ -132,7 +134,8 @@ TEST(broker, queuing)
 	messages.clear();
 
 	// Our worker finished the first job...
-	handler.on_request(message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"done", "job1"}), respond);
+	handler.on_request(
+		message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"done", "job1", "OK"}), respond);
 
 	// ...and it should get more work immediately
 	ASSERT_THAT(
@@ -282,7 +285,7 @@ TEST(broker, worker_job_failed)
 	// We got a message from our worker that says evaluation failed
 	handler.on_request(
 		message_container(
-			broker_connect::KEY_WORKERS, worker_1->identity, {"done", "job_id", "ERR", "Testing failure"}),
+			broker_connect::KEY_WORKERS, worker_1->identity, {"done", "job_id", "FAILED", "Testing failure"}),
 		respond);
 
 	// We should notify the frontend
@@ -290,6 +293,53 @@ TEST(broker, worker_job_failed)
 		ElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
 			"",
 			{"type", "job_status", "id", "job_id", "status", "FAILED", "message", "Testing failure"})));
+
+	messages.clear();
+}
+
+TEST(broker, worker_job_failed_queueing)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto workers = std::make_shared<worker_registry>();
+
+	// There is already a worker in the registry and it has two jobs
+	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
+	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id_1", {}));
+	auto request_2 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id_2", {}));
+	worker_1->liveness = 1;
+	worker_1->enqueue_request(request_1);
+	worker_1->enqueue_request(request_2);
+	ASSERT_TRUE(worker_1->next_request());
+	workers->add_worker(worker_1);
+
+	// Dummy response callback
+	std::vector<message_container> messages;
+	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
+
+	// The test code
+	broker_handler handler(config, workers, nullptr);
+
+	// We got a message from our worker that says evaluation failed
+	handler.on_request(message_container(broker_connect::KEY_WORKERS,
+						   worker_1->identity,
+						   {"done", request_1->data.get_job_id(), "FAILED", "Testing failure"}),
+		respond);
+
+	// We should notify the frontend and give the worker another job
+	ASSERT_THAT(messages,
+		UnorderedElementsAre(
+					message_container(broker_connect::KEY_STATUS_NOTIFIER,
+						"",
+						{"type",
+							"job_status",
+							"id",
+							request_1->data.get_job_id(),
+							"status",
+							"FAILED",
+							"message",
+							"Testing failure"}),
+					message_container(
+						broker_connect::KEY_WORKERS, worker_1->identity, {"eval", request_2->data.get_job_id()})));
 
 	messages.clear();
 }
@@ -322,6 +372,125 @@ TEST(broker, worker_job_done)
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(
 			broker_connect::KEY_STATUS_NOTIFIER, "", {"type", "job_status", "id", "job_id", "status", "OK"})));
+
+	messages.clear();
+}
+
+TEST(broker, worker_job_internal_failure)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto workers = std::make_shared<worker_registry>();
+
+	EXPECT_CALL(*config, get_max_request_failures()).WillRepeatedly(Return(10));
+
+	// There is already a worker in the registry and it has a job
+	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
+	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
+	worker_1->liveness = 1;
+	worker_1->enqueue_request(request_1);
+	ASSERT_TRUE(worker_1->next_request());
+	workers->add_worker(worker_1);
+
+	// Dummy response callback
+	std::vector<message_container> messages;
+	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
+
+	// The test code
+	broker_handler handler(config, workers, nullptr);
+
+	// We got a message from our worker that says evaluation failed
+	handler.on_request(
+		message_container(
+			broker_connect::KEY_WORKERS, worker_1->identity, {"done", "job_id", "INTERNAL_ERROR", "Blabla"}),
+		respond);
+
+	// An internal failure should result in the job being reassigned
+	ASSERT_THAT(messages,
+		ElementsAre(message_container(
+			broker_connect::KEY_WORKERS, worker_1->identity, {"eval", request_1->data.get_job_id()})));
+
+	ASSERT_EQ(1, request_1->failure_count);
+
+	messages.clear();
+}
+
+TEST(broker, worker_expiration_reassign_job)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto workers = std::make_shared<worker_registry>();
+
+	// There are two workers in the registry, one of them has a job and will die
+	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
+	auto request_1 =
+		std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {"whatever"}));
+	auto worker_2 = std::make_shared<worker>("identity_2", "group_1", worker_headers_t{{"env", "c"}});
+	worker_1->liveness = 1;
+	worker_1->enqueue_request(request_1);
+	worker_2->liveness = 100;
+	ASSERT_TRUE(worker_1->next_request());
+	workers->add_worker(worker_1);
+	workers->add_worker(worker_2);
+
+	// Dummy response callback
+	std::vector<message_container> messages;
+	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
+
+	// The test code
+	broker_handler handler(config, workers, nullptr);
+
+	// Looks like our worker timed out - the other one should get its job
+	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
+
+	ASSERT_THAT(messages,
+		UnorderedElementsAre(message_container(
+			broker_connect::KEY_WORKERS, worker_2->identity, {"eval", request_1->data.get_job_id(), "whatever"})));
+
+	ASSERT_EQ(1, request_1->failure_count);
+
+	messages.clear();
+}
+
+TEST(broker, worker_expiration_cancel_job)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto workers = std::make_shared<worker_registry>();
+
+	EXPECT_CALL(*config, get_max_request_failures()).WillRepeatedly(Return(1));
+
+	// There are two workers in the registry, one of them has a job that expired too many times
+	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
+	auto request_1 =
+		std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {"whatever"}));
+	request_1->failure_count = 1;
+	auto worker_2 = std::make_shared<worker>("identity_2", "group_1", worker_headers_t{{"env", "c"}});
+	worker_1->liveness = 1;
+	worker_1->enqueue_request(request_1);
+	worker_2->liveness = 100;
+	ASSERT_TRUE(worker_1->next_request());
+	workers->add_worker(worker_1);
+	workers->add_worker(worker_2);
+
+	// Dummy response callback
+	std::vector<message_container> messages;
+	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
+
+	// The test code
+	broker_handler handler(config, workers, nullptr);
+
+	// Looks like our worker timed out and there's nobody to take its work
+	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
+
+	ASSERT_THAT(messages,
+		UnorderedElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
+			"",
+			{"type",
+				"job_status",
+				"id",
+				"job_id",
+				"status",
+				"FAILED",
+				"message",
+				"Job was reassigned too many (1) times"})));
 
 	messages.clear();
 }

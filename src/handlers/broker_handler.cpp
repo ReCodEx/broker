@@ -108,13 +108,7 @@ void broker_handler::process_client_eval(
 		auto eval_request = std::make_shared<request>(headers, request_data);
 		worker->enqueue_request(eval_request);
 
-		if (worker->next_request()) {
-			// If the worker isn't doing anything, just forward the request
-			respond(message_container(
-				broker_connect::KEY_WORKERS, worker->identity, worker->get_current_request()->data.get()));
-			logger_->debug() << " - sent to worker '" << worker->get_description() << "'";
-		} else {
-			// If the worker is occupied, queue the request
+		if (!assign_queued_request(worker, respond)) {
 			logger_->debug() << " - saved to queue for worker '" << worker->get_description() << "'";
 		}
 
@@ -166,8 +160,7 @@ void broker_handler::process_worker_init(
 	}
 
 
-	const std::shared_ptr<worker> &new_worker =
-		worker_registry::worker_ptr(new worker(identity, hwgroup, headers));
+	const std::shared_ptr<worker> &new_worker = worker_registry::worker_ptr(new worker(identity, hwgroup, headers));
 	workers_->add_worker(new_worker);
 	worker_timers_.emplace(new_worker, std::chrono::milliseconds(0));
 
@@ -189,38 +182,62 @@ void broker_handler::process_worker_done(
 	worker_registry::worker_ptr worker = workers_->find_worker_by_identity(identity);
 
 	if (worker == nullptr) {
-		logger_->warn() << "Got 'done' message from nonexisting worker";
+		logger_->warn() << "Got 'done' message from an unknown worker";
 		return;
 	}
 
-	if (message.size() <= 1) {
-		logger_->error() << "Got 'done' message without job_id from worker '" << worker->get_description() << "'";
+	if (message.size() < 3) {
+		logger_->error() << "Got 'done' message with not enough arguments from worker " << worker->get_description();
 		return;
 	}
 
 	std::shared_ptr<const request> current = worker->get_current_request();
+
 	if (message.at(1) != current->data.get_job_id()) {
-		logger_->error() << "Got 'done' message with different job_id than original one from worker '"
-						 << worker->get_description() << "'";
+		logger_->error() << "Got 'done' message from worker " << worker->get_description()
+						 << " with mismatched job id - " << message.at(1) << " (message) vs. "
+						 << current->data.get_job_id() << " (worker)";
 		return;
 	}
 
-	// job ended with non-OK result, notify frontend about it
-	if (message.size() == 4 && message.at(2) != "OK") {
+	auto status = message.at(2);
+
+	if (status == "OK") {
+		// notify frontend that job ended successfully and complete it internally
+		status_notifier.job_done(message.at(1));
+		worker->complete_request();
+
+		if (!assign_queued_request(worker, respond)) {
+			logger_->debug() << " - worker " << worker->get_description() << " is now free";
+		}
+	} else if (status == "INTERNAL_ERROR") {
+		if (message.size() != 4) {
+			logger_->warn()
+				<< "Invalid number of arguments in a 'done' message with status 'INTERNAL_FAILURE' from worker "
+				<< worker->get_description();
+			return;
+		}
+
+		auto failed_request = worker->cancel_request();
+
+		if (check_failure_count(failed_request, status_notifier)) {
+			reassign_request(failed_request, respond);
+		} else {
+			assign_queued_request(worker, respond);
+		}
+	} else if (status == "FAILED") {
+		if (message.size() != 4) {
+			logger_->warn() << "Invalid number of arguments in a 'done' message with status 'FAILED' from worker "
+							<< worker->get_description();
+			return;
+		}
+
 		status_notifier.job_failed(message.at(1), message.at(3));
-		return;
-	}
 
-	// notify frontend that job ended successfully and complete it internally
-	status_notifier.job_done(message.at(1));
-	worker->complete_request();
-
-	if (worker->next_request()) {
-		respond(message_container(
-			broker_connect::KEY_WORKERS, worker->identity, worker->get_current_request()->data.get()));
-		logger_->debug() << " - new job sent to worker '" << worker->get_description() << "' from queue";
+		worker->cancel_request();
+		assign_queued_request(worker, respond);
 	} else {
-		logger_->debug() << " - worker '" << worker->get_description() << "' is now free";
+		logger_->warn() << "Received unexpected status code " << status << " from worker " << worker->get_description();
 	}
 }
 
@@ -253,8 +270,7 @@ void broker_handler::process_worker_progress(
 	respond(message_container(broker_connect::KEY_MONITOR, "", monitor_message));
 }
 
-void broker_handler::process_timer(
-	const message_container &message, handler_interface::response_cb respond)
+void broker_handler::process_timer(const message_container &message, handler_interface::response_cb respond)
 {
 	std::chrono::milliseconds time(std::stoll(message.data.front()));
 	std::list<worker_registry::worker_ptr> to_remove;
@@ -286,17 +302,11 @@ void broker_handler::process_timer(
 		std::vector<worker::request_ptr> unassigned_requests;
 
 		for (auto request : *requests) {
-			worker_registry::worker_ptr substitute_worker = workers_->find_worker(request->headers);
+			if (!check_failure_count(request, status_notifier)) {
+				continue;
+			}
 
-			if (substitute_worker != nullptr) {
-				substitute_worker->enqueue_request(request);
-
-				if (substitute_worker->next_request()) {
-					respond(message_container(broker_connect::KEY_WORKERS,
-						substitute_worker->identity,
-						substitute_worker->get_current_request()->data.get()));
-				}
-			} else {
+			if (!reassign_request(request, respond)) {
 				unassigned_requests.push_back(request);
 			}
 		}
@@ -310,4 +320,45 @@ void broker_handler::process_timer(
 			}
 		}
 	}
+}
+
+bool broker_handler::reassign_request(worker::request_ptr request, handler_interface::response_cb respond)
+{
+	worker_registry::worker_ptr substitute_worker = workers_->find_worker(request->headers);
+
+	if (substitute_worker == nullptr) {
+		return false;
+	}
+
+	substitute_worker->enqueue_request(request);
+	if (!assign_queued_request(substitute_worker, respond)) {
+		logger_->debug() << " - job " << request->data.get_job_id() << " queued for worker "
+						 << substitute_worker->get_description();
+	}
+
+	return true;
+}
+
+bool broker_handler::assign_queued_request(worker_registry::worker_ptr worker, handler_interface::response_cb respond)
+{
+	if (worker->next_request()) {
+		respond(message_container(
+			broker_connect::KEY_WORKERS, worker->identity, worker->get_current_request()->data.get()));
+		logger_->debug() << " - job " << worker->get_current_request()->data.get_job_id() << " sent to worker"
+						 << worker->get_description();
+		return true;
+	}
+
+	return false;
+}
+
+bool broker_handler::check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier)
+{
+	if (request->failure_count >= config_->get_max_request_failures()) {
+		status_notifier.job_failed(request->data.get_job_id(),
+			"Job was reassigned too many (" + std::to_string(request->failure_count - 1) + ") times");
+		return false;
+	}
+
+	return true;
 }

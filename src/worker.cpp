@@ -118,6 +118,18 @@ void worker::complete_request()
 	current_request_ = nullptr;
 }
 
+worker::request_ptr worker::cancel_request()
+{
+	auto request = current_request_;
+
+	if (request != nullptr) {
+		request->failure_count += 1;
+	}
+
+	complete_request();
+	return request;
+}
+
 bool worker::next_request()
 {
 	if (free_ && !request_queue_.empty()) {

@@ -3,9 +3,9 @@
 
 #include <spdlog/logger.h>
 
-#include "../reactor/command_holder.h"
 #include "../config/broker_config.h"
 #include "../notifier/status_notifier.h"
+#include "../reactor/command_holder.h"
 #include "../reactor/handler_interface.h"
 #include "../worker_registry.h"
 
@@ -83,6 +83,30 @@ private:
 	 * reaches zero, we consider it dead and try to reassign its jobs.
 	 */
 	void process_timer(const message_container &message, response_cb respond);
+
+	/**
+	 * Find a substitute worker to try and process the request again.
+	 * @param request the request to reassign
+	 * @param respond a callback to notify the worker about the reassigned job
+	 * @return true on success, false otherwise
+	 */
+	bool reassign_request(worker::request_ptr request, response_cb respond);
+
+	/**
+	 * Give a worker a new job from the queue
+	 * @param worker the worker in need of a new job
+	 * @param respond a callback to notify the worker about the reassigned job
+	 * @return true if a job was sent to the worker, false otherwise
+	 */
+	bool assign_queued_request(worker_registry::worker_ptr worker, response_cb respond);
+
+	/**
+	 * Check if a request can be reassigned one more time and notify the fronted if not.
+	 * @param request the request to be checked
+	 * @param status_notifier used to notify the frontend when the request doesn't pass the check
+	 * @return true if the request can be reassigned, false otherwise
+	 */
+	bool check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier);
 };
 
 #endif // RECODEX_BROKER_BROKER_HANDLER_H

@@ -32,6 +32,9 @@ broker_config::broker_config(const YAML::Node &config)
 			if (config["workers"]["max_liveness"] && config["workers"]["max_liveness"].IsScalar()) {
 				max_worker_liveness_ = config["workers"]["max_liveness"].as<size_t>();
 			} // no throw... can be omitted
+			if (config["workers"]["max_request_failures"] && config["workers"]["max_request_failures"].IsScalar()) {
+				max_request_failures_ = config["workers"]["max_request_failures"].as<size_t>();
+			} // no throw... can be omitted
 			if (config["workers"]["ping_interval"] && config["workers"]["ping_interval"].IsScalar()) {
 				worker_ping_interval_ = std::chrono::milliseconds(config["workers"]["ping_interval"].as<size_t>());
 			} // no throw... can be omitted
@@ -133,4 +136,9 @@ const log_config &broker_config::get_log_config() const
 const notifier_config &broker_config::get_notifier_config() const
 {
 	return notifier_config_;
+}
+
+size_t broker_config::get_max_request_failures() const
+{
+	return max_request_failures_;
 }

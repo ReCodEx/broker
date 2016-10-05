@@ -188,6 +188,13 @@ public:
 	virtual void complete_request();
 
 	/**
+	 * Consider the current request failed.
+	 * Called when the worker machine fails to process the request. The machine is then considered free.
+	 * @return a pointer to the cancelled request
+	 */
+	virtual request_ptr cancel_request();
+
+	/**
 	 * If possible, take a request from the queue and start processing it.
 	 * @return @a true if and only if the worker started processing a new request.
 	 */
