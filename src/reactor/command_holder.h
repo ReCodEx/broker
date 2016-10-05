@@ -17,9 +17,7 @@
  * Command holder.
  *
  * This class can handle, register and execute commands with corresponding callbacks. Command is @a std::string,
- * callback needs to be "void callback(const std::string &worker_identity, const std::vector<std::string> &args,
- * const command_context<proxy> &context". @a proxy is templated argument, which specifies type of used communication
- * class.
+ * callback is a function with signature corresponding to @a command_holder::callback_fn
  */
 class command_holder
 {
