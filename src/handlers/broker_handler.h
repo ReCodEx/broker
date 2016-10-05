@@ -3,6 +3,7 @@
 
 #include <spdlog/logger.h>
 
+#include "../reactor/command_holder.h"
 #include "../config/broker_config.h"
 #include "../notifier/status_notifier.h"
 #include "../reactor/handler_interface.h"
@@ -38,49 +39,50 @@ private:
 	/** Time since we last heard from each worker or decreased their liveness */
 	std::map<worker_registry::worker_ptr, std::chrono::milliseconds> worker_timers_;
 
+	/** Handlers for commands received from the workers */
+	command_holder worker_commands_;
+
+	/** Handlers for commands received from the clients */
+	command_holder client_commands_;
+
 	/**
 	 * Process an "init" request from a worker.
 	 * That means storing the identity and headers of the worker so that we can forward jobs to it.
 	 */
-	void process_worker_init(
-		const message_container &message, response_cb respond, status_notifier_interface &status_notifier);
+	void process_worker_init(const std::string &identity, const std::vector<std::string> &message, response_cb respond);
 
 	/**
 	 * Process a "done" message from a worker.
 	 * We notify the frontend and if possible, assign a new job to the worker.
 	 */
-	void process_worker_done(
-		const message_container &message, response_cb respond, status_notifier_interface &status_notifier);
+	void process_worker_done(const std::string &identity, const std::vector<std::string> &message, response_cb respond);
 
 	/**
 	 * Process a "ping" message from worker.
 	 * Find worker in registry and send him back "pong" message.
 	 */
-	void process_worker_ping(
-		const message_container &message, response_cb respond, status_notifier_interface &status_notifier);
+	void process_worker_ping(const std::string &identity, const std::vector<std::string> &message, response_cb respond);
 
 	/**
 	 * Process a "state" message from worker.
 	 * Resend "state" message to monitor service.
 	 */
 	void process_worker_progress(
-		const message_container &message, response_cb respond, status_notifier_interface &status_notifier);
+		const std::string &identity, const std::vector<std::string> &message, response_cb respond);
 
 	/**
 	 * Process an "eval" request from a client.
 	 * Client requested evaluation, so hand it over to proper worker with corresponding headers.
 	 * "accept" or "reject" message is send back to client.
 	 */
-	void process_client_eval(
-		const message_container &message, response_cb respond, status_notifier_interface &status_notifier);
+	void process_client_eval(const std::string &identity, const std::vector<std::string> &message, response_cb respond);
 
 	/**
 	 * Process a message about elapsed time from the reactor.
 	 * If we haven't heard from a worker in a long time, we decrease its liveness counter. When this counter
 	 * reaches zero, we consider it dead and try to reassign its jobs.
 	 */
-	void process_timer(
-		const message_container &message, response_cb respond, status_notifier_interface &status_notifier);
+	void process_timer(const message_container &message, response_cb respond);
 };
 
 #endif // RECODEX_BROKER_BROKER_HANDLER_H

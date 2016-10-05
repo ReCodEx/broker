@@ -2,7 +2,7 @@
 #define RECODEX_BROKER_BROKER_HPP
 
 
-#include "commands/command_holder.h"
+#include "reactor/command_holder.h"
 #include "config/broker_config.h"
 #include "handlers/broker_handler.h"
 #include "handlers/status_notifier_handler.h"
