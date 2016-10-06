@@ -96,7 +96,7 @@ void broker_handler::process_client_eval(
 	worker_registry::worker_ptr worker = workers_->find_worker(headers);
 
 	if (worker != nullptr) {
-		logger_->debug() << " - incomming job '" << job_id << "'";
+		logger_->debug(" - incomming job {}", job_id);
 
 		// Forward remaining messages to the worker without actually understanding them
 		std::vector<std::string> additional_data;
@@ -164,10 +164,10 @@ void broker_handler::process_worker_init(
 	workers_->add_worker(new_worker);
 	worker_timers_.emplace(new_worker, std::chrono::milliseconds(0));
 
-	if (logger_->debug().is_enabled()) {
+	if (logger_->should_log(spdlog::level::debug)) {
 		std::stringstream ss;
 		std::copy(message.begin() + 1, message.end(), std::ostream_iterator<std::string>(ss, " "));
-		logger_->debug() << " - added new worker '" << new_worker->get_description() << "' with headers: " << ss.str();
+		logger_->debug(" - added new worker {} with headers: {}", new_worker->get_description(), ss.str());
 	}
 }
 
@@ -187,16 +187,15 @@ void broker_handler::process_worker_done(
 	}
 
 	if (message.size() < 3) {
-		logger_->error() << "Got 'done' message with not enough arguments from worker " << worker->get_description();
+		logger_->error("Got 'done' message with not enough arguments from worker {}", worker->get_description());
 		return;
 	}
 
 	std::shared_ptr<const request> current = worker->get_current_request();
 
 	if (message.at(1) != current->data.get_job_id()) {
-		logger_->error() << "Got 'done' message from worker " << worker->get_description()
-						 << " with mismatched job id - " << message.at(1) << " (message) vs. "
-						 << current->data.get_job_id() << " (worker)";
+		logger_->error() << "Got 'done' message from worker {} with mismatched job id - {} (message) vs. {} (worker)",
+			worker->get_description(), message.at(1), current->data.get_job_id();
 		return;
 	}
 
@@ -208,13 +207,13 @@ void broker_handler::process_worker_done(
 		worker->complete_request();
 
 		if (!assign_queued_request(worker, respond)) {
-			logger_->debug() << " - worker " << worker->get_description() << " is now free";
+			logger_->debug() << " - worker {} is now free", worker->get_description();
 		}
 	} else if (status == "INTERNAL_ERROR") {
 		if (message.size() != 4) {
-			logger_->warn()
-				<< "Invalid number of arguments in a 'done' message with status 'INTERNAL_FAILURE' from worker "
-				<< worker->get_description();
+			logger_->warn(
+				"Invalid number of arguments in a 'done' message with status 'INTERNAL_FAILURE' from worker {}",
+				worker->get_description());
 			return;
 		}
 
@@ -227,8 +226,8 @@ void broker_handler::process_worker_done(
 		}
 	} else if (status == "FAILED") {
 		if (message.size() != 4) {
-			logger_->warn() << "Invalid number of arguments in a 'done' message with status 'FAILED' from worker "
-							<< worker->get_description();
+			logger_->warn("Invalid number of arguments in a 'done' message with status 'FAILED' from worker {}",
+				worker->get_description());
 			return;
 		}
 
@@ -237,7 +236,7 @@ void broker_handler::process_worker_done(
 		worker->cancel_request();
 		assign_queued_request(worker, respond);
 	} else {
-		logger_->warn() << "Received unexpected status code " << status << " from worker " << worker->get_description();
+		logger_->warn() << "Received unexpected status code {} from worker {}", status, worker->get_description();
 	}
 }
 
@@ -295,7 +294,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
 	for (auto worker : to_remove) {
-		logger_->notice() << "Worker " + worker->get_description() + " expired";
+		logger_->notice("Worker {} expired", worker->get_description());
 
 		workers_->remove_worker(worker);
 		auto requests = worker->terminate();
@@ -324,6 +323,8 @@ void broker_handler::process_timer(const message_container &message, handler_int
 
 bool broker_handler::reassign_request(worker::request_ptr request, handler_interface::response_cb respond)
 {
+	logger_->debug(
+		" - reassigning job {} ({} attempts already failed)", request->data.get_job_id(), request->failure_count);
 	worker_registry::worker_ptr substitute_worker = workers_->find_worker(request->headers);
 
 	if (substitute_worker == nullptr) {
@@ -332,8 +333,8 @@ bool broker_handler::reassign_request(worker::request_ptr request, handler_inter
 
 	substitute_worker->enqueue_request(request);
 	if (!assign_queued_request(substitute_worker, respond)) {
-		logger_->debug() << " - job " << request->data.get_job_id() << " queued for worker "
-						 << substitute_worker->get_description();
+		logger_->debug(
+			" - job {} queued for worker {}", request->data.get_job_id(), substitute_worker->get_description());
 	}
 
 	return true;
@@ -344,8 +345,8 @@ bool broker_handler::assign_queued_request(worker_registry::worker_ptr worker, h
 	if (worker->next_request()) {
 		respond(message_container(
 			broker_connect::KEY_WORKERS, worker->identity, worker->get_current_request()->data.get()));
-		logger_->debug() << " - job " << worker->get_current_request()->data.get_job_id() << " sent to worker"
-						 << worker->get_description();
+		logger_->debug(
+			" - job {} sent to worker {}", worker->get_current_request()->data.get_job_id(), worker->get_description());
 		return true;
 	}
 
