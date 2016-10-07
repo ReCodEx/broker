@@ -207,7 +207,7 @@ void broker_handler::process_worker_done(
 		worker->complete_request();
 
 		if (!assign_queued_request(worker, respond)) {
-			logger_->debug() << " - worker {} is now free", worker->get_description();
+			logger_->debug(" - worker {} is now free", worker->get_description());
 		}
 	} else if (status == "INTERNAL_ERROR") {
 		if (message.size() != 4) {
