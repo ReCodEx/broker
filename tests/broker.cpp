@@ -259,7 +259,8 @@ TEST(broker, worker_state_message)
 		message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"progress", "arg1", "arg2"}), respond);
 
 	// We should just forward it to the monitor
-	ASSERT_THAT(messages, ElementsAre(message_container(broker_connect::KEY_MONITOR, "", {"arg1", "arg2"})));
+	ASSERT_THAT(messages, ElementsAre(message_container(broker_connect::KEY_MONITOR, "recodex-monitor", {"arg1",
+		"arg2"})));
 }
 
 TEST(broker, worker_job_failed)

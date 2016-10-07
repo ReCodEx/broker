@@ -46,6 +46,9 @@ public:
 	/** A string key for messages about time elapsed in the poll loop */
 	const static std::string KEY_TIMER;
 
+	/** Identity of the monitor peer (necessary when working with router sockets) */
+	const static std::string MONITOR_IDENTITY;
+
 	/**
 	 * @param config a configuration object used to set up the connections
 	 * @param context ZeroMQ context

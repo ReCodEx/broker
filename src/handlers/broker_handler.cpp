@@ -266,7 +266,7 @@ void broker_handler::process_worker_progress(
 	monitor_message.resize(message.size() - 1);
 	std::copy(message.begin() + 1, message.end(), monitor_message.begin());
 
-	respond(message_container(broker_connect::KEY_MONITOR, "", monitor_message));
+	respond(message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, monitor_message));
 }
 
 void broker_handler::process_timer(const message_container &message, handler_interface::response_cb respond)
