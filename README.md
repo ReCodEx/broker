@@ -4,10 +4,6 @@
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://recodex.github.io/broker/)
 [![Wiki](https://img.shields.io/badge/docs-wiki-orange.svg)](https://github.com/ReCodEx/GlobalWiki/wiki)
 
-## How to run it
+## Documentation
 
-- Install dependencies according to [common](https://github.com/ReCodEx/GlobalWiki/wiki/Build-and-Deployment#common) configuration
-- Download `zmq.hpp` and Google test framework using `git submodule update --init`
-- Build with cmake: `mkdir build && cd build && cmake .. && make`
-- Run `./recodex-broker`
-
+Feel free to read the documentation on [our wiki](https://github.com/ReCodEx/GlobalWiki/wiki/Broker).
