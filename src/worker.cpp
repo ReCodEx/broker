@@ -190,5 +190,9 @@ bool worker::headers_equal(const std::multimap<std::string, std::string> &other)
 
 std::string worker::get_description() const
 {
-	return helpers::string_to_hex(identity);
+	if (description == "") {
+		return helpers::string_to_hex(identity);
+	} else {
+		return helpers::string_to_hex(identity) + " (" + description + ")";
+	}
 }

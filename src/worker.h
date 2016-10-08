@@ -18,20 +18,40 @@ private:
 	std::string job_id_;
 	/** Data frames which will be sent as request to worker. */
 	std::vector<std::string> data_;
+	/** Indicates whether the object contains the request frames */
+	bool complete_;
 
 public:
 	/**
-	 * Classical constructor with all possible information.
+	 * Default constructor
 	 * @param job_id identification of job
 	 * @param additional additional information which will be added to standard message
 	 */
-	job_request_data(const std::string &job_id, const std::vector<std::string> &additional)
+	job_request_data(const std::string &job_id, const std::vector<std::string> &additional) : complete_(true)
 	{
 		job_id_ = job_id;
 		data_ = {"eval", job_id};
 		for (auto &i : additional) {
 			data_.push_back(i);
 		}
+	}
+
+	/**
+	 * A constructor for incomplete jobs (only id without request frames)
+	 * @param job_id identification of job
+	 * @param additional additional information which will be added to standard message
+	 */
+	job_request_data(const std::string &job_id) : job_id_(job_id), complete_(false)
+	{
+	}
+
+	/**
+	 * Is the request data complete?
+	 * @return true if and only if the request data is complete
+	 */
+	bool is_complete() const
+	{
+		return complete_;
 	}
 
 	/**
@@ -75,6 +95,14 @@ struct request {
 	 * @param data Body of the request.
 	 */
 	request(const headers_t &headers, const job_request_data &data) : headers(headers), data(data)
+	{
+	}
+
+	/**
+	 * A constructor for incomplete requests
+	 * @param data Body of the request.
+	 */
+	request(const job_request_data &data) : data(data)
 	{
 	}
 };
@@ -143,6 +171,9 @@ public:
 	/** A unique identifier of the worker. */
 	const std::string identity;
 
+	/** An optional human readable description */
+	std::string description = "";
+
 	/** A hardware group identifier. */
 	const std::string hwgroup;
 
@@ -150,7 +181,6 @@ public:
 	size_t liveness;
 
 	/**
-	 * Constructor.
 	 * @param id Worker unique identifier.
 	 * @param hwgroup Worker handrware group identifier.
 	 * @param headers Headers describing worker capabilities.

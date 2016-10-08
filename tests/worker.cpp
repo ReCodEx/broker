@@ -140,3 +140,16 @@ TEST(worker, worker_headers_equal)
 
 	ASSERT_TRUE(worker_1.headers_equal(headers_copy));
 }
+
+TEST(worker, description)
+{
+	std::multimap<std::string, std::string> headers = {{"threads", "8"}};
+
+	worker worker_1("identity1", "group_1", headers);
+
+	ASSERT_EQ("6964656e7469747931", worker_1.get_description());
+
+	worker_1.description = "MyWorker";
+
+	ASSERT_EQ("6964656e7469747931 (MyWorker)", worker_1.get_description());
+}

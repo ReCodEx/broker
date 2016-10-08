@@ -58,6 +58,45 @@ TEST(broker, worker_init)
 	ASSERT_TRUE(messages.empty());
 }
 
+TEST(broker, worker_init_additional_info)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto workers = std::make_shared<worker_registry>();
+
+	// Dummy response callback
+	std::vector<message_container> messages;
+	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
+
+	// Run the tested method
+	broker_handler handler(config, workers, nullptr);
+
+	handler.on_request(message_container(broker_connect::KEY_WORKERS,
+						   "identity1",
+						   {"init", "group_1", "env=c", "threads=8", "", "description=MyWorker", "current_job=job_42"}),
+		respond);
+
+	auto worker_1 = workers->find_worker_by_identity("identity1");
+
+	// Exactly one worker should be present
+	ASSERT_EQ(1, workers->get_workers().size());
+
+	// Headers should match
+	ASSERT_NE(nullptr, worker_1);
+	ASSERT_EQ("identity1", worker_1->identity);
+	ASSERT_EQ("group_1", worker_1->hwgroup);
+	ASSERT_TRUE(worker_1->check_header("env", "c"));
+	ASSERT_TRUE(worker_1->check_header("threads", "8"));
+
+	// Check the additional information
+	ASSERT_EQ("MyWorker", worker_1->description);
+	ASSERT_NE(nullptr, worker_1->get_current_request());
+	ASSERT_EQ("job_42", worker_1->get_current_request()->data.get_job_id());
+	ASSERT_FALSE(worker_1->get_current_request()->data.is_complete());
+
+	// No responses should be generated
+	ASSERT_TRUE(messages.empty());
+}
+
 TEST(broker, worker_repeated_init_same_headers)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
@@ -259,8 +298,8 @@ TEST(broker, worker_state_message)
 		message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"progress", "arg1", "arg2"}), respond);
 
 	// We should just forward it to the monitor
-	ASSERT_THAT(messages, ElementsAre(message_container(broker_connect::KEY_MONITOR, "recodex-monitor", {"arg1",
-		"arg2"})));
+	ASSERT_THAT(
+		messages, ElementsAre(message_container(broker_connect::KEY_MONITOR, "recodex-monitor", {"arg1", "arg2"})));
 }
 
 TEST(broker, worker_job_failed)

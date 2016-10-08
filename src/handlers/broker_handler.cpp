@@ -137,9 +137,14 @@ void broker_handler::process_worker_init(
 	std::string hwgroup = message.at(1);
 	request::headers_t headers;
 
-	auto headers_start = std::begin(message) + 2;
-	for (auto it = headers_start; it != std::end(message); ++it) {
-		auto &header = *it;
+	auto message_it = std::begin(message) + 2;
+	for (; message_it != std::end(message); ++message_it) {
+		auto &header = *message_it;
+
+		if (header == "") {
+			break;
+		}
+
 		size_t pos = header.find('=');
 		size_t value_size = header.size() - (pos + 1);
 
@@ -160,8 +165,31 @@ void broker_handler::process_worker_init(
 	}
 
 
-	const std::shared_ptr<worker> &new_worker = worker_registry::worker_ptr(new worker(identity, hwgroup, headers));
+	// Create a new worker with the basic information
+	auto new_worker = worker_registry::worker_ptr(new worker(identity, hwgroup, headers));
+
+	// Load additional information
+	for (; message_it != std::end(message); ++message_it) {
+		auto &header = *message_it;
+
+		size_t pos = header.find('=');
+		size_t value_size = header.size() - (pos + 1);
+		auto key = header.substr(0, pos);
+		auto value = header.substr(pos + 1, value_size);
+
+		if (key == "description") {
+			new_worker->description = value;
+		} else if (key == "current_job") {
+			auto current_request = worker::request_ptr(new request(job_request_data(value)));
+			new_worker->enqueue_request(current_request);
+			new_worker->next_request();
+		}
+	}
+
+	// Insert the worker into the registry
 	workers_->add_worker(new_worker);
+
+	// Start an idle timer for our new worker
 	worker_timers_.emplace(new_worker, std::chrono::milliseconds(0));
 
 	if (logger_->should_log(spdlog::level::debug)) {
