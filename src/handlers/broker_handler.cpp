@@ -247,7 +247,9 @@ void broker_handler::process_worker_done(
 
 		auto failed_request = worker->cancel_request();
 
-		if (check_failure_count(failed_request, status_notifier)) {
+		if (!failed_request->data.is_complete()) {
+			status_notifier.rejected_job(failed_request->data.get_job_id(), "Job failed with '" + message.at(3) + "' and cannot be reassigned");
+		} else if (check_failure_count(failed_request, status_notifier)) {
 			reassign_request(failed_request, respond);
 		} else {
 			assign_queued_request(worker, respond);
@@ -329,6 +331,11 @@ void broker_handler::process_timer(const message_container &message, handler_int
 		std::vector<worker::request_ptr> unassigned_requests;
 
 		for (auto request : *requests) {
+			if (!request->data.is_complete()) {
+				status_notifier.rejected_job(request->data.get_job_id(), "Worker timed out and its job cannot be reassigned");
+				continue;
+			}
+
 			if (!check_failure_count(request, status_notifier)) {
 				continue;
 			}
