@@ -5,7 +5,7 @@
 #include "status_notifier_handler.h"
 
 const std::string status_notifier_handler::TYPE_ERROR = "error";
-const std::string status_notifier_handler::TYPE_JOB_STATUS = "job_status";
+const std::string status_notifier_handler::TYPE_JOB_STATUS = "job-status";
 
 status_notifier_handler::status_notifier_handler(const notifier_config &config, std::shared_ptr<spdlog::logger> logger)
 	: config_(config), logger_(logger)
