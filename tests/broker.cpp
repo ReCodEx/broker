@@ -182,7 +182,7 @@ TEST(broker, queuing)
 		UnorderedElementsAre(
 			message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"eval", "job2", "1", "2"}),
 			message_container(
-				broker_connect::KEY_STATUS_NOTIFIER, "", {"type", "job_status", "id", "job1", "status", "OK"})));
+				broker_connect::KEY_STATUS_NOTIFIER, "", {"type", "job-status", "id", "job1", "status", "OK"})));
 
 	messages.clear();
 }
@@ -262,7 +262,7 @@ TEST(broker, worker_expiration)
 		UnorderedElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
 			"",
 			{"type",
-				"job_status",
+				"job-status",
 				"id",
 				"job_id",
 				"status",
@@ -332,7 +332,7 @@ TEST(broker, worker_job_failed)
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
 			"",
-			{"type", "job_status", "id", "job_id", "status", "FAILED", "message", "Testing failure"})));
+			{"type", "job-status", "id", "job_id", "status", "FAILED", "message", "Testing failure"})));
 
 	messages.clear();
 }
@@ -371,7 +371,7 @@ TEST(broker, worker_job_failed_queueing)
 					message_container(broker_connect::KEY_STATUS_NOTIFIER,
 						"",
 						{"type",
-							"job_status",
+							"job-status",
 							"id",
 							request_1->data.get_job_id(),
 							"status",
@@ -411,7 +411,7 @@ TEST(broker, worker_job_done)
 	// We should notify the frontend
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(
-			broker_connect::KEY_STATUS_NOTIFIER, "", {"type", "job_status", "id", "job_id", "status", "OK"})));
+			broker_connect::KEY_STATUS_NOTIFIER, "", {"type", "job-status", "id", "job_id", "status", "OK"})));
 
 	messages.clear();
 }
@@ -443,7 +443,7 @@ TEST(broker, worker_orphan_job_done)
 	// We should notify the frontend as usual
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(
-			broker_connect::KEY_STATUS_NOTIFIER, "", {"type", "job_status", "id", "job_id", "status", "OK"})));
+			broker_connect::KEY_STATUS_NOTIFIER, "", {"type", "job-status", "id", "job_id", "status", "OK"})));
 
 	messages.clear();
 }
@@ -518,7 +518,7 @@ TEST(broker, worker_orphan_job_internal_failure)
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(
 			broker_connect::KEY_STATUS_NOTIFIER, "", {"type",
-							"job_status",
+							"job-status",
 							"id",
 							request_1->data.get_job_id(),
 							"status",
@@ -596,7 +596,7 @@ TEST(broker, worker_expiration_dont_reassign_orphan_job)
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(
 			broker_connect::KEY_STATUS_NOTIFIER, "", {"type",
-							"job_status",
+							"job-status",
 							"id",
 							request_1->data.get_job_id(),
 							"status",
@@ -641,7 +641,7 @@ TEST(broker, worker_expiration_cancel_job)
 		UnorderedElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
 			"",
 			{"type",
-				"job_status",
+				"job-status",
 				"id",
 				"job_id",
 				"status",
