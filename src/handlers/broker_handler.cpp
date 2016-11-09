@@ -116,7 +116,10 @@ void broker_handler::process_client_eval(
 		workers_->deprioritize_worker(worker);
 	} else {
 		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject"}));
-		logger_->error() << "Request '" << job_id << "' rejected. No worker available.";
+		logger_->error() << "Request '" << job_id << "' rejected. No worker available for headers:";
+		for (auto &header : headers) {
+			logger_->error() << " - " << header.first << ": " << header.second;
+		}
 	}
 }
 
