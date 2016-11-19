@@ -1,8 +1,6 @@
 var classcommand__holder =
 [
-    [ "callback_fn", "classcommand__holder.html#a8078ebdaedfdeb631cf119dba1e13937", null ],
-    [ "command_holder", "classcommand__holder.html#acc517045772edadcc3827dd417362218", null ],
-    [ "call_function", "classcommand__holder.html#a998b59eb72a26f29ed2964770022ea2e", null ],
-    [ "register_command", "classcommand__holder.html#a06872b447a9adb7389bd7b1faa0dd4e6", null ],
-    [ "functions_", "classcommand__holder.html#ad48d77799427cd5a0c4ffd1b35463bd7", null ]
+    [ "callback_fn", "classcommand__holder.html#a779e1b9f05a8aa8e1d8c5ef7824801a4", null ],
+    [ "call_function", "classcommand__holder.html#ad3bc4e6f23fc0aeaaf7b5284aa8fb784", null ],
+    [ "register_command", "classcommand__holder.html#a8c3ba56fb13991f8205c957db7995166", null ]
 ];

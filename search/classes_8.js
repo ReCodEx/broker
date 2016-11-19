@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['status_5fnotifier',['status_notifier',['../classstatus__notifier.html',1,'']]]
+  ['notifier_5fconfig',['notifier_config',['../structnotifier__config.html',1,'']]]
 ];

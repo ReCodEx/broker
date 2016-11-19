@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['set',['set',['../structmessage__origin.html#a038765c58d9bea7ce014b9155af79a95',1,'message_origin']]]
+  ['worker_5fptr',['worker_ptr',['../classworker__registry.html#aa4b5b2778872289bf1e94bd532437a71',1,'worker_registry']]]
 ];

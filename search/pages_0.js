@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['taskbroker',['TaskBroker',['../index.html',1,'']]]
+  ['broker',['Broker',['../index.html',1,'']]]
 ];

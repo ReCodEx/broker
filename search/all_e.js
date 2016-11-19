@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['recv_5fclients',['recv_clients',['../classconnection__proxy.html#a62a6b71f00bf4e396554b6ba1ea48996',1,'connection_proxy']]],
-  ['recv_5fworkers',['recv_workers',['../classconnection__proxy.html#a9a54d2d306b606b36833bf839339b976',1,'connection_proxy']]],
-  ['register_5fcommand',['register_command',['../classcommand__holder.html#a06872b447a9adb7389bd7b1faa0dd4e6',1,'command_holder']]],
-  ['remove_5fworker',['remove_worker',['../classworker__registry.html#a8d4b8a55fee30ea4098cbe3e928c7581',1,'worker_registry']]],
-  ['request',['request',['../structrequest.html',1,'request'],['../structrequest.html#ad188ea3b201b6ea43140a6f91f1e231e',1,'request::request()']]],
-  ['request_5fptr',['request_ptr',['../classworker.html#a773b16906d38bea8d73a65b0d845a515',1,'worker']]],
-  ['run',['run',['../classbroker__core.html#a3f8c3cce94f1b7a739edf1dcba61c3f2',1,'broker_core']]]
+  ['on_5frequest',['on_request',['../classbroker__handler.html#a49b3a66158062fc9458f1a643c553dc4',1,'broker_handler::on_request()'],['../classstatus__notifier__handler.html#a1e13ad583b97ff7e10e85022d4a0654e',1,'status_notifier_handler::on_request()'],['../classhandler__interface.html#aefa99099f5cff720579c772c43b32eaf',1,'handler_interface::on_request()']]],
+  ['operator_21_3d',['operator!=',['../structlog__config.html#aff7d412fe8d22d1600481a2fa0a140e2',1,'log_config']]],
+  ['operator_28_29',['operator()',['../classhandler__wrapper.html#af6deb855767de468c67c54085f3bb269',1,'handler_wrapper::operator()()'],['../classasynchronous__handler__wrapper.html#a5099f2df915878e62a403c7f27c1822f',1,'asynchronous_handler_wrapper::operator()()']]],
+  ['operator_3d',['operator=',['../classbroker__core.html#a542609cfb82f94ce6e44652774950c99',1,'broker_core::operator=(const broker_core &amp;source)=delete'],['../classbroker__core.html#aca1ea415cab039ea03e42af2a7758311',1,'broker_core::operator=(const broker_core &amp;&amp;source)=delete']]],
+  ['operator_3d_3d',['operator==',['../structlog__config.html#a58b1e784e966dd4d3e071aff69323bcd',1,'log_config::operator==()'],['../structmessage__container.html#a93b5cb090491b2c4dc2a469ccd746644',1,'message_container::operator==()']]]
 ];

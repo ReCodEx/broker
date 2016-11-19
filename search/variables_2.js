@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['failure_5fcount',['failure_count',['../structrequest.html#ab50518c0e1045a37b9bd5b0f0a0933a3',1,'request']]],
-  ['functions_5f',['functions_',['../classcommand__holder.html#ad48d77799427cd5a0c4ffd1b35463bd7',1,'command_holder']]]
+  ['data',['data',['../structmessage__container.html#acdfd8bd3fb504ce3f6b31f5307152fa7',1,'message_container::data()'],['../structrequest.html#a80e24b3a4ee53985f8546913abfb5dd3',1,'request::data()']]],
+  ['delimiter',['delimiter',['../classmultiple__string__matcher.html#ab0a5bc824ab7c523ec6a04238c6aa307',1,'multiple_string_matcher']]],
+  ['description',['description',['../classworker.html#a4d47ab3861083e00850870ac63e8c27a',1,'worker']]]
 ];

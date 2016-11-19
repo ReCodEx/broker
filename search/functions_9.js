@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['next_5frequest',['next_request',['../classworker.html#a91a5559d955f3fb5c0db38f6c0be87a2',1,'worker']]]
+  ['job_5fdone',['job_done',['../classempty__status__notifier.html#aadc8e89f00ac26543a55849fa0a48200',1,'empty_status_notifier::job_done()'],['../classhttp__status__notifier.html#a742da25c0d2a0487c761e0a95078888f',1,'http_status_notifier::job_done()'],['../classreactor__status__notifier.html#a3210eae2e79b5b3b6a596e9a189970da',1,'reactor_status_notifier::job_done()'],['../classstatus__notifier__interface.html#a167167c6b902030fcca50e74a83b5576',1,'status_notifier_interface::job_done()']]],
+  ['job_5ffailed',['job_failed',['../classempty__status__notifier.html#ad8093d35ed2855722983e34982b976a2',1,'empty_status_notifier::job_failed()'],['../classhttp__status__notifier.html#a5a10a7f7c25f2c00e24b646c6e80770b',1,'http_status_notifier::job_failed()'],['../classreactor__status__notifier.html#a79476217657187a150f94a681992c37c',1,'reactor_status_notifier::job_failed()'],['../classstatus__notifier__interface.html#a77dc2b309e4de3befbee75d5848e750d',1,'status_notifier_interface::job_failed()']]],
+  ['job_5frequest_5fdata',['job_request_data',['../classjob__request__data.html#a70d96b7ba0b02db3a2682067eecff2a7',1,'job_request_data::job_request_data(const std::string &amp;job_id, const std::vector&lt; std::string &gt; &amp;additional)'],['../classjob__request__data.html#a1a4d99de22098e1b2ac113c235327cdc',1,'job_request_data::job_request_data(const std::string &amp;job_id)']]]
 ];

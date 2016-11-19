@@ -1,15 +1,20 @@
 var searchData=
 [
-  ['get_5fclient_5faddress',['get_client_address',['../classbroker__config.html#a5a08f9a1c22aa304ba71e6c64bf6ee34',1,'broker_config']]],
-  ['get_5fclient_5fport',['get_client_port',['../classbroker__config.html#a746ecf2589391d05dbde4061827233cc',1,'broker_config']]],
-  ['get_5fcurrent_5frequest',['get_current_request',['../classworker.html#a5a886932314b38846e2c442818b37690',1,'worker']]],
-  ['get_5ffrontend_5fconfig',['get_frontend_config',['../classbroker__config.html#a4a878abaf546bc86be6a493da71191d1',1,'broker_config']]],
-  ['get_5flog_5fconfig',['get_log_config',['../classbroker__config.html#a46f90da07eadb17d94493675df35ca57',1,'broker_config']]],
-  ['get_5fmax_5fworker_5fliveness',['get_max_worker_liveness',['../classbroker__config.html#a06bee90b0a71d57065b34ef465b348b6',1,'broker_config']]],
-  ['get_5fmonitor_5faddress',['get_monitor_address',['../classbroker__config.html#a1bf0a7dabc9fd47fc07806c720778040',1,'broker_config']]],
-  ['get_5fmonitor_5fport',['get_monitor_port',['../classbroker__config.html#aaa6e839ad7552f5bde71888af5d41917',1,'broker_config']]],
-  ['get_5fworker_5faddress',['get_worker_address',['../classbroker__config.html#a9cc71f9dc5f1d5de6e37198d020779e6',1,'broker_config']]],
-  ['get_5fworker_5fping_5finterval',['get_worker_ping_interval',['../classbroker__config.html#aaf1b6562880e899e33dfeeef15ce2e14',1,'broker_config']]],
-  ['get_5fworker_5fport',['get_worker_port',['../classbroker__config.html#acef02576d8cf5c6331d29642d31ecf6b',1,'broker_config']]],
-  ['get_5fworkers',['get_workers',['../classworker__registry.html#adaf61cc88fc83f18cf0e77bc2f34b732',1,'worker_registry']]]
+  ['get',['get',['../classjob__request__data.html#a34c8201c60d605f6b4c4691183576d9f',1,'job_request_data']]],
+  ['get_5fclient_5faddress',['get_client_address',['../classbroker__config.html#a8021ede3bb84f50de62b27daa001fbfb',1,'broker_config']]],
+  ['get_5fclient_5fport',['get_client_port',['../classbroker__config.html#a147a43995a7d5861af5f3d14841f20a3',1,'broker_config']]],
+  ['get_5fcurrent_5frequest',['get_current_request',['../classworker.html#a65a62143772667d4e095b20e353945c4',1,'worker']]],
+  ['get_5fdescription',['get_description',['../classworker.html#adacc45447996807305137b1acbd3bb57',1,'worker']]],
+  ['get_5fjob_5fid',['get_job_id',['../classjob__request__data.html#ac87e808c90fbca2858eec783acbc0581',1,'job_request_data']]],
+  ['get_5flog_5fconfig',['get_log_config',['../classbroker__config.html#ac1fe43483a359874a0b316debed7ce71',1,'broker_config']]],
+  ['get_5fmax_5frequest_5ffailures',['get_max_request_failures',['../classbroker__config.html#a3f12b1e8df9205dc109ce2dc158fa489',1,'broker_config']]],
+  ['get_5fmax_5fworker_5fliveness',['get_max_worker_liveness',['../classbroker__config.html#af81f0d32928c6d6d4798ca2a93d74ee5',1,'broker_config']]],
+  ['get_5fmonitor_5faddress',['get_monitor_address',['../classbroker__config.html#aad8df13f23b9398a1f7b5afbb514f25c',1,'broker_config']]],
+  ['get_5fmonitor_5fport',['get_monitor_port',['../classbroker__config.html#a234114d94fd9901ef8c4c6e2e47d219d',1,'broker_config']]],
+  ['get_5fnotifier_5fconfig',['get_notifier_config',['../classbroker__config.html#a5b750da4a368490c306f3af49268b64c',1,'broker_config']]],
+  ['get_5fpollitem',['get_pollitem',['../classsocket__wrapper__base.html#a455abe08a9228a0ac42b4edd2b388fd6',1,'socket_wrapper_base']]],
+  ['get_5fworker_5faddress',['get_worker_address',['../classbroker__config.html#a61cb035025f3c657bab48bec1ccc8fd9',1,'broker_config']]],
+  ['get_5fworker_5fping_5finterval',['get_worker_ping_interval',['../classbroker__config.html#aeb63cbdeb073e9249897674227708ec9',1,'broker_config']]],
+  ['get_5fworker_5fport',['get_worker_port',['../classbroker__config.html#aa90a3ecda99b34900a1fafae92ca90f1',1,'broker_config']]],
+  ['get_5fworkers',['get_workers',['../classworker__registry.html#a5fa77b1d0eb1dd10b25b990740b7a4ff',1,'worker_registry']]]
 ];

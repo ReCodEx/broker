@@ -1,12 +1,6 @@
 var searchData=
 [
-  ['liveness',['liveness',['../classworker.html#afaf268ca96c5f5539ab7fbe1b9dbf021',1,'worker']]],
-  ['log_5fbasename',['log_basename',['../structlog__config.html#a703407dcb75efcb61b924b29abb084e3',1,'log_config']]],
-  ['log_5fconfig',['log_config',['../structlog__config.html',1,'']]],
-  ['log_5ffile_5fsize',['log_file_size',['../structlog__config.html#ab6f1234d4769233988dd2740d0e90802',1,'log_config']]],
-  ['log_5ffiles_5fcount',['log_files_count',['../structlog__config.html#a22c0a929b30fa747c909205dda662769',1,'log_config']]],
-  ['log_5flevel',['log_level',['../structlog__config.html#a9c47eb219dd530eceacd3b4936a5ddc2',1,'log_config']]],
-  ['log_5fpath',['log_path',['../structlog__config.html#a0347e433932ac20de976a7bfc1244ad8',1,'log_config']]],
-  ['log_5fsuffix',['log_suffix',['../structlog__config.html#a60549f8f7e308491af4e5f764a3be49f',1,'log_config']]],
-  ['logger',['logger',['../classcommand__context.html#a36a94839d14474f5aa25b4ac812c1b75',1,'command_context']]]
+  ['job_5fdone',['job_done',['../classempty__status__notifier.html#aadc8e89f00ac26543a55849fa0a48200',1,'empty_status_notifier::job_done()'],['../classhttp__status__notifier.html#a742da25c0d2a0487c761e0a95078888f',1,'http_status_notifier::job_done()'],['../classreactor__status__notifier.html#a3210eae2e79b5b3b6a596e9a189970da',1,'reactor_status_notifier::job_done()'],['../classstatus__notifier__interface.html#a167167c6b902030fcca50e74a83b5576',1,'status_notifier_interface::job_done()']]],
+  ['job_5ffailed',['job_failed',['../classempty__status__notifier.html#ad8093d35ed2855722983e34982b976a2',1,'empty_status_notifier::job_failed()'],['../classhttp__status__notifier.html#a5a10a7f7c25f2c00e24b646c6e80770b',1,'http_status_notifier::job_failed()'],['../classreactor__status__notifier.html#a79476217657187a150f94a681992c37c',1,'reactor_status_notifier::job_failed()'],['../classstatus__notifier__interface.html#a77dc2b309e4de3befbee75d5848e750d',1,'status_notifier_interface::job_failed()']]],
+  ['job_5frequest_5fdata',['job_request_data',['../classjob__request__data.html',1,'job_request_data'],['../classjob__request__data.html#a70d96b7ba0b02db3a2682067eecff2a7',1,'job_request_data::job_request_data(const std::string &amp;job_id, const std::vector&lt; std::string &gt; &amp;additional)'],['../classjob__request__data.html#a1a4d99de22098e1b2ac113c235327cdc',1,'job_request_data::job_request_data(const std::string &amp;job_id)']]]
 ];

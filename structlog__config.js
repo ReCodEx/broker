@@ -1,7 +1,7 @@
 var structlog__config =
 [
-    [ "operator!=", "structlog__config.html#a088944cfa772f4f407ecd6141e232dc9", null ],
-    [ "operator==", "structlog__config.html#a3cf20004492f7d7288c153385682ff1d", null ],
+    [ "operator!=", "structlog__config.html#aff7d412fe8d22d1600481a2fa0a140e2", null ],
+    [ "operator==", "structlog__config.html#a58b1e784e966dd4d3e071aff69323bcd", null ],
     [ "log_basename", "structlog__config.html#a703407dcb75efcb61b924b29abb084e3", null ],
     [ "log_file_size", "structlog__config.html#ab6f1234d4769233988dd2740d0e90802", null ],
     [ "log_files_count", "structlog__config.html#a22c0a929b30fa747c909205dda662769", null ],
