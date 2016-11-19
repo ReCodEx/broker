@@ -39,7 +39,6 @@ public:
 	/**
 	 * A constructor for incomplete jobs (only id without request frames)
 	 * @param job_id identification of job
-	 * @param additional additional information which will be added to standard message
 	 */
 	job_request_data(const std::string &job_id) : job_id_(job_id), complete_(false)
 	{

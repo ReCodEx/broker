@@ -516,15 +516,16 @@ TEST(broker, worker_orphan_job_internal_failure)
 
 	// We cannot reassign the job (we don't know its headers). Let's just report it as failed.
 	ASSERT_THAT(messages,
-		ElementsAre(message_container(
-			broker_connect::KEY_STATUS_NOTIFIER, "", {"type",
-							"job-status",
-							"id",
-							request_1->data.get_job_id(),
-							"status",
-							"FAILED",
-							"message",
-							"Job failed with 'Testing failure' and cannot be reassigned"})));
+		ElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
+			"",
+			{"type",
+				"job-status",
+				"id",
+				request_1->data.get_job_id(),
+				"status",
+				"FAILED",
+				"message",
+				"Job failed with 'Testing failure' and cannot be reassigned"})));
 
 	messages.clear();
 }
@@ -572,8 +573,7 @@ TEST(broker, worker_expiration_dont_reassign_orphan_job)
 
 	// There are two workers in the registry, one of them has an orphan job and will die
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 =
-		std::make_shared<request>(job_request_data("job_id"));
+	auto request_1 = std::make_shared<request>(job_request_data("job_id"));
 	auto worker_2 = std::make_shared<worker>("identity_2", "group_1", worker_headers_t{{"env", "c"}});
 	worker_1->liveness = 1;
 	worker_1->enqueue_request(request_1);
@@ -594,15 +594,16 @@ TEST(broker, worker_expiration_dont_reassign_orphan_job)
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 
 	ASSERT_THAT(messages,
-		ElementsAre(message_container(
-			broker_connect::KEY_STATUS_NOTIFIER, "", {"type",
-							"job-status",
-							"id",
-							request_1->data.get_job_id(),
-							"status",
-							"FAILED",
-							"message",
-							"Worker timed out and its job cannot be reassigned"})));
+		ElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
+			"",
+			{"type",
+				"job-status",
+				"id",
+				request_1->data.get_job_id(),
+				"status",
+				"FAILED",
+				"message",
+				"Worker timed out and its job cannot be reassigned"})));
 
 	messages.clear();
 }
