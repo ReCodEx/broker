@@ -66,19 +66,19 @@ target_link_libraries(${EXEC_NAME} -lboost_filesystem)
 target_link_libraries(${EXEC_NAME} -lboost_program_options)
 target_link_libraries(${EXEC_NAME} ${CURL_LIBRARIES})
 
-# Include Google Test libraries and then our very own unit tests
-add_subdirectory(vendor/googletest EXCLUDE_FROM_ALL)
-add_subdirectory(tests)
+if(NOT DISABLE_TESTS)
+	# Include Google Test libraries and then our very own unit tests
+	add_subdirectory(vendor/googletest EXCLUDE_FROM_ALL)
+	add_subdirectory(tests)
+endif()
 
 
 # ========== Install targets - 'sudo make install' ==========
 include(InstallRequiredSystemLibraries)
 if(UNIX)
 	install(TARGETS recodex-broker DESTINATION /usr/bin COMPONENT binaries)
-	install(FILES install/recodex-broker.service DESTINATION /etc/systemd/system COMPONENT config)
+	install(FILES install/recodex-broker.service DESTINATION /lib/systemd/system COMPONENT config)
 	install(FILES examples/config.yml DESTINATION /etc/recodex/broker COMPONENT config)
-
-	install(CODE "execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install/postinst)")
 else()
 	install(TARGETS recodex-broker DESTINATION recodex/broker/bin COMPONENT binaries)
 	install(FILES examples/config.yml DESTINATION recodex/broker/conf COMPONENT config)
