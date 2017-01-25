@@ -81,7 +81,7 @@ void broker_handler::process_client_eval(
 
 		// Unexpected end of message - do nothing and return
 		if (std::next(it) == std::end(message)) {
-			logger_->warn() << "Unexpected end of message from frontend. Skipped.";
+			logger_->warn("Unexpected end of message from frontend. Skipped.");
 			return;
 		}
 
@@ -109,16 +109,16 @@ void broker_handler::process_client_eval(
 		worker->enqueue_request(eval_request);
 
 		if (!assign_queued_request(worker, respond)) {
-			logger_->debug() << " - saved to queue for worker '" << worker->get_description() << "'";
+			logger_->debug(" - saved to queue for worker '{}'", worker->get_description());
 		}
 
 		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"accept"}));
 		workers_->deprioritize_worker(worker);
 	} else {
 		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject"}));
-		logger_->error() << "Request '" << job_id << "' rejected. No worker available for headers:";
+		logger_->error("Request '{}' rejected. No worker available for headers:", job_id);
 		for (auto &header : headers) {
-			logger_->error() << " - " << header.first << ": " << header.second;
+			logger_->error(" - {}: {}", header.first, header.second);
 		}
 	}
 }
@@ -129,11 +129,11 @@ void broker_handler::process_worker_init(
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
 	// first let us know that message arrived (logging moved from main loop)
-	logger_->debug() << "Received message 'init' from workers";
+	logger_->debug("Received message 'init' from workers");
 
 	// There must be at least one argument
 	if (message.size() < 2) {
-		logger_->warn() << "Init command without argument. Nothing to do.";
+		logger_->warn("Init command without argument. Nothing to do.");
 		return;
 	}
 
@@ -208,12 +208,12 @@ void broker_handler::process_worker_done(
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
 	// first let us know that message arrived (logging moved from main loop)
-	logger_->debug() << "Received message 'done' from workers";
+	logger_->debug("Received message 'done' from workers");
 
 	worker_registry::worker_ptr worker = workers_->find_worker_by_identity(identity);
 
 	if (worker == nullptr) {
-		logger_->warn() << "Got 'done' message from an unknown worker";
+		logger_->warn("Got 'done' message from an unknown worker");
 		return;
 	}
 
@@ -225,8 +225,8 @@ void broker_handler::process_worker_done(
 	std::shared_ptr<const request> current = worker->get_current_request();
 
 	if (message.at(1) != current->data.get_job_id()) {
-		logger_->error() << "Got 'done' message from worker {} with mismatched job id - {} (message) vs. {} (worker)",
-			worker->get_description(), message.at(1), current->data.get_job_id();
+		logger_->error("Got 'done' message from worker {} with mismatched job id - {} (message) vs. {} (worker)",
+			worker->get_description(), message.at(1), current->data.get_job_id());
 		return;
 	}
 
@@ -270,7 +270,7 @@ void broker_handler::process_worker_done(
 		worker->cancel_request();
 		assign_queued_request(worker, respond);
 	} else {
-		logger_->warn() << "Received unexpected status code {} from worker {}", status, worker->get_description();
+		logger_->warn("Received unexpected status code {} from worker {}", status, worker->get_description());
 	}
 }
 
@@ -328,7 +328,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
 	for (auto worker : to_remove) {
-		logger_->notice("Worker {} expired", worker->get_description());
+		logger_->info("Worker {} expired", worker->get_description());
 
 		workers_->remove_worker(worker);
 		auto requests = worker->terminate();

@@ -23,9 +23,9 @@ broker_core::~broker_core()
 
 void broker_core::run()
 {
-	logger_->info() << "Broker will now start brokering.";
+	logger_->info("Broker will now start brokering.");
 	broker_->start_brokering();
-	logger_->info() << "Broker will now end.";
+	logger_->info("Broker will now end.");
 }
 
 void broker_core::parse_params()
@@ -72,7 +72,7 @@ void broker_core::force_exit(std::string msg)
 	// write to log
 	if (msg != "") {
 		if (logger_ != nullptr) {
-			logger_->emerg() << msg;
+			logger_->critical(msg);
 		}
 		std::cerr << msg << std::endl;
 	}
@@ -103,8 +103,7 @@ void broker_core::log_init()
 			std::make_shared<spdlog::sinks::rotating_file_sink_mt>((path / log_conf.log_basename).string(),
 				log_conf.log_suffix,
 				log_conf.log_file_size,
-				log_conf.log_files_count,
-				true);
+				log_conf.log_files_count);
 		// Set queue size for asynchronous logging. It must be a power of 2.
 		spdlog::set_async_mode(1048576);
 		// Make log with name "logger"
@@ -112,12 +111,12 @@ void broker_core::log_init()
 		// Set logging level to debug
 		logger_->set_level(helpers::get_log_level(log_conf.log_level));
 		// Print header to log
-		if (helpers::compare_log_levels(spdlog::level::notice, logger_->level()) > 0) {
-			logger_->emerg() << "--- Started ReCodEx broker ---";
+		if (helpers::compare_log_levels(spdlog::level::info, logger_->level()) > 0) {
+			logger_->critical("--- Started ReCodEx broker ---");
 		} else {
-			logger_->notice() << "------------------------------";
-			logger_->notice() << "    Started ReCodEx broker";
-			logger_->notice() << "------------------------------";
+			logger_->info("------------------------------");
+			logger_->info("    Started ReCodEx broker");
+			logger_->info("------------------------------");
 		}
 	} catch (spdlog::spdlog_ex &e) {
 		std::cerr << "Logger: " << e.what() << std::endl;
@@ -127,26 +126,26 @@ void broker_core::log_init()
 
 void broker_core::broker_init()
 {
-	logger_->info() << "Initializing broker connection...";
+	logger_->info("Initializing broker connection...");
 	workers_ = std::make_shared<worker_registry>();
 	context_ = std::make_shared<zmq::context_t>(1);
 	broker_ = std::make_shared<broker_connect>(config_, context_, workers_, logger_);
-	logger_->info() << "Broker connection initialized.";
+	logger_->info("Broker connection initialized.");
 }
 
 void broker_core::curl_init()
 {
 	// Globally init curl library
 
-	logger_->info() << "Initializing CURL...";
+	logger_->info("Initializing CURL...");
 	curl_global_init(CURL_GLOBAL_DEFAULT);
-	logger_->info() << "CURL initialized.";
+	logger_->info("CURL initialized.");
 }
 
 void broker_core::curl_fini()
 {
 	// Clean after curl library
-	logger_->info() << "Cleanup after CURL...";
+	logger_->info("Cleanup after CURL...");
 	curl_global_cleanup();
-	logger_->info() << "CURL cleaned.";
+	logger_->info("CURL cleaned.");
 }

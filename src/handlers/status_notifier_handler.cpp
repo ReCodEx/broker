@@ -49,6 +49,6 @@ void status_notifier_handler::on_request(const message_container &message, handl
 	try {
 		helpers::curl_post(ss.str(), config_.port, params, config_.username, config_.password);
 	} catch (helpers::curl_exception &exception) {
-		logger_->emerg() << "curl failed: " << exception.what();
+		logger_->critical("curl failed: {}", exception.what());
 	}
 }

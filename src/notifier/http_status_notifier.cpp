@@ -14,7 +14,7 @@ void http_status_notifier::send(std::string route, helpers::curl_params params)
 	try {
 		helpers::curl_post(addr, config_.port, params, config_.username, config_.password);
 	} catch (helpers::curl_exception e) {
-		logger_->emerg() << e.what();
+		logger_->critical(e.what());
 	}
 }
 

@@ -21,14 +21,14 @@ broker_connect::broker_connect(std::shared_ptr<const broker_config> config,
 	}
 
 	auto clients_endpoint = "tcp://" + config_->get_client_address() + ":" + std::to_string(config_->get_client_port());
-	logger_->debug() << "Binding clients to " + clients_endpoint;
+	logger_->debug("Binding clients to {}", clients_endpoint);
 
 	auto workers_endpoint = "tcp://" + config_->get_worker_address() + ":" + std::to_string(config_->get_worker_port());
-	logger_->debug() << "Binding workers to " + workers_endpoint;
+	logger_->debug("Binding workers to {}", workers_endpoint);
 
 	auto monitor_endpoint =
 		"tcp://" + config_->get_monitor_address() + ":" + std::to_string(config_->get_monitor_port());
-	logger_->debug() << "Binding monitor to " + monitor_endpoint;
+	logger_->debug("Binding monitor to {}", monitor_endpoint);
 
 	reactor_.add_socket(KEY_WORKERS, std::make_shared<router_socket_wrapper>(context, workers_endpoint, true));
 	reactor_.add_socket(KEY_CLIENTS, std::make_shared<router_socket_wrapper>(context, clients_endpoint, true));
@@ -43,5 +43,5 @@ broker_connect::broker_connect(std::shared_ptr<const broker_config> config,
 void broker_connect::start_brokering()
 {
 	reactor_.start_loop();
-	logger_->emerg() << "The main loop terminated";
+	logger_->critical("The main loop terminated");
 }
