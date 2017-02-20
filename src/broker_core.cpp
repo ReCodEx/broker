@@ -104,8 +104,8 @@ void broker_core::log_init()
 				log_conf.log_suffix,
 				log_conf.log_file_size,
 				log_conf.log_files_count);
-		// Set queue size for asynchronous logging. It must be a power of 2.
-		spdlog::set_async_mode(1048576);
+		// Set queue size for asynchronous logging. It must be a power of 2. Also, flush every 2 seconds.
+		spdlog::set_async_mode(1048576, spdlog::async_overflow_policy::block_retry, nullptr, std::chrono::seconds(2));
 		// Make log with name "logger"
 		logger_ = std::make_shared<spdlog::logger>("logger", rotating_sink);
 		// Set logging level to debug

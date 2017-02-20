@@ -14,7 +14,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Vendor: Petr Stefan <UNKNOWN>
 Url: https://github.com/ReCodEx/broker
-BuildRequires: systemd cmake
+BuildRequires: systemd cmake zeromq-devel cppzmq-devel yaml-cpp-devel libcurl-devel spdlog-devel
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd

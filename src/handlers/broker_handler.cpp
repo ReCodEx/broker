@@ -226,7 +226,9 @@ void broker_handler::process_worker_done(
 
 	if (message.at(1) != current->data.get_job_id()) {
 		logger_->error("Got 'done' message from worker {} with mismatched job id - {} (message) vs. {} (worker)",
-			worker->get_description(), message.at(1), current->data.get_job_id());
+			worker->get_description(),
+			message.at(1),
+			current->data.get_job_id());
 		return;
 	}
 

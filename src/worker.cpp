@@ -65,7 +65,7 @@ public:
 	 * Constructor.
 	 * @param my_value Base value for comparison. Will be converted to @a size_t type using std::stoul.
 	 */
-	count_matcher(std::string my_value) : my_count_(std::stoul(my_value)), header_matcher(my_value)
+	count_matcher(std::string my_value) : header_matcher(my_value), my_count_(std::stoul(my_value))
 	{
 	}
 
@@ -88,7 +88,7 @@ public:
 
 worker::worker(
 	const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers)
-	: identity(id), hwgroup(hwgroup), free_(true), current_request_(nullptr), headers_copy_(headers)
+	: headers_copy_(headers), free_(true), current_request_(nullptr), identity(id), hwgroup(hwgroup)
 {
 	headers_.emplace("hwgroup", std::unique_ptr<header_matcher>(new multiple_string_matcher(hwgroup)));
 
