@@ -1,7 +1,7 @@
 %define name recodex-broker
 %define version 1.0.0
 %define unmangled_version 1.0.0
-%define release 1
+%define release 2
 
 Summary: ReCodEx broker component
 Name: %{name}
