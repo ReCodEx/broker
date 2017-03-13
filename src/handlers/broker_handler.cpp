@@ -5,7 +5,7 @@
 broker_handler::broker_handler(std::shared_ptr<const broker_config> config,
 	std::shared_ptr<worker_registry> workers,
 	std::shared_ptr<spdlog::logger> logger)
-	: workers_(workers), logger_(logger), config_(config)
+	: config_(config), workers_(workers), logger_(logger)
 {
 	if (logger_ == nullptr) {
 		logger_ = helpers::create_null_logger();

@@ -3,7 +3,7 @@
 
 socket_wrapper_base::socket_wrapper_base(
 	std::shared_ptr<zmq::context_t> context, zmq::socket_type type, const std::string &addr, const bool bound)
-	: addr_(addr), socket_(*context, type), bound_(bound)
+	: socket_(*context, type), addr_(addr), bound_(bound)
 {
 	socket_.setsockopt(ZMQ_LINGER, 0);
 }

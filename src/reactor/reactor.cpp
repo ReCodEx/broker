@@ -5,8 +5,8 @@
 const std::string reactor::KEY_TIMER = "timer";
 
 reactor::reactor(std::shared_ptr<zmq::context_t> context)
-	: context_(context), async_handler_socket_(*context, zmq::socket_type::router),
-	  unique_id("reactor_" + std::to_string((uintptr_t) this))
+	: unique_id("reactor_" + std::to_string((uintptr_t) this)), context_(context),
+	  async_handler_socket_(*context, zmq::socket_type::router)
 {
 	async_handler_socket_.bind("inproc://" + unique_id);
 }
@@ -154,8 +154,8 @@ asynchronous_handler_wrapper::asynchronous_handler_wrapper(zmq::context_t &conte
 	zmq::socket_t &async_handler_socket,
 	reactor &reactor_ref,
 	std::shared_ptr<handler_interface> handler)
-	: handler_wrapper(reactor_ref, handler), reactor_socket_(async_handler_socket),
-	  unique_id_(std::to_string((uintptr_t) this)), context_(context)
+	: handler_wrapper(reactor_ref, handler), context_(context),
+	  reactor_socket_(async_handler_socket), unique_id_(std::to_string((uintptr_t) this))
 {
 	worker_ = std::thread([this]() { handler_thread(); });
 }

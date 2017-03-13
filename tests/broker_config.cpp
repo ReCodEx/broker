@@ -37,8 +37,8 @@ TEST(broker_config, config_basic)
 	ASSERT_EQ(8452, config.get_client_port());
 	ASSERT_EQ("10.0.1.2", config.get_worker_address());
 	ASSERT_EQ(5482, config.get_worker_port());
-	ASSERT_EQ(10, config.get_max_worker_liveness());
-	ASSERT_EQ(10, config.get_max_request_failures());
+	ASSERT_EQ(10u, config.get_max_worker_liveness());
+	ASSERT_EQ(10u, config.get_max_request_failures());
 	ASSERT_EQ(1234, config.get_worker_ping_interval().count());
 	ASSERT_EQ("77.75.76.3", config.get_monitor_address());
 	ASSERT_EQ(5454, config.get_monitor_port());

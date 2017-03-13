@@ -214,7 +214,7 @@ TEST(reactor, timers)
 	std::thread thread([&r]() { r.start_loop(); });
 	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-	ASSERT_GE(1, handler->received.size());
+	ASSERT_GE(1u, handler->received.size());
 
 	r.terminate();
 	thread.join();

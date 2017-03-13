@@ -45,7 +45,7 @@ TEST(broker, worker_init)
 	auto worker_1 = workers->find_worker_by_identity("identity1");
 
 	// Exactly one worker should be present
-	ASSERT_EQ(1, workers->get_workers().size());
+	ASSERT_EQ(1u, workers->get_workers().size());
 
 	// Headers should match
 	ASSERT_NE(nullptr, worker_1);
@@ -78,7 +78,7 @@ TEST(broker, worker_init_additional_info)
 	auto worker_1 = workers->find_worker_by_identity("identity1");
 
 	// Exactly one worker should be present
-	ASSERT_EQ(1, workers->get_workers().size());
+	ASSERT_EQ(1u, workers->get_workers().size());
 
 	// Headers should match
 	ASSERT_NE(nullptr, worker_1);
@@ -118,7 +118,7 @@ TEST(broker, worker_repeated_init_same_headers)
 	auto worker = workers->find_worker_by_identity("identity_1");
 
 	// Exactly one worker should be present
-	ASSERT_EQ(1, workers->get_workers().size());
+	ASSERT_EQ(1u, workers->get_workers().size());
 
 	// Headers should match
 	ASSERT_NE(nullptr, worker);
@@ -481,7 +481,7 @@ TEST(broker, worker_job_internal_failure)
 		ElementsAre(message_container(
 			broker_connect::KEY_WORKERS, worker_1->identity, {"eval", request_1->data.get_job_id()})));
 
-	ASSERT_EQ(1, request_1->failure_count);
+	ASSERT_EQ(1u, request_1->failure_count);
 
 	messages.clear();
 }
@@ -561,7 +561,7 @@ TEST(broker, worker_expiration_reassign_job)
 		UnorderedElementsAre(message_container(
 			broker_connect::KEY_WORKERS, worker_2->identity, {"eval", request_1->data.get_job_id(), "whatever"})));
 
-	ASSERT_EQ(1, request_1->failure_count);
+	ASSERT_EQ(1u, request_1->failure_count);
 
 	messages.clear();
 }
