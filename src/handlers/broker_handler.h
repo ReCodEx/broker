@@ -101,12 +101,29 @@ private:
 	bool assign_queued_request(worker_registry::worker_ptr worker, response_cb respond);
 
 	/**
-	 * Check if a request can be reassigned one more time and notify the fronted if not.
+	 * Check if a request can be reassigned one more time and notify the frontend if not.
 	 * @param request the request to be checked
 	 * @param status_notifier used to notify the frontend when the request doesn't pass the check
 	 * @return true if the request can be reassigned, false otherwise
 	 */
-	bool check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier);
+	bool check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier,
+				 response_cb respond);
+
+	/**
+	 * Notify the monitor about an error that might not have been reported by a worker
+	 * @param request the request in which the error ocurred
+	 * @param message the message to send to the monitor, e.g. FAILED or ABORTED
+	 * @param respond a callback to notify the monitor
+	 */
+	void notify_monitor(worker::request_ptr request, const std::string &message, response_cb respond);
+
+	/**
+	 * Notify the monitor about an error that might not have been reported by a worker
+	 * @param job_id an id of the job in which the error ocurred
+	 * @param message the message to send to the monitor, e.g. FAILED or ABORTED
+	 * @param respond a callback to notify the monitor
+	 */
+	void notify_monitor(const std::string &job_id, const std::string &message, response_cb respond);
 };
 
 #endif // RECODEX_BROKER_BROKER_HANDLER_H

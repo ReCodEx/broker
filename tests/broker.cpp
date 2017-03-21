@@ -259,7 +259,8 @@ TEST(broker, worker_expiration)
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 
 	ASSERT_THAT(messages,
-		UnorderedElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
+		UnorderedElementsAre(
+			message_container(broker_connect::KEY_STATUS_NOTIFIER,
 			"",
 			{"type",
 				"job-status",
@@ -268,7 +269,11 @@ TEST(broker, worker_expiration)
 				"status",
 				"FAILED",
 				"message",
-				"Worker " + worker_1->get_description() + " dieded"})));
+				"Worker " + worker_1->get_description() + " dieded"}),
+			message_container(broker_connect::KEY_MONITOR,
+			broker_connect::MONITOR_IDENTITY,
+			{"job_id", "FAILED" }
+			)));
 
 	messages.clear();
 }
@@ -559,7 +564,9 @@ TEST(broker, worker_expiration_reassign_job)
 
 	ASSERT_THAT(messages,
 		UnorderedElementsAre(message_container(
-			broker_connect::KEY_WORKERS, worker_2->identity, {"eval", request_1->data.get_job_id(), "whatever"})));
+			broker_connect::KEY_WORKERS, worker_2->identity, {"eval", request_1->data.get_job_id(), "whatever"}),
+				     message_container(
+			broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {"job_id", "ABORTED"})));
 
 	ASSERT_EQ(1u, request_1->failure_count);
 
@@ -648,7 +655,11 @@ TEST(broker, worker_expiration_cancel_job)
 				"status",
 				"FAILED",
 				"message",
-				"Job was reassigned too many (1) times"})));
+				"Job was reassigned too many (1) times"}),
+				message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {
+					"job_id",
+					"FAILED"
+				})));
 
 	messages.clear();
 }

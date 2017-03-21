@@ -116,6 +116,7 @@ void broker_handler::process_client_eval(
 		workers_->deprioritize_worker(worker);
 	} else {
 		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject"}));
+		notify_monitor(job_id, "FAILED", respond);
 		logger_->error("Request '{}' rejected. No worker available for headers:", job_id);
 		for (auto &header : headers) {
 			logger_->error(" - {}: {}", header.first, header.second);
@@ -255,7 +256,7 @@ void broker_handler::process_worker_done(
 		if (!failed_request->data.is_complete()) {
 			status_notifier.rejected_job(
 				failed_request->data.get_job_id(), "Job failed with '" + message.at(3) + "' and cannot be reassigned");
-		} else if (check_failure_count(failed_request, status_notifier)) {
+		} else if (check_failure_count(failed_request, status_notifier, respond)) {
 			reassign_request(failed_request, respond);
 		} else {
 			assign_queued_request(worker, respond);
@@ -343,12 +344,14 @@ void broker_handler::process_timer(const message_container &message, handler_int
 				continue;
 			}
 
-			if (!check_failure_count(request, status_notifier)) {
+			if (!check_failure_count(request, status_notifier, respond)) {
 				continue;
 			}
 
 			if (!reassign_request(request, respond)) {
 				unassigned_requests.push_back(request);
+			} else {
+				notify_monitor(request, "ABORTED", respond);
 			}
 		}
 
@@ -370,6 +373,7 @@ bool broker_handler::reassign_request(worker::request_ptr request, handler_inter
 	worker_registry::worker_ptr substitute_worker = workers_->find_worker(request->headers);
 
 	if (substitute_worker == nullptr) {
+		notify_monitor(request, "FAILED", respond);
 		return false;
 	}
 
@@ -395,13 +399,29 @@ bool broker_handler::assign_queued_request(worker_registry::worker_ptr worker, h
 	return false;
 }
 
-bool broker_handler::check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier)
+bool broker_handler::check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier,
+					 response_cb respond)
 {
 	if (request->failure_count >= config_->get_max_request_failures()) {
 		status_notifier.job_failed(request->data.get_job_id(),
 			"Job was reassigned too many (" + std::to_string(request->failure_count - 1) + ") times");
+		notify_monitor(request, "FAILED", respond);
 		return false;
 	}
 
 	return true;
+}
+
+void broker_handler::notify_monitor(worker::request_ptr request, const std::string &message,
+				    handler_interface::response_cb respond) {
+	notify_monitor(request->data.get_job_id(), message, respond);
+}
+
+void broker_handler::notify_monitor(const std::string &job_id, const std::string &message,
+				    handler_interface::response_cb respond) {
+	respond(message_container(
+		broker_connect::KEY_MONITOR,
+		broker_connect::MONITOR_IDENTITY,
+		{job_id, message}
+	));
 }
