@@ -341,6 +341,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 			if (!request->data.is_complete()) {
 				status_notifier.rejected_job(
 					request->data.get_job_id(), "Worker timed out and its job cannot be reassigned");
+				notify_monitor(request, "FAILED", respond);
 				continue;
 			}
 

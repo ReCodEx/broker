@@ -258,6 +258,7 @@ TEST(broker, worker_expiration)
 	// Looks like our worker timed out and there's nobody to take its work
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 
+	// We must notify the frontend and also the monitor
 	ASSERT_THAT(messages,
 		UnorderedElementsAre(
 			message_container(broker_connect::KEY_STATUS_NOTIFIER,
@@ -333,7 +334,7 @@ TEST(broker, worker_job_failed)
 			broker_connect::KEY_WORKERS, worker_1->identity, {"done", "job_id", "FAILED", "Testing failure"}),
 		respond);
 
-	// We should notify the frontend
+	// We should notify the frontend, the monitor was notified by the worker
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
 			"",
@@ -370,7 +371,8 @@ TEST(broker, worker_job_failed_queueing)
 						   {"done", request_1->data.get_job_id(), "FAILED", "Testing failure"}),
 		respond);
 
-	// We should notify the frontend and give the worker another job
+	// We should notify the frontend and give the worker another job,
+	// the monitor must have been notified by the worker
 	ASSERT_THAT(messages,
 		UnorderedElementsAre(
 					message_container(broker_connect::KEY_STATUS_NOTIFIER,
@@ -481,7 +483,8 @@ TEST(broker, worker_job_internal_failure)
 			broker_connect::KEY_WORKERS, worker_1->identity, {"done", "job_id", "INTERNAL_ERROR", "Blabla"}),
 		respond);
 
-	// An internal failure should result in the job being reassigned
+	// An internal failure should result in the job being reassigned,
+	// the monitor should have been notified by the worker
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(
 			broker_connect::KEY_WORKERS, worker_1->identity, {"eval", request_1->data.get_job_id()})));
@@ -520,6 +523,7 @@ TEST(broker, worker_orphan_job_internal_failure)
 		respond);
 
 	// We cannot reassign the job (we don't know its headers). Let's just report it as failed.
+	// The monitor should have been notified by the worker.
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
 			"",
@@ -559,9 +563,10 @@ TEST(broker, worker_expiration_reassign_job)
 	// The test code
 	broker_handler handler(config, workers, nullptr);
 
-	// Looks like our worker timed out - the other one should get its job
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 
+	// Looks like our worker timed out - the other one should get its job.
+	// We must notify the monitor - the worker might not have managed to do it.
 	ASSERT_THAT(messages,
 		UnorderedElementsAre(message_container(
 			broker_connect::KEY_WORKERS, worker_2->identity, {"eval", request_1->data.get_job_id(), "whatever"}),
@@ -597,7 +602,7 @@ TEST(broker, worker_expiration_dont_reassign_orphan_job)
 	broker_handler handler(config, workers, nullptr);
 
 	// Looks like our worker timed out - the other one cannot get its job because we don't know the job's headers.
-	// We'll report it as failed instead.
+	// We'll report it as failed instead. We must also notify the monitor.
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 
 	ASSERT_THAT(messages,
@@ -610,7 +615,10 @@ TEST(broker, worker_expiration_dont_reassign_orphan_job)
 				"status",
 				"FAILED",
 				"message",
-				"Worker timed out and its job cannot be reassigned"})));
+				"Worker timed out and its job cannot be reassigned"}),
+			message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY,
+				{request_1->data.get_job_id(), "FAILED"}
+		)));
 
 	messages.clear();
 }
@@ -642,9 +650,10 @@ TEST(broker, worker_expiration_cancel_job)
 	// The test code
 	broker_handler handler(config, workers, nullptr);
 
-	// Looks like our worker timed out and there's nobody to take its work
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 
+	// Looks like our worker timed out and there's nobody to take its work.
+	// We report it as failed and notify both frontend and monitor.
 	ASSERT_THAT(messages,
 		UnorderedElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
 			"",
