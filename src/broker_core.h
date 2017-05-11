@@ -120,6 +120,9 @@ private:
 	/** Pointer to task router (handles alive worker and routing tasks between them). */
 	std::shared_ptr<worker_registry> workers_;
 
+	/** Pointer to queue manager */
+	std::shared_ptr<queue_manager_interface> queue_;
+
 	/** Pointer to ZeroMQ context. */
 	std::shared_ptr<zmq::context_t> context_;
 

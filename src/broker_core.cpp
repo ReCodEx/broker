@@ -1,4 +1,5 @@
 #include "broker_core.h"
+#include "queuing/multi_queue_manager.h"
 
 broker_core::broker_core(std::vector<std::string> args)
 	: args_(args), config_filename_("config.yml"), logger_(nullptr), broker_(nullptr)
@@ -128,7 +129,8 @@ void broker_core::broker_init()
 	logger_->info("Initializing broker connection...");
 	workers_ = std::make_shared<worker_registry>();
 	context_ = std::make_shared<zmq::context_t>(1);
-	broker_ = std::make_shared<broker_connect>(config_, context_, workers_, logger_);
+	queue_ = std::make_shared<multi_queue_manager>();
+	broker_ = std::make_shared<broker_connect>(config_, context_, workers_, queue_, logger_);
 	logger_->info("Broker connection initialized.");
 }
 

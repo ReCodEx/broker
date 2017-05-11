@@ -3,6 +3,8 @@
 #include <ostream>
 
 #include "mocks.h"
+#include "../src/queuing/queue_manager_interface.h"
+#include "../src/queuing/multi_queue_manager.h"
 
 using namespace testing;
 
@@ -30,13 +32,14 @@ TEST(broker, worker_init)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// Run the tested method
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	handler.on_request(
 		message_container(broker_connect::KEY_WORKERS, "identity1", {"init", "group_1", "env=c", "threads=8"}),
@@ -62,13 +65,14 @@ TEST(broker, worker_init_additional_info)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// Run the tested method
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	handler.on_request(message_container(broker_connect::KEY_WORKERS,
 						   "identity1",
@@ -89,9 +93,9 @@ TEST(broker, worker_init_additional_info)
 
 	// Check the additional information
 	ASSERT_EQ("MyWorker", worker_1->description);
-	ASSERT_NE(nullptr, worker_1->get_current_request());
-	ASSERT_EQ("job_42", worker_1->get_current_request()->data.get_job_id());
-	ASSERT_FALSE(worker_1->get_current_request()->data.is_complete());
+	ASSERT_NE(nullptr, queue->get_current_request(worker_1));
+	ASSERT_EQ("job_42", queue->get_current_request(worker_1)->data.get_job_id());
+	ASSERT_FALSE(queue->get_current_request(worker_1)->data.is_complete());
 
 	// No responses should be generated
 	ASSERT_TRUE(messages.empty());
@@ -101,6 +105,7 @@ TEST(broker, worker_repeated_init_same_headers)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry
 	workers->add_worker(std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}}));
@@ -110,7 +115,7 @@ TEST(broker, worker_repeated_init_same_headers)
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// Run the tested method
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	handler.on_request(
 		message_container(broker_connect::KEY_WORKERS, "identity_1", {"init", "group_1", "env=c"}), respond);
@@ -134,17 +139,19 @@ TEST(broker, queuing)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	std::string client_id = "client_foo";
 
@@ -191,13 +198,14 @@ TEST(broker, ping_unknown_worker)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// A worker pings us
 	handler.on_request(message_container(broker_connect::KEY_WORKERS, "identity_1", {"ping"}), respond);
@@ -214,6 +222,7 @@ TEST(broker, ping_known_worker)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
@@ -224,7 +233,7 @@ TEST(broker, ping_known_worker)
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// A worker pings us
 	handler.on_request(message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"ping"}), respond);
@@ -239,21 +248,21 @@ TEST(broker, worker_expiration)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
-	ASSERT_TRUE(worker_1->next_request());
+	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1, request_1);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// Looks like our worker timed out and there's nobody to take its work
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
@@ -283,21 +292,21 @@ TEST(broker, worker_state_message)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1, request_1);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// We got a progress message from our worker
 	handler.on_request(
@@ -312,21 +321,21 @@ TEST(broker, worker_job_failed)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1, request_1);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// We got a message from our worker that says evaluation failed
 	handler.on_request(
@@ -347,23 +356,24 @@ TEST(broker, worker_job_failed_queueing)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry and it has two jobs
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id_1", {}));
 	auto request_2 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id_2", {}));
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
-	worker_1->enqueue_request(request_2);
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1);
+	queue->enqueue_request(request_1);
+	queue->enqueue_request(request_2);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// We got a message from our worker that says evaluation failed
 	handler.on_request(message_container(broker_connect::KEY_WORKERS,
@@ -395,21 +405,21 @@ TEST(broker, worker_job_done)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1, request_1);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// We got a message from our worker that says evaluation is done
 	handler.on_request(
@@ -427,21 +437,21 @@ TEST(broker, worker_orphan_job_done)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There is already a worker in the registry and it has a job whose headers don't know
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	auto request_1 = std::make_shared<request>(job_request_data("job_id"));
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1, request_1);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// We got a message from our worker that says evaluation is done
 	handler.on_request(
@@ -459,6 +469,7 @@ TEST(broker, worker_job_internal_failure)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	EXPECT_CALL(*config, get_max_request_failures()).WillRepeatedly(Return(10));
 
@@ -466,16 +477,15 @@ TEST(broker, worker_job_internal_failure)
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1, request_1);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// We got a message from our worker that says evaluation failed
 	handler.on_request(
@@ -498,6 +508,7 @@ TEST(broker, worker_orphan_job_internal_failure)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	EXPECT_CALL(*config, get_max_request_failures()).WillRepeatedly(Return(10));
 
@@ -505,16 +516,15 @@ TEST(broker, worker_orphan_job_internal_failure)
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	auto request_1 = std::make_shared<request>(job_request_data("job_id"));
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
+	queue->add_worker(worker_1, request_1);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// We got a message from our worker that says evaluation failed
 	handler.on_request(
@@ -543,6 +553,7 @@ TEST(broker, worker_expiration_reassign_job)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There are two workers in the registry, one of them has a job and will die
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
@@ -550,18 +561,18 @@ TEST(broker, worker_expiration_reassign_job)
 		std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {"whatever"}));
 	auto worker_2 = std::make_shared<worker>("identity_2", "group_1", worker_headers_t{{"env", "c"}});
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
 	worker_2->liveness = 100;
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
 	workers->add_worker(worker_2);
+	queue->add_worker(worker_1, request_1);
+	queue->add_worker(worker_2);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 
@@ -582,24 +593,25 @@ TEST(broker, worker_expiration_dont_reassign_orphan_job)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	// There are two workers in the registry, one of them has an orphan job and will die
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	auto request_1 = std::make_shared<request>(job_request_data("job_id"));
 	auto worker_2 = std::make_shared<worker>("identity_2", "group_1", worker_headers_t{{"env", "c"}});
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
 	worker_2->liveness = 100;
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
 	workers->add_worker(worker_2);
+	queue->add_worker(worker_1, request_1);
+	queue->add_worker(worker_2);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	// Looks like our worker timed out - the other one cannot get its job because we don't know the job's headers.
 	// We'll report it as failed instead. We must also notify the monitor.
@@ -627,6 +639,7 @@ TEST(broker, worker_expiration_cancel_job)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
 	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
 
 	EXPECT_CALL(*config, get_max_request_failures()).WillRepeatedly(Return(1));
 
@@ -637,18 +650,18 @@ TEST(broker, worker_expiration_cancel_job)
 	request_1->failure_count = 1;
 	auto worker_2 = std::make_shared<worker>("identity_2", "group_1", worker_headers_t{{"env", "c"}});
 	worker_1->liveness = 1;
-	worker_1->enqueue_request(request_1);
 	worker_2->liveness = 100;
-	ASSERT_TRUE(worker_1->next_request());
 	workers->add_worker(worker_1);
 	workers->add_worker(worker_2);
+	queue->add_worker(worker_1, request_1);
+	queue->add_worker(worker_2);
 
 	// Dummy response callback
 	std::vector<message_container> messages;
 	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
 
 	// The test code
-	broker_handler handler(config, workers, nullptr);
+	broker_handler handler(config, workers, queue, nullptr);
 
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 

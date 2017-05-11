@@ -47,13 +47,6 @@ public:
 	 */
 	virtual worker_ptr find_worker_by_identity(const std::string &identity);
 	/**
-	 * Reduce the priority of a worker so that it's less likely to be found by subsequent finds.
-	 * Now it means change order in worker queue to the last position, so most of the finds will
-	 * succeed earlier.
-	 * @param worker Instance of worker whose priority will be lowered.
-	 */
-	virtual void deprioritize_worker(worker_ptr worker);
-	/**
 	 * Get all workers known to this service.
 	 * @return Collection of all known workers.
 	 */

@@ -27,6 +27,8 @@ private:
 	std::shared_ptr<spdlog::logger> logger_;
 	/** Registry of connected and alive workers. */
 	std::shared_ptr<worker_registry> workers_;
+	/** Queue manager */
+	std::shared_ptr<queue_manager_interface> queue_;
 	/** A reactor that provides us with an event-based API to communicate with the clients and workers */
 	reactor reactor_;
 
@@ -53,11 +55,13 @@ public:
 	 * @param config a configuration object used to set up the connections
 	 * @param context ZeroMQ context
 	 * @param router A registry used to track workers and their jobs
+	 * @param queue A queue manager
 	 * @param logger
 	 */
 	broker_connect(std::shared_ptr<const broker_config> config,
 		std::shared_ptr<zmq::context_t> context,
 		std::shared_ptr<worker_registry> router,
+		std::shared_ptr<queue_manager_interface> queue,
 		std::shared_ptr<spdlog::logger> logger = nullptr);
 
 	/**

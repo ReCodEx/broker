@@ -157,15 +157,6 @@ private:
 	/** A copy of the headers used to instantiate the worker (used by comparison) */
 	const std::multimap<std::string, std::string> headers_copy_;
 
-	/** @a false if the worker is processing a request. */
-	bool free_;
-
-	/** A queue of requests to be processed by the worker. */
-	std::queue<request_ptr> request_queue_;
-
-	/** The request that is now being processed by the worker. */
-	request_ptr current_request_;
-
 public:
 	/** A unique identifier of the worker. */
 	const std::string identity;
@@ -205,42 +196,10 @@ public:
 	virtual bool check_header(const std::string &header, const std::string &value);
 
 	/**
-	 * Insert a request into the workers queue.
-	 * @param request A pointer to the request.
+	 * Check if the worker satisfies given header set.
+	 * @param headers A key-value set of headers
 	 */
-	virtual void enqueue_request(request_ptr request);
-
-	/**
-	 * Consider the current request complete.
-	 * Called when the actual worker machine successfully processes the request.
-	 */
-	virtual void complete_request();
-
-	/**
-	 * Consider the current request failed.
-	 * Called when the worker machine fails to process the request. The machine is then considered free.
-	 * @return a pointer to the cancelled request
-	 */
-	virtual request_ptr cancel_request();
-
-	/**
-	 * If possible, take a request from the queue and start processing it.
-	 * @return @a true if and only if the worker started processing a new request.
-	 */
-	virtual bool next_request();
-
-	/**
-	 * Get the request that is now being processed.
-	 * @return Pointer to currently processed request or @a nullptr.
-	 */
-	virtual std::shared_ptr<const request> get_current_request() const;
-
-	/**
-	 * Forget all requests (currently processed and queued).
-	 * Called when the worker is considered dead.
-	 * @return Current request and all requests from waiting queue.
-	 */
-	virtual std::shared_ptr<std::vector<request_ptr>> terminate();
+	virtual bool check_headers(const std::multimap<std::string, std::string> &headers);
 
 	/**
 	 * Get a textual description of the worker
