@@ -12,6 +12,8 @@ before_install:
   - sudo apt-get install -y libyaml-cpp0.5 libyaml-cpp-dev
   # Install libcURL
   - sudo apt-get install -y libcurl4-gnutls-dev
+  # Install coveralls uploader
+  - pip install --user cpp-coveralls
 
 install:
   - git submodule update --init
@@ -22,3 +24,6 @@ script:
   - cmake ..
   - make
   - ctest --output-on-failure
+after_success:
+  - cd ${TRAVIS_BUILD_DIR}
+  - coveralls -i src --gcov-options '\-lp'

@@ -15,11 +15,13 @@ set(LIBS
 	-lzmq
 	-lcurl
 	-lboost_system -lboost_filesystem
+	-lgcov --coverage
 )
 
 function(add_test_suite name)
 	add_executable(run_test_${name} ${ARGN})
 	target_link_libraries(run_test_${name} ${LIBS})
+	set_target_properties(run_test_${name} PROPERTIES COMPILE_FLAGS "-fprofile-arcs -ftest-coverage --coverage")
 	add_test(${name} run_test_${name})
 endfunction()
 
