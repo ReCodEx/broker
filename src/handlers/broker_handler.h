@@ -8,6 +8,7 @@
 #include "../reactor/command_holder.h"
 #include "../reactor/handler_interface.h"
 #include "../worker_registry.h"
+#include "../queuing/queue_manager_interface.h"
 
 /**
  * Processes requests from workers and clients and forwards them accordingly.
@@ -20,9 +21,8 @@ public:
 	 * @param workers worker registry (it's acceptable if it already contains some workers)
 	 * @param logger an optional logger
 	 */
-	broker_handler(std::shared_ptr<const broker_config> config,
-		std::shared_ptr<worker_registry> workers,
-		std::shared_ptr<spdlog::logger> logger);
+	broker_handler(std::shared_ptr<const broker_config> config, std::shared_ptr<worker_registry> workers,
+		       std::shared_ptr<queue_manager_interface> queue, std::shared_ptr<spdlog::logger> logger);
 
 	void on_request(const message_container &message, response_cb respond);
 
@@ -32,6 +32,9 @@ private:
 
 	/** Worker registry used for keeping track of workers and their jobs */
 	std::shared_ptr<worker_registry> workers_;
+
+	/** The queue manager */
+	std::shared_ptr<queue_manager_interface> queue_;
 
 	/** A system logger */
 	std::shared_ptr<spdlog::logger> logger_;
@@ -93,12 +96,13 @@ private:
 	bool reassign_request(worker::request_ptr request, response_cb respond);
 
 	/**
-	 * Give a worker a new job from the queue
-	 * @param worker the worker in need of a new job
+	 * Send a job to a worker
+	 * @param worker the worker in need of a new job (it must be free)
+	 * @param request the request
 	 * @param respond a callback to notify the worker about the reassigned job
 	 * @return true if a job was sent to the worker, false otherwise
 	 */
-	bool assign_queued_request(worker_registry::worker_ptr worker, response_cb respond);
+	void send_request(worker_registry::worker_ptr worker, request_ptr request, response_cb respond);
 
 	/**
 	 * Check if a request can be reassigned one more time and notify the frontend if not.

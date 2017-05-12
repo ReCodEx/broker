@@ -88,7 +88,7 @@ public:
 
 worker::worker(
 	const std::string &id, const std::string &hwgroup, const std::multimap<std::string, std::string> &headers)
-	: headers_copy_(headers), free_(true), current_request_(nullptr), identity(id), hwgroup(hwgroup)
+	: headers_copy_(headers), identity(id), hwgroup(hwgroup)
 {
 	headers_.emplace("hwgroup", std::unique_ptr<header_matcher>(new multiple_string_matcher(hwgroup)));
 
@@ -105,66 +105,6 @@ worker::worker(
 
 worker::~worker()
 {
-}
-
-void worker::enqueue_request(request_ptr request)
-{
-	request_queue_.push(request);
-}
-
-void worker::complete_request()
-{
-	free_ = true;
-	current_request_ = nullptr;
-}
-
-worker::request_ptr worker::cancel_request()
-{
-	auto request = current_request_;
-
-	if (request != nullptr) {
-		request->failure_count += 1;
-	}
-
-	complete_request();
-	return request;
-}
-
-bool worker::next_request()
-{
-	if (free_ && !request_queue_.empty()) {
-		current_request_ = request_queue_.front();
-		request_queue_.pop();
-		free_ = false;
-
-		return true;
-	}
-
-	return false;
-}
-
-std::shared_ptr<const request> worker::get_current_request() const
-{
-	return current_request_;
-}
-
-std::shared_ptr<std::vector<worker::request_ptr>> worker::terminate()
-{
-	auto result = std::make_shared<std::vector<worker::request_ptr>>();
-
-	if (current_request_ != nullptr) {
-		current_request_->failure_count += 1;
-		result->push_back(current_request_);
-	}
-
-	current_request_ = nullptr;
-
-	while (!request_queue_.empty()) {
-		result->push_back(request_queue_.front());
-		request_queue_.pop();
-	}
-
-	return result;
 }
 
 bool worker::check_header(const std::string &header, const std::string &value)
@@ -195,4 +135,14 @@ std::string worker::get_description() const
 	} else {
 		return helpers::string_to_hex(identity) + " (" + description + ")";
 	}
+}
+
+bool worker::check_headers(const std::multimap<std::string, std::string> &headers) {
+	for (auto &header : headers) {
+		if (!check_header(header.first, header.second)) {
+			return false;
+		}
+	}
+
+	return true;
 }

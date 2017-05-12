@@ -55,6 +55,9 @@ set(SOURCE_FILES
 	src/notifier/reactor_status_notifier.h
 	src/broker_connect.cpp
 	src/reactor/command_holder.cpp
+	src/queuing/queue_manager_interface.h
+	src/queuing/multi_queue_manager.cpp
+	src/queuing/multi_queue_manager.h
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})

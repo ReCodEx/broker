@@ -13,8 +13,9 @@ const std::string broker_connect::MONITOR_IDENTITY = "recodex-monitor";
 broker_connect::broker_connect(std::shared_ptr<const broker_config> config,
 	std::shared_ptr<zmq::context_t> context,
 	std::shared_ptr<worker_registry> router,
+	std::shared_ptr<queue_manager_interface> queue,
 	std::shared_ptr<spdlog::logger> logger)
-	: config_(config), logger_(logger), workers_(router), reactor_(context)
+	: config_(config), logger_(logger), workers_(router), reactor_(context), queue_(queue)
 {
 	if (logger_ == nullptr) {
 		logger_ = helpers::create_null_logger();
@@ -35,7 +36,7 @@ broker_connect::broker_connect(std::shared_ptr<const broker_config> config,
 	reactor_.add_socket(KEY_MONITOR, std::make_shared<router_socket_wrapper>(context, monitor_endpoint, false));
 
 	reactor_.add_handler(
-		{KEY_CLIENTS, KEY_WORKERS, KEY_TIMER}, std::make_shared<broker_handler>(config_, workers_, logger_));
+		{KEY_CLIENTS, KEY_WORKERS, KEY_TIMER}, std::make_shared<broker_handler>(config_, workers_, queue_, logger_));
 	reactor_.add_async_handler(
 		{KEY_STATUS_NOTIFIER}, std::make_shared<status_notifier_handler>(config_->get_notifier_config(), logger_));
 }

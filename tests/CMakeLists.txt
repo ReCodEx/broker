@@ -38,6 +38,13 @@ add_test_suite(worker_registry
 	${HELPERS_DIR}/string_to_hex.cpp
 )
 
+add_test_suite(multi_queue_manager
+	multi_queue_manager.cpp
+	${SRC_DIR}/queuing/multi_queue_manager.cpp
+    ${SRC_DIR}/worker.cpp
+    ${HELPERS_DIR}/string_to_hex.cpp
+)
+
 add_test_suite(broker
 	mocks.h
 	broker.cpp
@@ -57,6 +64,7 @@ add_test_suite(broker
 	${SRC_DIR}/reactor/router_socket_wrapper.cpp
 	${SRC_DIR}/reactor/command_holder.cpp
 	${SRC_DIR}/notifier/reactor_status_notifier.cpp
+    ${SRC_DIR}/queuing/multi_queue_manager.cpp
 )
 
 add_test_suite(worker
