@@ -1,6 +1,7 @@
 %define name recodex-broker
+%define short_name broker
 %define version 1.0.0
-%define unmangled_version 1.0.0
+%define unmangled_version a9e74cfa53995c2a4d74fc61210556a7318869fb
 %define release 3
 
 %define spdlog_name spdlog
@@ -21,16 +22,17 @@ Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
 
-Source0: %{name}-%{unmangled_version}.tar.gz
+#Source0: %{name}-%{unmangled_version}.tar.gz
+Source0: https://github.com/ReCodEx/%{short_name}/archive/%{unmangled_version}.tar.gz#/%{short_name}-%{unmangled_version}.tar.gz
 Source1: https://github.com/gabime/%{spdlog_name}/archive/v%{spdlog_version}.tar.gz#/%{spdlog_name}-%{spdlog_version}.tar.gz
 
 %description
 Backend part of ReCodEx programmer testing solution.
 
 %prep
-%setup -n %{name}-%{unmangled_version}
+%setup -n %{short_name}-%{unmangled_version}
 # Unpack spdlog to the right location
-%setup -n %{name}-%{unmangled_version} -T -D -a 1
+%setup -n %{short_name}-%{unmangled_version} -T -D -a 1
 rmdir vendor/spdlog
 mv -f %{spdlog_name}-%{spdlog_version} vendor/spdlog
 
