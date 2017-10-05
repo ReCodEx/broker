@@ -677,7 +677,8 @@ TEST(broker, worker_expiration_cancel_job)
 				"status",
 				"FAILED",
 				"message",
-				"Job was reassigned too many (1) times"}),
+				"Job was reassigned too many (1) times. Last failure message was: Worker timed out "
+					"and its job cannot be reassigned"}),
 				message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {
 					"job_id",
 					"FAILED"

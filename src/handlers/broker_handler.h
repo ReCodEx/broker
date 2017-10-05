@@ -108,10 +108,12 @@ private:
 	 * Check if a request can be reassigned one more time and notify the frontend if not.
 	 * @param request the request to be checked
 	 * @param status_notifier used to notify the frontend when the request doesn't pass the check
+	 * @param respond a callback to notify the monitor in case of failure
+	 * @param failure_msg a message describing the failure of the last request
 	 * @return true if the request can be reassigned, false otherwise
 	 */
 	bool check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier,
-				 response_cb respond);
+				 response_cb respond, const std::string &failure_msg);
 
 	/**
 	 * Notify the monitor about an error that might not have been reported by a worker

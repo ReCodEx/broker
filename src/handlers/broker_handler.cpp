@@ -263,7 +263,7 @@ void broker_handler::process_worker_done(
 		if (!failed_request->data.is_complete()) {
 			status_notifier.rejected_job(
 				failed_request->data.get_job_id(), "Job failed with '" + message.at(3) + "' and cannot be reassigned");
-		} else if (check_failure_count(failed_request, status_notifier, respond)) {
+		} else if (check_failure_count(failed_request, status_notifier, respond, message.at(3))) {
 			reassign_request(failed_request, respond);
 		} else {
 			auto new_request = queue_->assign_request(worker);
@@ -344,6 +344,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 	}
 
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
+	const static std::string failure_msg = "Worker timed out and its job cannot be reassigned";
 
 	for (auto worker : to_remove) {
 		logger_->info("Worker {} expired", worker->get_description());
@@ -355,13 +356,12 @@ void broker_handler::process_timer(const message_container &message, handler_int
 
 		for (auto request : *requests) {
 			if (!request->data.is_complete()) {
-				status_notifier.rejected_job(
-					request->data.get_job_id(), "Worker timed out and its job cannot be reassigned");
+				status_notifier.rejected_job(request->data.get_job_id(), failure_msg);
 				notify_monitor(request, "FAILED", respond);
 				continue;
 			}
 
-			if (!check_failure_count(request, status_notifier, respond)) {
+			if (!check_failure_count(request, status_notifier, respond, failure_msg)) {
 				continue;
 			}
 
@@ -413,11 +413,12 @@ void broker_handler::send_request(worker_registry::worker_ptr worker, request_pt
 }
 
 bool broker_handler::check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier,
-					 response_cb respond)
+					 response_cb respond, const std::string &failure_msg)
 {
 	if (request->failure_count >= config_->get_max_request_failures()) {
 		status_notifier.job_failed(request->data.get_job_id(),
-			"Job was reassigned too many (" + std::to_string(request->failure_count - 1) + ") times");
+			"Job was reassigned too many (" + std::to_string(request->failure_count - 1) + ") times. Last"
+				" failure message was: " + failure_msg);
 		notify_monitor(request, "FAILED", respond);
 		return false;
 	}
