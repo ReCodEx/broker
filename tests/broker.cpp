@@ -288,6 +288,33 @@ TEST(broker, worker_expiration)
 	messages.clear();
 }
 
+TEST(broker, worker_expiration_no_job)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
+
+	// There is already a worker in the registry and it has a job
+	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
+	worker_1->liveness = 1;
+	workers->add_worker(worker_1);
+
+	// Dummy response callback
+	std::vector<message_container> messages;
+	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
+
+	// The test code
+	broker_handler handler(config, workers, queue, nullptr);
+
+	// Looks like our worker timed out and there's nobody to take its work
+	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
+
+	// There is no job - no messages will be necessary
+	ASSERT_EQ(0, messages.size());
+
+	messages.clear();
+}
+
 TEST(broker, worker_state_message)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();

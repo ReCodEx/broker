@@ -350,7 +350,10 @@ void broker_handler::process_timer(const message_container &message, handler_int
 		logger_->info("Worker {} expired", worker->get_description());
 
 		workers_->remove_worker(worker);
-		queue_->get_current_request(worker)->failure_count += 1;
+		if (queue_->get_current_request(worker) != nullptr) {
+			queue_->get_current_request(worker)->failure_count += 1;
+		}
+		
 		auto requests = queue_->worker_terminated(worker);
 		std::vector<worker::request_ptr> unassigned_requests;
 
