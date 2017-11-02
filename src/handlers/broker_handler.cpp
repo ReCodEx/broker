@@ -20,6 +20,16 @@ broker_handler::broker_handler(std::shared_ptr<const broker_config> config, std:
 			process_client_get_runtime_stats(identity, message, respond);
 		});
 
+	client_commands_.register_command(
+		"freeze", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+			process_client_freeze(identity, message, respond);
+		});
+
+	client_commands_.register_command(
+		"unfreeze", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+			process_client_unfreeze(identity, message, respond);
+		});
+
 	worker_commands_.register_command(
 		"init", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
 			process_worker_init(identity, message, respond);
@@ -97,6 +107,13 @@ void broker_handler::process_client_eval(
 
 		headers.emplace(it->substr(0, pos), it->substr(pos + 1, value_size));
 		++it;
+	}
+
+	// If the broker is frozen, reject the request
+	if (is_frozen_) {
+		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject"}));
+		logger_->error("Request '{}' rejected. The broker is frozen.", job_id);
+		return;
 	}
 
 	// Create a job request object
@@ -489,4 +506,16 @@ void broker_handler::clear_runtime_stats() {
 	runtime_stats_.emplace(STATS_FAILED_JOBS, 0);
 	runtime_stats_.emplace(STATS_WORKER_COUNT, 0);
 	runtime_stats_.emplace(STATS_IDLE_WORKER_COUNT, 0);
+}
+
+void broker_handler::process_client_freeze(const std::string &identity, const std::vector<std::string> &message,
+					   handler_interface::response_cb respond) {
+	is_frozen_ = true;
+	logger_->info("The broker was frozen and will not accept any requests until it is restarted or unfrozen");
+}
+
+void broker_handler::process_client_unfreeze(const std::string &identity, const std::vector<std::string> &message,
+					     handler_interface::response_cb respond) {
+	is_frozen_ = false;
+	logger_->info("The broker was unfrozen and will now accept requests again");
 }

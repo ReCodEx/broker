@@ -194,6 +194,55 @@ TEST(broker, queuing)
 	messages.clear();
 }
 
+TEST(broker, freeze)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<multi_queue_manager>();
+
+	// There is already a worker in the registry
+	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
+	workers->add_worker(worker_1);
+	queue->add_worker(worker_1);
+
+	// Dummy response callback
+	std::vector<message_container> messages;
+	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
+
+	// The test code
+	broker_handler handler(config, workers, queue, nullptr);
+
+	std::string client_id = "client_foo";
+
+	// A client requests an evaluation
+	handler.on_request(
+		message_container(broker_connect::KEY_CLIENTS, client_id, {"eval", "job1", "env=c", "", "1", "2"}), respond);
+
+	// The job should be assigned to our worker immediately
+	ASSERT_THAT(messages,
+		UnorderedElementsAre(
+					message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"eval", "job1", "1", "2"}),
+					message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
+					message_container(broker_connect::KEY_CLIENTS, client_id, {"accept"})));
+
+	messages.clear();
+
+	// The broker is frozen
+	handler.on_request(message_container(broker_connect::KEY_CLIENTS, client_id, {"freeze"}), respond);
+	ASSERT_EQ(0, messages.size());
+
+	// The client requests another evaluation
+	handler.on_request(
+		message_container(broker_connect::KEY_CLIENTS, client_id, {"eval", "job2", "env=c", "", "1", "2"}), respond);
+
+	// The job should be rejected
+	ASSERT_THAT(messages,
+		ElementsAre(message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
+					message_container(broker_connect::KEY_CLIENTS, client_id, {"reject"})));
+
+	messages.clear();
+}
+
 TEST(broker, ping_unknown_worker)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();

@@ -61,6 +61,8 @@ private:
 	/** Handlers for commands received from the clients */
 	command_holder client_commands_;
 
+	bool is_frozen_ = false;
+
 	/**
 	 * Process an "init" request from a worker.
 	 * That means storing the identity and headers of the worker so that we can forward jobs to it.
@@ -103,6 +105,18 @@ private:
 	 */
 	void process_client_get_runtime_stats(const std::string &identity, const std::vector<std::string> &message,
 					      response_cb respond);
+
+	/**
+	 * Process a request to freeze the broker so that it doesn't accept any further requests
+	 */
+	void process_client_freeze(const std::string &identity, const std::vector<std::string> &message,
+				   response_cb respond);
+
+	/**
+	 * Process a request to unfreeze the broker so that it can accept requests once again
+	 */
+	void process_client_unfreeze(const std::string &identity, const std::vector<std::string> &message,
+				     response_cb respond);
 
 	/**
 	 * Process a message about elapsed time from the reactor.
