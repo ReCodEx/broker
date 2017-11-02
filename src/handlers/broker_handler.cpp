@@ -16,7 +16,7 @@ broker_handler::broker_handler(std::shared_ptr<const broker_config> config, std:
 		});
 
 	client_commands_.register_command(
-		"get-load-data", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+		"get-runtime-stats", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
 			process_client_get_runtime_stats(identity, message, respond);
 		});
 
