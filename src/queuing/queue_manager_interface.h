@@ -60,6 +60,11 @@ public:
 	virtual enqueue_result enqueue_request(request_ptr request) = 0;
 
 	/**
+	 * Get the total amount of queued requests
+	 */
+	virtual size_t get_queued_request_count() = 0;
+
+	/**
 	 * Get the request currently being processed by given worker
 	 */
 	virtual request_ptr get_current_request(worker_ptr worker) = 0;
