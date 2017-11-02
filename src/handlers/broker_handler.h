@@ -27,6 +27,16 @@ public:
 	void on_request(const message_container &message, response_cb respond);
 
 private:
+	const std::string STATS_QUEUED_JOBS = "queued-jobs";
+
+	const std::string STATS_EVALUATED_JOBS = "evaluated-jobs";
+
+	const std::string STATS_FAILED_JOBS = "failed-jobs";
+
+	const std::string STATS_WORKER_COUNT = "worker-count";
+
+	const std::string STATS_IDLE_WORKER_COUNT = "idle-worker-count";
+
 	/** Broker configuration */
 	std::shared_ptr<const broker_config> config_;
 
@@ -41,6 +51,9 @@ private:
 
 	/** Time since we last heard from each worker or decreased their liveness */
 	std::map<worker_registry::worker_ptr, std::chrono::milliseconds> worker_timers_;
+
+	/** Various statistics */
+	std::map<std::string, std::size_t> runtime_stats_;
 
 	/** Handlers for commands received from the workers */
 	command_holder worker_commands_;
@@ -79,6 +92,17 @@ private:
 	 * "accept" or "reject" message is send back to client.
 	 */
 	void process_client_eval(const std::string &identity, const std::vector<std::string> &message, response_cb respond);
+
+	/**
+	 * Initialize all runtime statistics to their initial values
+	 */
+	void clear_runtime_stats();
+
+	/**
+	 * Process a request for data about system load.
+	 */
+	void process_client_get_runtime_stats(const std::string &identity, const std::vector<std::string> &message,
+					      response_cb respond);
 
 	/**
 	 * Process a message about elapsed time from the reactor.
