@@ -2,9 +2,11 @@
 #include "../broker_connect.h"
 #include "../notifier/reactor_status_notifier.h"
 
-broker_handler::broker_handler(std::shared_ptr<const broker_config> config, std::shared_ptr<worker_registry> workers,
-			       std::shared_ptr<queue_manager_interface> queue, std::shared_ptr<spdlog::logger> logger)
-	: config_(config), workers_(workers), logger_(logger), queue_(queue)
+broker_handler::broker_handler(std::shared_ptr<const broker_config> config,
+	std::shared_ptr<worker_registry> workers,
+	std::shared_ptr<queue_manager_interface> queue,
+	std::shared_ptr<spdlog::logger> logger)
+	: config_(config), workers_(workers), queue_(queue), logger_(logger)
 {
 	if (logger_ == nullptr) {
 		logger_ = helpers::create_null_logger();
@@ -15,8 +17,8 @@ broker_handler::broker_handler(std::shared_ptr<const broker_config> config, std:
 			process_client_eval(identity, message, respond);
 		});
 
-	client_commands_.register_command(
-		"get-runtime-stats", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+	client_commands_.register_command("get-runtime-stats",
+		[this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
 			process_client_get_runtime_stats(identity, message, respond);
 		});
 
@@ -383,7 +385,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 		if (queue_->get_current_request(worker) != nullptr) {
 			queue_->get_current_request(worker)->failure_count += 1;
 		}
-		
+
 		auto requests = queue_->worker_terminated(worker);
 		std::vector<worker::request_ptr> unassigned_requests;
 
@@ -419,7 +421,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 	runtime_stats_[STATS_WORKER_COUNT] = workers_->get_workers().size();
 
 	runtime_stats_[STATS_IDLE_WORKER_COUNT] = 0;
-	for (auto &worker: workers_->get_workers()) {
+	for (auto &worker : workers_->get_workers()) {
 		if (!queue_->get_current_request(worker)) {
 			runtime_stats_[STATS_IDLE_WORKER_COUNT] += 1;
 		}
@@ -449,19 +451,20 @@ bool broker_handler::reassign_request(worker::request_ptr request, handler_inter
 
 void broker_handler::send_request(worker_registry::worker_ptr worker, request_ptr request, response_cb respond)
 {
-	respond(message_container(
-		broker_connect::KEY_WORKERS, worker->identity, request->data.get()));
-	logger_->debug(
-		" - job {} sent to worker {}", request->data.get_job_id(), worker->get_description());
+	respond(message_container(broker_connect::KEY_WORKERS, worker->identity, request->data.get()));
+	logger_->debug(" - job {} sent to worker {}", request->data.get_job_id(), worker->get_description());
 }
 
-bool broker_handler::check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier,
-					 response_cb respond, const std::string &failure_msg)
+bool broker_handler::check_failure_count(worker::request_ptr request,
+	status_notifier_interface &status_notifier,
+	response_cb respond,
+	const std::string &failure_msg)
 {
 	if (request->failure_count >= config_->get_max_request_failures()) {
 		status_notifier.job_failed(request->data.get_job_id(),
 			"Job was reassigned too many (" + std::to_string(request->failure_count - 1) + ") times. Last"
-				" failure message was: " + failure_msg);
+																						   " failure message was: " +
+				failure_msg);
 		notify_monitor(request, "FAILED", respond);
 		return false;
 	}
@@ -469,28 +472,26 @@ bool broker_handler::check_failure_count(worker::request_ptr request, status_not
 	return true;
 }
 
-void broker_handler::notify_monitor(worker::request_ptr request, const std::string &message,
-				    handler_interface::response_cb respond) {
+void broker_handler::notify_monitor(
+	worker::request_ptr request, const std::string &message, handler_interface::response_cb respond)
+{
 	notify_monitor(request->data.get_job_id(), message, respond);
 }
 
-void broker_handler::notify_monitor(const std::string &job_id, const std::string &message,
-				    handler_interface::response_cb respond) {
-	respond(message_container(
-		broker_connect::KEY_MONITOR,
-		broker_connect::MONITOR_IDENTITY,
-		{job_id, message}
-	));
+void broker_handler::notify_monitor(
+	const std::string &job_id, const std::string &message, handler_interface::response_cb respond)
+{
+	respond(message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {job_id, message}));
 }
 
-void broker_handler::process_client_get_runtime_stats(const std::string &identity,
-						      const std::vector<std::string> &message,
-						      handler_interface::response_cb respond) {
+void broker_handler::process_client_get_runtime_stats(
+	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
+{
 	message_container response;
 	response.key = broker_connect::KEY_CLIENTS;
 	response.identity = identity;
-	
-	for (auto &pair: runtime_stats_) {
+
+	for (auto &pair : runtime_stats_) {
 		response.data.push_back(pair.first);
 		response.data.push_back(std::to_string(pair.second));
 	}
@@ -499,7 +500,8 @@ void broker_handler::process_client_get_runtime_stats(const std::string &identit
 	clear_runtime_stats();
 }
 
-void broker_handler::clear_runtime_stats() {
+void broker_handler::clear_runtime_stats()
+{
 	runtime_stats_.clear();
 	runtime_stats_.emplace(STATS_QUEUED_JOBS, 0);
 	runtime_stats_.emplace(STATS_EVALUATED_JOBS, 0);
@@ -508,14 +510,16 @@ void broker_handler::clear_runtime_stats() {
 	runtime_stats_.emplace(STATS_IDLE_WORKER_COUNT, 0);
 }
 
-void broker_handler::process_client_freeze(const std::string &identity, const std::vector<std::string> &message,
-					   handler_interface::response_cb respond) {
+void broker_handler::process_client_freeze(
+	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
+{
 	is_frozen_ = true;
 	logger_->info("The broker was frozen and will not accept any requests until it is restarted or unfrozen");
 }
 
-void broker_handler::process_client_unfreeze(const std::string &identity, const std::vector<std::string> &message,
-					     handler_interface::response_cb respond) {
+void broker_handler::process_client_unfreeze(
+	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
+{
 	is_frozen_ = false;
 	logger_->info("The broker was unfrozen and will now accept requests again");
 }

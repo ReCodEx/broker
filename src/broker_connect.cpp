@@ -15,7 +15,7 @@ broker_connect::broker_connect(std::shared_ptr<const broker_config> config,
 	std::shared_ptr<worker_registry> router,
 	std::shared_ptr<queue_manager_interface> queue,
 	std::shared_ptr<spdlog::logger> logger)
-	: config_(config), logger_(logger), workers_(router), reactor_(context), queue_(queue)
+	: config_(config), logger_(logger), workers_(router), queue_(queue), reactor_(context)
 {
 	if (logger_ == nullptr) {
 		logger_ = helpers::create_null_logger();

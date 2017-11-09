@@ -10,8 +10,7 @@ typedef worker::request_ptr request_ptr;
 /**
  * Describes the result of an enqueue operation
  */
-struct enqueue_result
-{
+struct enqueue_result {
 	/**
 	 * The worker to which the request was assigned (if any)
 	 */
@@ -87,4 +86,4 @@ public:
 	virtual request_ptr worker_cancelled(worker_ptr worker) = 0;
 };
 
-#endif //RECODEX_BROKER_QUEUE_MANAGER_INTERFACE_HPP
+#endif // RECODEX_BROKER_QUEUE_MANAGER_INTERFACE_HPP

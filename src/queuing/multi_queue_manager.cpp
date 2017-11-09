@@ -28,7 +28,7 @@ std::shared_ptr<std::vector<request_ptr>> multi_queue_manager::worker_terminated
 	return result;
 }
 
-enqueue_result multi_queue_manager::enqueue_request (request_ptr request)
+enqueue_result multi_queue_manager::enqueue_request(request_ptr request)
 {
 	enqueue_result result;
 	result.enqueued = false;
@@ -64,7 +64,7 @@ enqueue_result multi_queue_manager::enqueue_request (request_ptr request)
 	return result;
 }
 
-request_ptr multi_queue_manager::worker_finished (worker_ptr worker)
+request_ptr multi_queue_manager::worker_finished(worker_ptr worker)
 {
 	current_requests_[worker] = nullptr;
 
@@ -112,7 +112,7 @@ size_t multi_queue_manager::get_queued_request_count()
 {
 	size_t result = 0;
 
-	for (auto &pair: queues_) {
+	for (auto &pair : queues_) {
 		result += pair.second.size();
 	}
 

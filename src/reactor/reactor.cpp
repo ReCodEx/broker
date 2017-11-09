@@ -154,8 +154,8 @@ asynchronous_handler_wrapper::asynchronous_handler_wrapper(zmq::context_t &conte
 	zmq::socket_t &async_handler_socket,
 	reactor &reactor_ref,
 	std::shared_ptr<handler_interface> handler)
-	: handler_wrapper(reactor_ref, handler), context_(context),
-	  reactor_socket_(async_handler_socket), unique_id_(std::to_string((uintptr_t) this))
+	: handler_wrapper(reactor_ref, handler), context_(context), reactor_socket_(async_handler_socket),
+	  unique_id_(std::to_string((uintptr_t) this))
 {
 	worker_ = std::thread([this]() { handler_thread(); });
 }

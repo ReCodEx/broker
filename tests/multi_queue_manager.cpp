@@ -1,8 +1,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "../src/worker.h"
 #include "../src/queuing/multi_queue_manager.h"
+#include "../src/worker.h"
 
 using namespace testing;
 

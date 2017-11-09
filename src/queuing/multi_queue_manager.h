@@ -1,8 +1,8 @@
 #ifndef RECODEX_BROKER_MULTI_QUEUE_MANAGER_HPP
 #define RECODEX_BROKER_MULTI_QUEUE_MANAGER_HPP
 
-#include <list>
 #include "queue_manager_interface.h"
+#include <list>
 
 /**
  * Manages a separate request queue for every worker
@@ -13,6 +13,7 @@ private:
 	std::map<worker_ptr, std::queue<request_ptr>> queues_;
 	std::map<worker_ptr, request_ptr> current_requests_;
 	std::list<worker_ptr> worker_queue_;
+
 public:
 	virtual ~multi_queue_manager();
 	virtual request_ptr add_worker(worker_ptr worker, request_ptr current_request = nullptr);
@@ -26,4 +27,4 @@ public:
 };
 
 
-#endif //RECODEX_BROKER_MULTI_QUEUE_MANAGER_HPP
+#endif // RECODEX_BROKER_MULTI_QUEUE_MANAGER_HPP

@@ -2,9 +2,9 @@
 #include <gtest/gtest.h>
 #include <ostream>
 
-#include "mocks.h"
-#include "../src/queuing/queue_manager_interface.h"
 #include "../src/queuing/multi_queue_manager.h"
+#include "../src/queuing/queue_manager_interface.h"
+#include "mocks.h"
 
 using namespace testing;
 
@@ -162,9 +162,9 @@ TEST(broker, queuing)
 	// The job should be assigned to our worker immediately
 	ASSERT_THAT(messages,
 		UnorderedElementsAre(
-					message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"eval", "job1", "1", "2"}),
-					message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
-					message_container(broker_connect::KEY_CLIENTS, client_id, {"accept"})));
+			message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"eval", "job1", "1", "2"}),
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"accept"})));
 
 	messages.clear();
 
@@ -175,7 +175,7 @@ TEST(broker, queuing)
 	// The job should be accepted, but not sent to our worker
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
-					message_container(broker_connect::KEY_CLIENTS, client_id, {"accept"})));
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"accept"})));
 
 	messages.clear();
 
@@ -184,8 +184,7 @@ TEST(broker, queuing)
 		message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"done", "job1", "OK"}), respond);
 
 	// ...and it should get more work immediately
-	ASSERT_THAT(
-		messages,
+	ASSERT_THAT(messages,
 		UnorderedElementsAre(
 			message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"eval", "job2", "1", "2"}),
 			message_container(
@@ -221,15 +220,15 @@ TEST(broker, freeze)
 	// The job should be assigned to our worker immediately
 	ASSERT_THAT(messages,
 		UnorderedElementsAre(
-					message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"eval", "job1", "1", "2"}),
-					message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
-					message_container(broker_connect::KEY_CLIENTS, client_id, {"accept"})));
+			message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"eval", "job1", "1", "2"}),
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"accept"})));
 
 	messages.clear();
 
 	// The broker is frozen
 	handler.on_request(message_container(broker_connect::KEY_CLIENTS, client_id, {"freeze"}), respond);
-	ASSERT_EQ(0, messages.size());
+	ASSERT_EQ(0u, messages.size());
 
 	// The client requests another evaluation
 	handler.on_request(
@@ -238,7 +237,7 @@ TEST(broker, freeze)
 	// The job should be rejected
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
-					message_container(broker_connect::KEY_CLIENTS, client_id, {"reject"})));
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"reject"})));
 
 	messages.clear();
 }
@@ -318,21 +317,17 @@ TEST(broker, worker_expiration)
 
 	// We must notify the frontend and also the monitor
 	ASSERT_THAT(messages,
-		UnorderedElementsAre(
-			message_container(broker_connect::KEY_STATUS_NOTIFIER,
-			"",
-			{"type",
-				"job-status",
-				"id",
-				"job_id",
-				"status",
-				"FAILED",
-				"message",
-				"Worker " + worker_1->get_description() + " dieded"}),
-			message_container(broker_connect::KEY_MONITOR,
-			broker_connect::MONITOR_IDENTITY,
-			{"job_id", "FAILED" }
-			)));
+		UnorderedElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
+								 "",
+								 {"type",
+									 "job-status",
+									 "id",
+									 "job_id",
+									 "status",
+									 "FAILED",
+									 "message",
+									 "Worker " + worker_1->get_description() + " dieded"}),
+			message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {"job_id", "FAILED"})));
 
 	messages.clear();
 }
@@ -359,7 +354,7 @@ TEST(broker, worker_expiration_no_job)
 	handler.on_request(message_container(broker_connect::KEY_TIMER, "", {"1100"}), respond);
 
 	// There is no job - no messages will be necessary
-	ASSERT_EQ(0, messages.size());
+	ASSERT_EQ(0u, messages.size());
 
 	messages.clear();
 }
@@ -460,19 +455,18 @@ TEST(broker, worker_job_failed_queueing)
 	// We should notify the frontend and give the worker another job,
 	// the monitor must have been notified by the worker
 	ASSERT_THAT(messages,
-		UnorderedElementsAre(
-					message_container(broker_connect::KEY_STATUS_NOTIFIER,
-						"",
-						{"type",
-							"job-status",
-							"id",
-							request_1->data.get_job_id(),
-							"status",
-							"FAILED",
-							"message",
-							"Testing failure"}),
-					message_container(
-						broker_connect::KEY_WORKERS, worker_1->identity, {"eval", request_2->data.get_job_id()})));
+		UnorderedElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
+								 "",
+								 {"type",
+									 "job-status",
+									 "id",
+									 request_1->data.get_job_id(),
+									 "status",
+									 "FAILED",
+									 "message",
+									 "Testing failure"}),
+			message_container(
+				broker_connect::KEY_WORKERS, worker_1->identity, {"eval", request_2->data.get_job_id()})));
 
 	messages.clear();
 }
@@ -655,10 +649,10 @@ TEST(broker, worker_expiration_reassign_job)
 	// Looks like our worker timed out - the other one should get its job.
 	// We must notify the monitor - the worker might not have managed to do it.
 	ASSERT_THAT(messages,
-		UnorderedElementsAre(message_container(
-			broker_connect::KEY_WORKERS, worker_2->identity, {"eval", request_1->data.get_job_id(), "whatever"}),
-				     message_container(
-			broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {"job_id", "ABORTED"})));
+		UnorderedElementsAre(
+			message_container(
+				broker_connect::KEY_WORKERS, worker_2->identity, {"eval", request_1->data.get_job_id(), "whatever"}),
+			message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {"job_id", "ABORTED"})));
 
 	ASSERT_EQ(1u, request_1->failure_count);
 
@@ -695,18 +689,18 @@ TEST(broker, worker_expiration_dont_reassign_orphan_job)
 
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
-			"",
-			{"type",
-				"job-status",
-				"id",
-				request_1->data.get_job_id(),
-				"status",
-				"FAILED",
-				"message",
-				"Worker timed out and its job cannot be reassigned"}),
-			message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY,
-				{request_1->data.get_job_id(), "FAILED"}
-		)));
+						"",
+						{"type",
+							"job-status",
+							"id",
+							request_1->data.get_job_id(),
+							"status",
+							"FAILED",
+							"message",
+							"Worker timed out and its job cannot be reassigned"}),
+			message_container(broker_connect::KEY_MONITOR,
+				broker_connect::MONITOR_IDENTITY,
+				{request_1->data.get_job_id(), "FAILED"})));
 
 	messages.clear();
 }
@@ -744,21 +738,19 @@ TEST(broker, worker_expiration_cancel_job)
 	// Looks like our worker timed out and there's nobody to take its work.
 	// We report it as failed and notify both frontend and monitor.
 	ASSERT_THAT(messages,
-		UnorderedElementsAre(message_container(broker_connect::KEY_STATUS_NOTIFIER,
-			"",
-			{"type",
-				"job-status",
-				"id",
-				"job_id",
-				"status",
-				"FAILED",
-				"message",
-				"Job was reassigned too many (1) times. Last failure message was: Worker timed out "
-					"and its job cannot be reassigned"}),
-				message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {
+		UnorderedElementsAre(
+			message_container(broker_connect::KEY_STATUS_NOTIFIER,
+				"",
+				{"type",
+					"job-status",
+					"id",
 					"job_id",
-					"FAILED"
-				})));
+					"status",
+					"FAILED",
+					"message",
+					"Job was reassigned too many (1) times. Last failure message was: Worker timed out "
+					"and its job cannot be reassigned"}),
+			message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {"job_id", "FAILED"})));
 
 	messages.clear();
 }

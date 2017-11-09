@@ -5,10 +5,10 @@
 
 #include "../config/broker_config.h"
 #include "../notifier/status_notifier.h"
+#include "../queuing/queue_manager_interface.h"
 #include "../reactor/command_holder.h"
 #include "../reactor/handler_interface.h"
 #include "../worker_registry.h"
-#include "../queuing/queue_manager_interface.h"
 
 /**
  * Processes requests from workers and clients and forwards them accordingly.
@@ -21,8 +21,10 @@ public:
 	 * @param workers worker registry (it's acceptable if it already contains some workers)
 	 * @param logger an optional logger
 	 */
-	broker_handler(std::shared_ptr<const broker_config> config, std::shared_ptr<worker_registry> workers,
-		       std::shared_ptr<queue_manager_interface> queue, std::shared_ptr<spdlog::logger> logger);
+	broker_handler(std::shared_ptr<const broker_config> config,
+		std::shared_ptr<worker_registry> workers,
+		std::shared_ptr<queue_manager_interface> queue,
+		std::shared_ptr<spdlog::logger> logger);
 
 	void on_request(const message_container &message, response_cb respond);
 
@@ -103,20 +105,20 @@ private:
 	/**
 	 * Process a request for data about system load.
 	 */
-	void process_client_get_runtime_stats(const std::string &identity, const std::vector<std::string> &message,
-					      response_cb respond);
+	void process_client_get_runtime_stats(
+		const std::string &identity, const std::vector<std::string> &message, response_cb respond);
 
 	/**
 	 * Process a request to freeze the broker so that it doesn't accept any further requests
 	 */
-	void process_client_freeze(const std::string &identity, const std::vector<std::string> &message,
-				   response_cb respond);
+	void process_client_freeze(
+		const std::string &identity, const std::vector<std::string> &message, response_cb respond);
 
 	/**
 	 * Process a request to unfreeze the broker so that it can accept requests once again
 	 */
-	void process_client_unfreeze(const std::string &identity, const std::vector<std::string> &message,
-				     response_cb respond);
+	void process_client_unfreeze(
+		const std::string &identity, const std::vector<std::string> &message, response_cb respond);
 
 	/**
 	 * Process a message about elapsed time from the reactor.
@@ -150,8 +152,10 @@ private:
 	 * @param failure_msg a message describing the failure of the last request
 	 * @return true if the request can be reassigned, false otherwise
 	 */
-	bool check_failure_count(worker::request_ptr request, status_notifier_interface &status_notifier,
-				 response_cb respond, const std::string &failure_msg);
+	bool check_failure_count(worker::request_ptr request,
+		status_notifier_interface &status_notifier,
+		response_cb respond,
+		const std::string &failure_msg);
 
 	/**
 	 * Notify the monitor about an error that might not have been reported by a worker

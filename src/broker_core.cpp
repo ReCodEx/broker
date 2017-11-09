@@ -100,10 +100,8 @@ void broker_core::log_init()
 	// Create and register logger
 	try {
 		// Create multithreaded rotating file sink. Max filesize is 1024 * 1024 and we save 5 newest files.
-		auto rotating_sink =
-			std::make_shared<spdlog::sinks::rotating_file_sink_mt>((path / log_conf.log_basename).string(),
-				log_conf.log_file_size,
-				log_conf.log_files_count);
+		auto rotating_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+			(path / log_conf.log_basename).string(), log_conf.log_file_size, log_conf.log_files_count);
 		// Set queue size for asynchronous logging. It must be a power of 2. Also, flush every second.
 		spdlog::set_async_mode(1048576, spdlog::async_overflow_policy::block_retry, nullptr, std::chrono::seconds(1));
 		// Make log with name "logger"

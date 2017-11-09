@@ -137,7 +137,8 @@ std::string worker::get_description() const
 	}
 }
 
-bool worker::check_headers(const std::multimap<std::string, std::string> &headers) {
+bool worker::check_headers(const std::multimap<std::string, std::string> &headers)
+{
 	for (auto &header : headers) {
 		if (!check_header(header.first, header.second)) {
 			return false;
