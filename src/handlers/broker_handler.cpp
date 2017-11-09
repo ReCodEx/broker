@@ -80,7 +80,10 @@ void broker_handler::on_request(const message_container &message, response_cb re
 void broker_handler::process_client_eval(
 	const std::string &identity, const std::vector<std::string> &message, response_cb respond)
 {
-	// At first, let client know that we are alive and well
+	// first let us know that message arrived (logging moved from main loop)
+	logger_->info("Received message 'eval' from clients");
+
+	// Then let client know that we are alive and well
 	respond(message_container(broker_connect::KEY_CLIENTS, identity, {"ack"}));
 
 	// Get job identification and parse headers
@@ -155,7 +158,7 @@ void broker_handler::process_worker_init(
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
 	// first let us know that message arrived (logging moved from main loop)
-	logger_->debug("Received message 'init' from workers");
+	logger_->info("Received message 'init' from workers");
 
 	// There must be at least one argument
 	if (message.size() < 2) {
@@ -239,7 +242,7 @@ void broker_handler::process_worker_done(
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
 	// first let us know that message arrived (logging moved from main loop)
-	logger_->debug("Received message 'done' from workers");
+	logger_->info("Received message 'done' from workers");
 
 	worker_registry::worker_ptr worker = workers_->find_worker_by_identity(identity);
 
