@@ -15,7 +15,7 @@ if __name__ == "__main__":
         print("failed.type DERIVE")
         print("failed.min 0")
         print("queued.label Jobs in queue")
-        print("queued.type DERIVE")
+        print("queued.type GAUGE")
         print("queued.min 0")
         sys.exit(0)
 
