@@ -12,13 +12,19 @@ broker_handler::broker_handler(std::shared_ptr<const broker_config> config,
 		logger_ = helpers::create_null_logger();
 	}
 
+	runtime_stats_.emplace(STATS_QUEUED_JOBS, 0);
+	runtime_stats_.emplace(STATS_EVALUATED_JOBS, 0);
+	runtime_stats_.emplace(STATS_FAILED_JOBS, 0);
+	runtime_stats_.emplace(STATS_WORKER_COUNT, 0);
+	runtime_stats_.emplace(STATS_IDLE_WORKER_COUNT, 0);
+
 	client_commands_.register_command(
 		"eval", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
 			process_client_eval(identity, message, respond);
 		});
 
-	client_commands_.register_command("get-runtime-stats",
-		[this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+	client_commands_.register_command(
+		"get-runtime-stats", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
 			process_client_get_runtime_stats(identity, message, respond);
 		});
 
@@ -51,8 +57,6 @@ broker_handler::broker_handler(std::shared_ptr<const broker_config> config,
 		"progress", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
 			process_worker_progress(identity, message, respond);
 		});
-
-	clear_runtime_stats();
 }
 
 void broker_handler::on_request(const message_container &message, response_cb respond)
@@ -429,6 +433,9 @@ void broker_handler::process_timer(const message_container &message, handler_int
 			runtime_stats_[STATS_IDLE_WORKER_COUNT] += 1;
 		}
 	}
+
+	runtime_stats_[STATS_JOBS_IN_PROGRESS] =
+		runtime_stats_[STATS_WORKER_COUNT] - runtime_stats_[STATS_IDLE_WORKER_COUNT];
 }
 
 bool broker_handler::reassign_request(worker::request_ptr request, handler_interface::response_cb respond)
@@ -500,17 +507,6 @@ void broker_handler::process_client_get_runtime_stats(
 	}
 
 	respond(response);
-	clear_runtime_stats();
-}
-
-void broker_handler::clear_runtime_stats()
-{
-	runtime_stats_.clear();
-	runtime_stats_.emplace(STATS_QUEUED_JOBS, 0);
-	runtime_stats_.emplace(STATS_EVALUATED_JOBS, 0);
-	runtime_stats_.emplace(STATS_FAILED_JOBS, 0);
-	runtime_stats_.emplace(STATS_WORKER_COUNT, 0);
-	runtime_stats_.emplace(STATS_IDLE_WORKER_COUNT, 0);
 }
 
 void broker_handler::process_client_freeze(

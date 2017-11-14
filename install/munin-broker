@@ -9,8 +9,14 @@ if __name__ == "__main__":
         print("graph_vlabel jobs")
         print("graph_category broker")
         print("evaluated.label Jobs evaluated")
+        print("evaluated.type DERIVE")
+        print("evaluated.min 0")
         print("failed.label Failed jobs")
+        print("failed.type DERIVE")
+        print("failed.min 0")
         print("queued.label Jobs in queue")
+        print("queued.type DERIVE")
+        print("queued.min 0")
         sys.exit(0)
 
     broker_address = "tcp://127.0.0.1:9658"

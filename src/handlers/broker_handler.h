@@ -33,6 +33,8 @@ private:
 
 	const std::string STATS_EVALUATED_JOBS = "evaluated-jobs";
 
+	const std::string STATS_JOBS_IN_PROGRESS = "jobs-in-progress";
+
 	const std::string STATS_FAILED_JOBS = "failed-jobs";
 
 	const std::string STATS_WORKER_COUNT = "worker-count";
@@ -96,11 +98,6 @@ private:
 	 * "accept" or "reject" message is send back to client.
 	 */
 	void process_client_eval(const std::string &identity, const std::vector<std::string> &message, response_cb respond);
-
-	/**
-	 * Initialize all runtime statistics to their initial values
-	 */
-	void clear_runtime_stats();
 
 	/**
 	 * Process a request for data about system load.
