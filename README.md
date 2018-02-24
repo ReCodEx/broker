@@ -6,6 +6,21 @@
 [![Wiki](https://img.shields.io/badge/docs-wiki-orange.svg)](https://github.com/ReCodEx/wiki/wiki)
 [![COPR](https://copr.fedorainfracloud.org/coprs/semai/ReCodEx/package/recodex-broker/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/semai/ReCodEx/)
 
+The broker is a central part of the ReCodEx backend that directs most of the
+communication. It was designed to maintain a heavy load of messages by making
+only small actions in the main communication thread and asynchronous execution
+of other actions.
+
+The responsibilities of broker are:
+
+- allowing workers to register themselves and keep track of their capabilities
+- tracking status of each worker and handle cases when they crash
+- accepting assignment evaluation requests from the frontend and forwarding them
+  to workers
+- receiving a job status information from workers and forward them to the
+  frontend either via monitor or REST API
+- notifying the frontend on errors of the backend
+
 ## Installation
 
 ### COPR Installation
@@ -13,9 +28,9 @@
 Follows description for CentOS which will do all steps as described in _Manual Installation_.
 
 ```
-$ yum install yum-plugin-copr
-$ yum copr enable semai/ReCodEx
-$ yum install recodex-broker
+# yum install yum-plugin-copr
+# yum copr enable semai/ReCodEx
+# yum install recodex-broker
 ```
 
 ### Manual Installation
@@ -160,4 +175,4 @@ logger:
 
 ## Documentation
 
-Feel free to read the documentation on [our wiki](https://github.com/ReCodEx/wiki/wiki/Broker).
+Feel free to read the documentation on [our wiki](https://github.com/ReCodEx/wiki/wiki).
