@@ -4,6 +4,7 @@
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://badges.mit-license.org)
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://recodex.github.io/broker/)
 [![Wiki](https://img.shields.io/badge/docs-wiki-orange.svg)](https://github.com/ReCodEx/wiki/wiki)
+[![GitHub release](https://img.shields.io/github/release/recodex/broker.svg)](https://github.com/ReCodEx/wiki/wiki/Changelog)
 [![COPR](https://copr.fedorainfracloud.org/coprs/semai/ReCodEx/package/recodex-broker/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/semai/ReCodEx/)
 
 The broker is a central part of the ReCodEx backend that directs most of the
