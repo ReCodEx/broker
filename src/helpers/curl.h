@@ -94,7 +94,7 @@ namespace helpers
 		/** Describes circumstances which lead to throwing this exception. */
 		std::string what_;
 	};
-}
+} // namespace helpers
 
 
 #endif // RECODEX_BROKER_HELPERS_CURL_H

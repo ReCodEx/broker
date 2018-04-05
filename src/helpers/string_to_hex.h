@@ -13,7 +13,7 @@ namespace helpers
 	 * @return textual description of hexadecimal characters from given string
 	 */
 	std::string string_to_hex(const std::string &string);
-}
+} // namespace helpers
 
 
 #endif // RECODEX_BROKER_STRING_TO_HEX_H

@@ -23,8 +23,8 @@ broker_handler::broker_handler(std::shared_ptr<const broker_config> config,
 			process_client_eval(identity, message, respond);
 		});
 
-	client_commands_.register_command(
-		"get-runtime-stats", [this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
+	client_commands_.register_command("get-runtime-stats",
+		[this](const std::string &identity, const std::vector<std::string> &message, response_cb respond) {
 			process_client_get_runtime_stats(identity, message, respond);
 		});
 
@@ -472,9 +472,8 @@ bool broker_handler::check_failure_count(worker::request_ptr request,
 {
 	if (request->failure_count >= config_->get_max_request_failures()) {
 		status_notifier.job_failed(request->data.get_job_id(),
-			"Job was reassigned too many (" + std::to_string(request->failure_count - 1) + ") times. Last"
-																						   " failure message was: " +
-				failure_msg);
+			"Job was reassigned too many (" + std::to_string(request->failure_count - 1) +
+				") times. Last failure message was: " + failure_msg);
 		notify_monitor(request, "FAILED", respond);
 		return false;
 	}
