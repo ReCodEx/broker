@@ -279,8 +279,6 @@ void broker_handler::process_worker_done(
 
 		if (next_request != nullptr) {
 			send_request(worker, next_request, respond);
-		} else {
-			logger_->debug(" - worker {} is now free", worker->get_description());
 		}
 
 		runtime_stats_[STATS_EVALUATED_JOBS] += 1;
@@ -328,6 +326,10 @@ void broker_handler::process_worker_done(
 		runtime_stats_[STATS_FAILED_JOBS] += 1;
 	} else {
 		logger_->warn("Received unexpected status code {} from worker {}", status, worker->get_description());
+	}
+
+	if (queue_->get_current_request(worker) == nullptr) {
+		logger_->debug(" - worker {} is now free", worker->get_description());
 	}
 }
 
@@ -447,13 +449,14 @@ bool broker_handler::reassign_request(worker::request_ptr request, handler_inter
 
 	if (!result.enqueued) {
 		notify_monitor(request, "FAILED", respond);
+		logger_->debug(" - failed to enqueue job {}", request->data.get_job_id());
 		return false;
 	}
 
 	if (result.assigned_to != nullptr) {
 		send_request(result.assigned_to, request, respond);
-		logger_->debug(
-			" - job {} queued for worker {}", request->data.get_job_id(), result.assigned_to->get_description());
+	} else {
+		logger_->debug(" - job {} is now waiting in the queue", request->data.get_job_id());
 	}
 
 	return true;

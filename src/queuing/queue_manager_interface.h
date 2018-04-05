@@ -17,7 +17,7 @@ struct enqueue_result {
 	worker_ptr assigned_to;
 
 	/**
-	 * True if the request was successfully enqueued, false otherwise
+	 * True if the request was successfully enqueued or assigned to a worker, false otherwise
 	 */
 	bool enqueued;
 };
