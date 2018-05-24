@@ -8,10 +8,6 @@ socket_wrapper_base::socket_wrapper_base(
 	socket_.setsockopt(ZMQ_LINGER, 0);
 }
 
-socket_wrapper_base::~socket_wrapper_base()
-{
-}
-
 zmq_pollitem_t socket_wrapper_base::get_pollitem()
 {
 	return zmq_pollitem_t{.socket = (void *) socket_, .fd = 0, .events = ZMQ_POLLIN, .revents = 0};

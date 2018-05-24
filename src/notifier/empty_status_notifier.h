@@ -10,23 +10,23 @@
 class empty_status_notifier : public status_notifier_interface
 {
 public:
-	virtual void error(const std::string &desc)
+	void error(const std::string &desc) override
 	{
 	}
 
-	virtual void rejected_job(const std::string &job_id, const std::string &desc = "")
+	void rejected_job(const std::string &job_id, const std::string &desc = "") override
 	{
 	}
 
-	virtual void rejected_jobs(std::vector<std::string> job_ids, const std::string &desc = "")
+	void rejected_jobs(std::vector<std::string> job_ids, const std::string &desc = "") override
 	{
 	}
 
-	virtual void job_done(const std::string &job_id)
+	void job_done(const std::string &job_id) override
 	{
 	}
 
-	virtual void job_failed(const std::string &job_id, const std::string &desc = "")
+	void job_failed(const std::string &job_id, const std::string &desc = "") override
 	{
 	}
 };

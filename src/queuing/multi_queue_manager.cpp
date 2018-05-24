@@ -104,10 +104,6 @@ request_ptr multi_queue_manager::worker_cancelled(worker_ptr worker)
 	return request;
 }
 
-multi_queue_manager::~multi_queue_manager()
-{
-}
-
 size_t multi_queue_manager::get_queued_request_count()
 {
 	size_t result = 0;

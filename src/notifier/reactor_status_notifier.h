@@ -28,11 +28,14 @@ public:
 	 */
 	reactor_status_notifier(handler_interface::response_cb callback, const std::string &key);
 
-	virtual void error(const std::string &desc);
-	virtual void rejected_job(const std::string &job_id, const std::string &desc = "");
-	virtual void rejected_jobs(std::vector<std::string> job_ids, const std::string &desc = "");
-	virtual void job_done(const std::string &job_id);
-	virtual void job_failed(const std::string &job_id, const std::string &desc = "");
+	/** Destructor */
+	~reactor_status_notifier() override = default;
+
+	void error(const std::string &desc) override;
+	void rejected_job(const std::string &job_id, const std::string &desc = "") override;
+	void rejected_jobs(std::vector<std::string> job_ids, const std::string &desc = "") override;
+	void job_done(const std::string &job_id) override;
+	void job_failed(const std::string &job_id, const std::string &desc = "") override;
 };
 
 #endif // RECODEX_BROKER_REACTOR_STATUS_NOTIFIER_H

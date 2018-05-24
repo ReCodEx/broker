@@ -1,8 +1,5 @@
 #include "broker_config.h"
 
-broker_config::broker_config()
-{
-}
 
 broker_config::broker_config(const YAML::Node &config)
 {
@@ -141,4 +138,8 @@ const notifier_config &broker_config::get_notifier_config() const
 size_t broker_config::get_max_request_failures() const
 {
 	return max_request_failures_;
+}
+
+config_error::config_error(const std::string &msg) : std::runtime_error(msg)
+{
 }

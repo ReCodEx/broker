@@ -22,12 +22,16 @@ class broker_config
 {
 public:
 	/** A default constructor */
-	broker_config();
+	broker_config() = default;
 	/**
 	 * A constructor that loads the configuration from a YAML document.
 	 * @param config The input document.
 	 */
 	broker_config(const YAML::Node &config);
+	/**
+	 * Destructor
+	 */
+	virtual ~broker_config() = default;
 	/**
 	 * Get IP address for client connections (from frontend).
 	 * @return Broker's IP address for client connections.
@@ -87,14 +91,14 @@ public:
 private:
 	/** Client socket address (from frontend) */
 	std::string client_address_ = "*"; // '*' is any address
-	/** Client socket port (from frontend) */
-	uint16_t client_port_ = 0;
 	/** Server socket address (to workers) */
 	std::string worker_address_ = "*"; // '*' is any address
-	/** Server socket port (to workers) */
-	uint16_t worker_port_ = 0;
 	/** Monitor socket address */
 	std::string monitor_address_ = "127.0.0.1";
+	/** Client socket port (from frontend) */
+	uint16_t client_port_ = 0;
+	/** Server socket port (to workers) */
+	uint16_t worker_port_ = 0;
 	/** Monitor socket port */
 	uint16_t monitor_port_ = 7894;
 	/**
@@ -119,13 +123,14 @@ private:
 class config_error : public std::runtime_error
 {
 public:
+	/** Destructor */
+	~config_error() override = default;
+
 	/**
 	 * Construction with message returned with @a what method.
 	 * @param msg description of exception circumstances
 	 */
-	explicit config_error(const std::string &msg) : std::runtime_error(msg)
-	{
-	}
+	explicit config_error(const std::string &msg);
 };
 
 #endif // RECODEX_BROKER_CONFIG_H

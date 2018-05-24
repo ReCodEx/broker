@@ -9,7 +9,7 @@ namespace helpers
 	/**
 	 * Defines std::map as keeper of http parameters, aka associative array.
 	 */
-	typedef std::map<std::string, std::string> curl_params;
+	using curl_params = std::map<std::string, std::string>;
 
 	/**
 	 * Construct standard http query and return it.
@@ -66,29 +66,23 @@ namespace helpers
 		curl_exception() : what_("Generic curl exception")
 		{
 		}
+
 		/**
 		 * Constructor with further description.
 		 * @param what circumstances of non-standard action
 		 */
-		curl_exception(const std::string &what) : what_(what)
-		{
-		}
+		curl_exception(const std::string &what);
 
 		/**
 		 * Stated for completion.
 		 */
-		virtual ~curl_exception()
-		{
-		}
+		~curl_exception() override = default;
 
 		/**
 		 * Returns circumstances of this exception.
 		 * @return c-like textual value
 		 */
-		virtual const char *what() const noexcept
-		{
-			return what_.c_str();
-		}
+		const char *what() const noexcept override;
 
 	protected:
 		/** Describes circumstances which lead to throwing this exception. */

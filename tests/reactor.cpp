@@ -18,7 +18,7 @@ public:
 		socket_.close();
 	}
 
-	void initialize()
+	void initialize() override
 	{
 		// called by the reactor
 		socket_ = zmq::socket_t(*context_, zmq::socket_type::pair);
@@ -26,12 +26,12 @@ public:
 		socket_.connect(addr_);
 	}
 
-	bool send_message(const message_container &message)
+	bool send_message(const message_container &message) override
 	{
 		return socket_send(socket_, message);
 	}
 
-	bool receive_message(message_container &message)
+	bool receive_message(message_container &message) override
 	{
 		return socket_receive(socket_, message);
 	}
@@ -105,7 +105,7 @@ private:
 class pluggable_handler : public handler_interface
 {
 public:
-	typedef std::function<void(const message_container &message, response_cb response)> fnc_t;
+	using fnc_t = std::function<void(const message_container &, const response_cb &)>;
 
 	std::vector<message_container> received;
 
@@ -118,7 +118,7 @@ public:
 		return std::make_shared<pluggable_handler>(fnc);
 	}
 
-	void on_request(const message_container &message, response_cb response)
+	void on_request(const message_container &message, const response_cb &response) override
 	{
 		received.push_back(message);
 		fnc_(message, response);

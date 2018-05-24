@@ -12,7 +12,8 @@ status_notifier_handler::status_notifier_handler(const notifier_config &config, 
 {
 }
 
-void status_notifier_handler::on_request(const message_container &message, handler_interface::response_cb respond)
+void status_notifier_handler::on_request(
+	const message_container &message, const handler_interface::response_cb &respond)
 {
 	std::string type = "";
 	std::string id = "";

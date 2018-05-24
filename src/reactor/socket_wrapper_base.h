@@ -42,7 +42,7 @@ public:
 	/**
 	 * A virtual destructor
 	 */
-	virtual ~socket_wrapper_base();
+	virtual ~socket_wrapper_base() = default;
 
 	/**
 	 * Get the pollitem structure used to poll the wrapped socket

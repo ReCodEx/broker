@@ -139,10 +139,6 @@ handler_wrapper::handler_wrapper(reactor &reactor_ref, std::shared_ptr<handler_i
 {
 }
 
-handler_wrapper::~handler_wrapper()
-{
-}
-
 void handler_wrapper::operator()(const message_container &message)
 {
 	handler_->on_request(message, [this](const message_container &response) { reactor_.send_message(response); });

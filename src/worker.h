@@ -77,7 +77,7 @@ public:
  */
 struct request {
 	/** Data structure type for holding all headers. */
-	typedef std::multimap<std::string, std::string> headers_t;
+	using headers_t = std::multimap<std::string, std::string>;
 
 	/** Headers that specify requirements on the machine that processes the request. */
 	const headers_t headers;
@@ -121,24 +121,19 @@ public:
 	 * Constructor setting base value to be compared to.
 	 * @param my_value Base value.
 	 */
-	header_matcher(std::string my_value) : my_value_(my_value)
+	header_matcher(const std::string &my_value) : my_value_(my_value)
 	{
 	}
 
 	/** Destructor. */
-	virtual ~header_matcher()
-	{
-	}
+	virtual ~header_matcher() = default;
 
 	/**
 	 * Check if given value match with inner preset value.
 	 * @param value Value to be checked.
 	 * @return @a true if value matches, @a false otherwise.
 	 */
-	virtual bool match(const std::string &value)
-	{
-		return value == my_value_;
-	}
+	virtual bool match(const std::string &value);
 };
 
 /**
@@ -148,7 +143,7 @@ class worker
 {
 public:
 	/** Pointer to evauate request type. */
-	typedef std::shared_ptr<request> request_ptr;
+	using request_ptr = std::shared_ptr<request>;
 
 private:
 	/** Headers that describe the workers capabilities. */
@@ -180,7 +175,7 @@ public:
 	/**
 	 * Stated for completion.
 	 */
-	virtual ~worker();
+	virtual ~worker() = default;
 
 	/**
 	 * Check if the worker's headers are equal to given set of headers

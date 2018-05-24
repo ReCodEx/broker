@@ -29,11 +29,11 @@ public:
 	/**
 	 * File size of one rotation of log file.
 	 */
-	int log_file_size = 1024 * 1024;
+	size_t log_file_size = 1024 * 1024;
 	/**
 	 * Number of rotations which will be kept saved.
 	 */
-	int log_files_count = 3;
+	size_t log_files_count = 3;
 
 	/**
 	 * Equality operator on @ref log_config structures.

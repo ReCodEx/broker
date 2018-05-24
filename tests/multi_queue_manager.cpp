@@ -1,5 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <memory>
+
 
 #include "../src/queuing/multi_queue_manager.h"
 #include "../src/worker.h"
@@ -13,7 +15,7 @@ TEST(multi_queue_manager, add_worker)
 
 	multi_queue_manager manager;
 
-	auto worker_1 = worker_ptr(new worker("identity1", "group_1", headers));
+	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	auto request_1 = std::make_shared<request>(headers, data);
 
 	manager.add_worker(worker_1, request_1);
@@ -27,7 +29,7 @@ TEST(multi_queue_manager, basic_queueing)
 
 	multi_queue_manager manager;
 
-	auto worker_1 = worker_ptr(new worker("identity1", "group_1", headers));
+	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	auto request_1 = std::make_shared<request>(headers, data);
 	auto request_2 = std::make_shared<request>(headers, data);
 
@@ -59,7 +61,7 @@ TEST(multi_queue_manager, terminate_basic)
 	std::multimap<std::string, std::string> headers = {};
 	job_request_data data("", {});
 
-	auto worker_1 = worker_ptr(new worker("identity1", "group_1", headers));
+	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	manager.add_worker(worker_1);
 	auto request_1 = std::make_shared<request>(headers, data);
 	auto request_2 = std::make_shared<request>(headers, data);
@@ -82,7 +84,7 @@ TEST(multi_queue_manager, terminate_no_current)
 	std::multimap<std::string, std::string> headers = {};
 	job_request_data data("", {});
 
-	auto worker_1 = worker_ptr(new worker("identity1", "group_1", headers));
+	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	manager.add_worker(worker_1);
 	auto request_1 = std::make_shared<request>(headers, data);
 	auto request_2 = std::make_shared<request>(headers, data);
@@ -101,7 +103,7 @@ TEST(multi_queue_manager, terminate_empty)
 	std::multimap<std::string, std::string> headers = {};
 	job_request_data data("", {});
 
-	auto worker_1 = worker_ptr(new worker("identity1", "group_1", headers));
+	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	manager.add_worker(worker_1);
 	auto request_1 = std::make_shared<request>(headers, data);
 
