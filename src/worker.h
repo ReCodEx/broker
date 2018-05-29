@@ -86,7 +86,7 @@ struct request {
 	const job_request_data data;
 
 	/** The amount of failed attempts at processing this request. */
-	size_t failure_count = 0;
+	std::size_t failure_count = 0;
 
 	/**
 	 * Constructor with initialization.
@@ -163,7 +163,7 @@ public:
 	const std::string hwgroup;
 
 	/** The amount of pings the worker can miss before it's considered dead. */
-	size_t liveness;
+	std::size_t liveness;
 
 	/**
 	 * @param id Worker unique identifier.

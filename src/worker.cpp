@@ -38,10 +38,10 @@ public:
 
 bool multiple_string_matcher::match(const std::string &value)
 {
-	size_t offset = 0;
+	std::size_t offset = 0;
 
 	while (offset < value.size()) {
-		size_t end = value.find(delimiter, offset);
+		std::size_t end = value.find(delimiter, offset);
 
 		if (end == std::string::npos) {
 			end = value.size();
@@ -64,12 +64,12 @@ class count_matcher : public header_matcher
 {
 private:
 	/** Preset number to be base for comparison. */
-	size_t my_count_;
+	std::size_t my_count_;
 
 public:
 	/**
 	 * Constructor.
-	 * @param my_value Base value for comparison. Will be converted to @a size_t type using std::stoul.
+	 * @param my_value Base value for comparison. Will be converted to @a std::size_t type using std::stoul.
 	 */
 	count_matcher(std::string my_value) : header_matcher(my_value), my_count_(std::stoul(my_value))
 	{
@@ -80,7 +80,8 @@ public:
 
 	/**
 	 * Check if given value is >= to inner preset value.
-	 * @param value Value to be checked. Before comparison, the value is converted to @a size_t type using std::stoul.
+	 * @param value Value to be checked. Before comparison, the value is converted to @a std::size_t type using
+	 * std::stoul.
 	 * @return @a true if value matches, @a false otherwise.
 	 */
 	bool match(const std::string &value) override;

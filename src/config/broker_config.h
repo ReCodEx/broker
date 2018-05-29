@@ -1,6 +1,7 @@
 #ifndef RECODEX_BROKER_CONFIG_H
 #define RECODEX_BROKER_CONFIG_H
 
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <string>
@@ -41,7 +42,7 @@ public:
 	 * Get the port to listen for incoming tasks.
 	 * @return Broker's port for client connections.
 	 */
-	virtual uint16_t get_client_port() const;
+	virtual std::uint16_t get_client_port() const;
 	/**
 	 * Get IP address for worker connections.
 	 * @return Broker's IP address for worker connections.
@@ -51,7 +52,7 @@ public:
 	 * Get the port for communication with workers.
 	 * @return Broker's port for worker connections.
 	 */
-	virtual uint16_t get_worker_port() const;
+	virtual std::uint16_t get_worker_port() const;
 	/**
 	 * Get IP address for monitor connections.
 	 * @return Broker's IP address for monitor connections.
@@ -61,17 +62,17 @@ public:
 	 * Get the port for communication with monitor.
 	 * @return Broker's port for monitor connections.
 	 */
-	virtual uint16_t get_monitor_port() const;
+	virtual std::uint16_t get_monitor_port() const;
 	/**
 	 * Get the maximum (i.e. initial) liveness of a worker.
 	 * @return Maximum liveness of worker.
 	 */
-	virtual size_t get_max_worker_liveness() const;
+	virtual std::size_t get_max_worker_liveness() const;
 	/**
 	 * Get the amount of times a request can fail before it's cancelled
 	 * @return Maximum request failure count
 	 */
-	virtual size_t get_max_request_failures() const;
+	virtual std::size_t get_max_request_failures() const;
 	/**
 	 * Get the time (in milliseconds) expected to pass between pings from the worker.
 	 * @return Interval between two concurrent pings.
@@ -96,18 +97,18 @@ private:
 	/** Monitor socket address */
 	std::string monitor_address_ = "127.0.0.1";
 	/** Client socket port (from frontend) */
-	uint16_t client_port_ = 0;
+	std::uint16_t client_port_ = 0;
 	/** Server socket port (to workers) */
-	uint16_t worker_port_ = 0;
+	std::uint16_t worker_port_ = 0;
 	/** Monitor socket port */
-	uint16_t monitor_port_ = 7894;
+	std::uint16_t monitor_port_ = 7894;
 	/**
 	 * Maximum (initial) liveness of a worker
 	 * (the amount of pings the worker can miss before it's considered dead)
 	 */
-	size_t max_worker_liveness_ = 4;
+	std::size_t max_worker_liveness_ = 4;
 	/** The amount of times a request can fail before it's cancelled */
-	size_t max_request_failures_ = 3;
+	std::size_t max_request_failures_ = 3;
 	/** Time (in milliseconds) expected to pass between pings from the worker */
 	std::chrono::milliseconds worker_ping_interval_ = std::chrono::milliseconds(1000);
 	/** Configuration of logger */

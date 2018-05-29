@@ -30,9 +30,9 @@ std::string helpers::get_http_query(const curl_params &params)
  * @param str result string in which return body will be stored
  * @return length of data which were written into str
  */
-static size_t string_write_wrapper(void *ptr, size_t size, size_t nmemb, std::string *str)
+static std::size_t string_write_wrapper(void *ptr, std::size_t size, std::size_t nmemb, std::string *str)
 {
-	size_t length = size * nmemb;
+	std::size_t length = size * nmemb;
 
 	std::copy((char *) ptr, (char *) ptr + length, std::back_inserter(*str));
 
@@ -51,6 +51,7 @@ std::string helpers::curl_get(const std::string &url,
 	CURLcode res;
 
 	// get curl handle
+	// std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl = {curl_easy_init(), curl_easy_cleanup};
 	std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl = {curl_easy_init(), curl_easy_cleanup};
 	if (curl.get()) {
 		// destination address

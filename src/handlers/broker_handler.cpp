@@ -113,8 +113,8 @@ void broker_handler::process_client_eval(
 		}
 
 		// Parse header, save it and continue
-		size_t pos = it->find('=');
-		size_t value_size = it->size() - (pos + 1);
+		std::size_t pos = it->find('=');
+		std::size_t value_size = it->size() - (pos + 1);
 
 		headers.emplace(it->substr(0, pos), it->substr(pos + 1, value_size));
 		++it;
@@ -183,8 +183,8 @@ void broker_handler::process_worker_init(
 			break;
 		}
 
-		size_t pos = header.find('=');
-		size_t value_size = header.size() - (pos + 1);
+		std::size_t pos = header.find('=');
+		std::size_t value_size = header.size() - (pos + 1);
 
 		headers.emplace(header.substr(0, pos), header.substr(pos + 1, value_size));
 	}
@@ -211,8 +211,8 @@ void broker_handler::process_worker_init(
 	for (; message_it != std::end(message); ++message_it) {
 		auto &header = *message_it;
 
-		size_t pos = header.find('=');
-		size_t value_size = header.size() - (pos + 1);
+		std::size_t pos = header.find('=');
+		std::size_t value_size = header.size() - (pos + 1);
 		auto key = header.substr(0, pos);
 		auto value = header.substr(pos + 1, value_size);
 

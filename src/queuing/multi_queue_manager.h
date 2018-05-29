@@ -20,7 +20,7 @@ public:
 	request_ptr assign_request(worker_ptr worker) override;
 	std::shared_ptr<std::vector<request_ptr>> worker_terminated(worker_ptr) override;
 	enqueue_result enqueue_request(request_ptr request) override;
-	size_t get_queued_request_count() override;
+	std::size_t get_queued_request_count() override;
 	request_ptr get_current_request(worker_ptr worker) override;
 	request_ptr worker_finished(worker_ptr worker) override;
 	request_ptr worker_cancelled(worker_ptr worker) override;

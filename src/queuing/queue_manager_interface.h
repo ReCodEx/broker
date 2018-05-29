@@ -64,7 +64,7 @@ public:
 	/**
 	 * Get the total amount of queued requests
 	 */
-	virtual size_t get_queued_request_count() = 0;
+	virtual std::size_t get_queued_request_count() = 0;
 
 	/**
 	 * Get the request currently being processed by given worker

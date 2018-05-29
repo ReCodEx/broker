@@ -236,7 +236,7 @@ TEST(reactor, multiple_asynchronous_handlers)
 	auto handler_2b =
 		pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
 
-	size_t message_count = 100;
+	std::size_t message_count = 100;
 
 	r.add_socket("socket_1", socket_1);
 	r.add_socket("socket_2", socket_2);
@@ -246,7 +246,7 @@ TEST(reactor, multiple_asynchronous_handlers)
 
 	std::thread thread([&r]() { r.start_loop(); });
 
-	for (size_t i = 0; i < message_count; i++) {
+	for (std::size_t i = 0; i < message_count; i++) {
 		socket_1->send_message_local(message_container("", "id1", {"socket_1"}));
 		socket_2->send_message_local(message_container("", "id1", {"socket_2"}));
 	}
@@ -257,7 +257,7 @@ TEST(reactor, multiple_asynchronous_handlers)
 	ASSERT_EQ(message_count, handler_2a->received.size());
 	ASSERT_EQ(message_count, handler_2b->received.size());
 
-	for (size_t i = 0; i < message_count; i++) {
+	for (std::size_t i = 0; i < message_count; i++) {
 		EXPECT_EQ(handler_1->received.at(i), message_container("socket_1", "id1", {"socket_1"}));
 		EXPECT_EQ(handler_2a->received.at(i), message_container("socket_2", "id1", {"socket_2"}));
 		EXPECT_EQ(handler_2b->received.at(i), message_container("socket_2", "id1", {"socket_2"}));

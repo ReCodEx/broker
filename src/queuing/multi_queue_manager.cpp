@@ -104,9 +104,9 @@ request_ptr multi_queue_manager::worker_cancelled(worker_ptr worker)
 	return request;
 }
 
-size_t multi_queue_manager::get_queued_request_count()
+std::size_t multi_queue_manager::get_queued_request_count()
 {
-	size_t result = 0;
+	std::size_t result = 0;
 
 	for (auto &pair : queues_) {
 		result += pair.second.size();

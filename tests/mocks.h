@@ -6,8 +6,10 @@
 #ifndef RECODEX_BROKER_TESTS_MOCKS_H
 #define RECODEX_BROKER_TESTS_MOCKS_H
 
+#include <cstdint>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <string>
 
 #include "../src/broker_connect.h"
 #include "../src/worker.h"
@@ -40,13 +42,13 @@ public:
 	}
 
 	MOCK_CONST_METHOD0(get_client_address, const std::string &());
-	MOCK_CONST_METHOD0(get_client_port, uint16_t());
+	MOCK_CONST_METHOD0(get_client_port, std::uint16_t());
 	MOCK_CONST_METHOD0(get_worker_address, const std::string &());
-	MOCK_CONST_METHOD0(get_worker_port, uint16_t());
+	MOCK_CONST_METHOD0(get_worker_port, std::uint16_t());
 	MOCK_CONST_METHOD0(get_monitor_address, const std::string &());
-	MOCK_CONST_METHOD0(get_monitor_port, uint16_t());
+	MOCK_CONST_METHOD0(get_monitor_port, std::uint16_t());
 	MOCK_CONST_METHOD0(get_worker_ping_interval, std::chrono::milliseconds());
-	MOCK_CONST_METHOD0(get_max_request_failures, size_t());
+	MOCK_CONST_METHOD0(get_max_request_failures, std::size_t());
 };
 
 class mock_worker_registry : public worker_registry

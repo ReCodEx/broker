@@ -14,7 +14,7 @@ broker_config::broker_config(const YAML::Node &config)
 				client_address_ = config["clients"]["address"].as<std::string>();
 			} // no throw... can be omitted
 			if (config["clients"]["port"] && config["clients"]["port"].IsScalar()) {
-				client_port_ = config["clients"]["port"].as<uint16_t>();
+				client_port_ = config["clients"]["port"].as<std::uint16_t>();
 			} // no throw... can be omitted
 		}
 
@@ -24,16 +24,16 @@ broker_config::broker_config(const YAML::Node &config)
 				worker_address_ = config["workers"]["address"].as<std::string>();
 			} // no throw... can be omitted
 			if (config["workers"]["port"] && config["workers"]["port"].IsScalar()) {
-				worker_port_ = config["workers"]["port"].as<uint16_t>();
+				worker_port_ = config["workers"]["port"].as<std::uint16_t>();
 			} // no throw... can be omitted
 			if (config["workers"]["max_liveness"] && config["workers"]["max_liveness"].IsScalar()) {
-				max_worker_liveness_ = config["workers"]["max_liveness"].as<size_t>();
+				max_worker_liveness_ = config["workers"]["max_liveness"].as<std::size_t>();
 			} // no throw... can be omitted
 			if (config["workers"]["max_request_failures"] && config["workers"]["max_request_failures"].IsScalar()) {
-				max_request_failures_ = config["workers"]["max_request_failures"].as<size_t>();
+				max_request_failures_ = config["workers"]["max_request_failures"].as<std::size_t>();
 			} // no throw... can be omitted
 			if (config["workers"]["ping_interval"] && config["workers"]["ping_interval"].IsScalar()) {
-				worker_ping_interval_ = std::chrono::milliseconds(config["workers"]["ping_interval"].as<size_t>());
+				worker_ping_interval_ = std::chrono::milliseconds(config["workers"]["ping_interval"].as<std::size_t>());
 			} // no throw... can be omitted
 		}
 
@@ -43,7 +43,7 @@ broker_config::broker_config(const YAML::Node &config)
 				monitor_address_ = config["monitor"]["address"].as<std::string>();
 			} // no throw... can be omitted
 			if (config["monitor"]["port"] && config["monitor"]["port"].IsScalar()) {
-				monitor_port_ = config["monitor"]["port"].as<uint16_t>();
+				monitor_port_ = config["monitor"]["port"].as<std::uint16_t>();
 			} // no throw... can be omitted
 		}
 
@@ -53,7 +53,7 @@ broker_config::broker_config(const YAML::Node &config)
 				notifier_config_.address = config["notifier"]["address"].as<std::string>();
 			} // no throw... can be omitted
 			if (config["notifier"]["port"] && config["notifier"]["port"].IsScalar()) {
-				notifier_config_.port = config["notifier"]["port"].as<uint16_t>();
+				notifier_config_.port = config["notifier"]["port"].as<std::uint16_t>();
 			} // no throw... can be omitted
 			if (config["notifier"]["username"] && config["notifier"]["username"].IsScalar()) {
 				notifier_config_.username = config["notifier"]["username"].as<std::string>();
@@ -74,10 +74,10 @@ broker_config::broker_config(const YAML::Node &config)
 				log_config_.log_level = config["logger"]["level"].as<std::string>();
 			} // no throw... can be omitted
 			if (config["logger"]["max-size"] && config["logger"]["max-size"].IsScalar()) {
-				log_config_.log_file_size = config["logger"]["max-size"].as<size_t>();
+				log_config_.log_file_size = config["logger"]["max-size"].as<std::size_t>();
 			} // no throw... can be omitted
 			if (config["logger"]["rotations"] && config["logger"]["rotations"].IsScalar()) {
-				log_config_.log_files_count = config["logger"]["rotations"].as<size_t>();
+				log_config_.log_files_count = config["logger"]["rotations"].as<std::size_t>();
 			} // no throw... can be omitted
 		} // no throw... can be omitted
 	} catch (YAML::Exception &ex) {
@@ -90,7 +90,7 @@ const std::string &broker_config::get_client_address() const
 	return client_address_;
 }
 
-uint16_t broker_config::get_client_port() const
+std::uint16_t broker_config::get_client_port() const
 {
 	return client_port_;
 }
@@ -100,7 +100,7 @@ const std::string &broker_config::get_worker_address() const
 	return worker_address_;
 }
 
-uint16_t broker_config::get_worker_port() const
+std::uint16_t broker_config::get_worker_port() const
 {
 	return worker_port_;
 }
@@ -110,12 +110,12 @@ const std::string &broker_config::get_monitor_address() const
 	return monitor_address_;
 }
 
-uint16_t broker_config::get_monitor_port() const
+std::uint16_t broker_config::get_monitor_port() const
 {
 	return monitor_port_;
 }
 
-size_t broker_config::get_max_worker_liveness() const
+std::size_t broker_config::get_max_worker_liveness() const
 {
 	return max_worker_liveness_;
 }
@@ -135,7 +135,7 @@ const notifier_config &broker_config::get_notifier_config() const
 	return notifier_config_;
 }
 
-size_t broker_config::get_max_request_failures() const
+std::size_t broker_config::get_max_request_failures() const
 {
 	return max_request_failures_;
 }
