@@ -188,7 +188,7 @@ TEST(reactor, asynchronous_handler)
 	std::thread thread([&r]() { r.start_loop(); });
 
 	socket->send_message_local(message_container("", "id1", {"Hello??"}));
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	EXPECT_THAT(handler->received, ElementsAre(message_container("socket", "id1", {"Hello??"})));
 
