@@ -13,6 +13,9 @@
 class status_notifier_interface
 {
 public:
+	/** Destructor */
+	virtual ~status_notifier_interface() = default;
+
 	/**
 	 * Basically tells frontend that there was some serious problem which has to be solved by administrator.
 	 * Should be used only for generic errors which does not need any special treatment.

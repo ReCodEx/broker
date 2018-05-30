@@ -4,6 +4,7 @@
 #include <atomic>
 #include <map>
 #include <memory>
+#include <thread>
 #include <zmq.hpp>
 
 #include "handler_interface.h"
@@ -29,7 +30,7 @@ public:
 	/**
 	 * A virtual destructor
 	 */
-	virtual ~handler_wrapper();
+	virtual ~handler_wrapper() = default;
 
 	/**
 	 * Pass a message to the handler by calling it directly
@@ -67,14 +68,14 @@ public:
 	 * Destroy the handler by sending a termination message to the worker thread.
 	 * The ZeroMQ connection must still work for this to function.
 	 */
-	~asynchronous_handler_wrapper();
+	~asynchronous_handler_wrapper() override;
 
 	/**
 	 * Pass a message to the handler asynchronously.
 	 * The message is copied when being sent through the inprocess socket.
 	 * @param message The message to be passed
 	 */
-	virtual void operator()(const message_container &message);
+	void operator()(const message_container &message) override;
 
 private:
 	/**

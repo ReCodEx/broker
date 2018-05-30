@@ -15,7 +15,7 @@ class worker_registry
 {
 public:
 	/** Pointer to worker instance type. */
-	typedef std::shared_ptr<worker> worker_ptr;
+	using worker_ptr = std::shared_ptr<worker>;
 
 private:
 	/** List of known workers. */
@@ -23,7 +23,9 @@ private:
 
 public:
 	/** Default constructor, initializes empty list of workers. */
-	worker_registry();
+	worker_registry() = default;
+	/** Destructor */
+	virtual ~worker_registry() = default;
 	/**
 	 * Adds new worker to the registry.
 	 * @param worker Worker instance to be added.

@@ -35,14 +35,17 @@ set(SOURCE_FILES
 	src/helpers/logger.cpp
 	src/helpers/curl.h
 	src/helpers/curl.cpp
+	src/worker.h
 	src/worker.cpp
 	src/notifier/status_notifier.h
 	src/notifier/http_status_notifier.h
 	src/notifier/http_status_notifier.cpp
 	src/notifier/empty_status_notifier.h
+	src/reactor/reactor.h
 	src/reactor/reactor.cpp
 	src/reactor/socket_wrapper_base.cpp
 	src/reactor/socket_wrapper_base.h
+	src/reactor/message_container.h
 	src/reactor/message_container.cpp
 	src/reactor/handler_interface.h
 	src/reactor/router_socket_wrapper.h

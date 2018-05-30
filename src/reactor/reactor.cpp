@@ -81,7 +81,7 @@ void reactor::start_loop()
 
 		auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(time_after_poll - time_before_poll);
 
-		size_t i = 0;
+		std::size_t i = 0;
 		for (auto item : pollitems) {
 			if (item.revents & ZMQ_POLLIN) {
 				message_container received_msg;
@@ -136,10 +136,6 @@ void reactor::terminate()
 
 handler_wrapper::handler_wrapper(reactor &reactor_ref, std::shared_ptr<handler_interface> handler)
 	: handler_(handler), reactor_(reactor_ref)
-{
-}
-
-handler_wrapper::~handler_wrapper()
 {
 }
 

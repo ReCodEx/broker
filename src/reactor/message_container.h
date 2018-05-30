@@ -21,7 +21,7 @@ struct message_container {
 	/**
 	 * The default constructor
 	 */
-	message_container();
+	message_container() = default;
 
 	/**
 	 * A shorthand constructor for creating a message container in a single expression

@@ -91,7 +91,7 @@ private:
 	 * Exit whole application with return code 1.
 	 * @param msg String which is copied to stderr and logger if initialized (emerg level).
 	 */
-	void force_exit(std::string msg = "");
+	[[noreturn]] void force_exit(const std::string &msg = "");
 
 	/**
 	 * Parse command line arguments given in constructor.

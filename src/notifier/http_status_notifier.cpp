@@ -8,12 +8,12 @@ http_status_notifier::http_status_notifier(const notifier_config &config, std::s
 	}
 }
 
-void http_status_notifier::send(std::string route, helpers::curl_params params)
+void http_status_notifier::send(const std::string &route, const helpers::curl_params &params)
 {
 	std::string addr = config_.address + route;
 	try {
 		helpers::curl_post(addr, config_.port, params, config_.username, config_.password);
-	} catch (helpers::curl_exception e) {
+	} catch (helpers::curl_exception &e) {
 		logger_->critical(e.what());
 	}
 }

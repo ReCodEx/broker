@@ -18,7 +18,7 @@ public:
 		socket_.close();
 	}
 
-	void initialize()
+	void initialize() override
 	{
 		// called by the reactor
 		socket_ = zmq::socket_t(*context_, zmq::socket_type::pair);
@@ -26,12 +26,12 @@ public:
 		socket_.connect(addr_);
 	}
 
-	bool send_message(const message_container &message)
+	bool send_message(const message_container &message) override
 	{
 		return socket_send(socket_, message);
 	}
 
-	bool receive_message(message_container &message)
+	bool receive_message(message_container &message) override
 	{
 		return socket_receive(socket_, message);
 	}
@@ -105,7 +105,7 @@ private:
 class pluggable_handler : public handler_interface
 {
 public:
-	typedef std::function<void(const message_container &message, response_cb response)> fnc_t;
+	using fnc_t = std::function<void(const message_container &, const response_cb &)>;
 
 	std::vector<message_container> received;
 
@@ -118,7 +118,7 @@ public:
 		return std::make_shared<pluggable_handler>(fnc);
 	}
 
-	void on_request(const message_container &message, response_cb response)
+	void on_request(const message_container &message, const response_cb &response) override
 	{
 		received.push_back(message);
 		fnc_(message, response);
@@ -188,7 +188,7 @@ TEST(reactor, asynchronous_handler)
 	std::thread thread([&r]() { r.start_loop(); });
 
 	socket->send_message_local(message_container("", "id1", {"Hello??"}));
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	EXPECT_THAT(handler->received, ElementsAre(message_container("socket", "id1", {"Hello??"})));
 
@@ -236,7 +236,7 @@ TEST(reactor, multiple_asynchronous_handlers)
 	auto handler_2b =
 		pluggable_handler::create([](const message_container &msg, handler_interface::response_cb respond) {});
 
-	size_t message_count = 100;
+	std::size_t message_count = 100;
 
 	r.add_socket("socket_1", socket_1);
 	r.add_socket("socket_2", socket_2);
@@ -246,7 +246,7 @@ TEST(reactor, multiple_asynchronous_handlers)
 
 	std::thread thread([&r]() { r.start_loop(); });
 
-	for (size_t i = 0; i < message_count; i++) {
+	for (std::size_t i = 0; i < message_count; i++) {
 		socket_1->send_message_local(message_container("", "id1", {"socket_1"}));
 		socket_2->send_message_local(message_container("", "id1", {"socket_2"}));
 	}
@@ -257,7 +257,7 @@ TEST(reactor, multiple_asynchronous_handlers)
 	ASSERT_EQ(message_count, handler_2a->received.size());
 	ASSERT_EQ(message_count, handler_2b->received.size());
 
-	for (size_t i = 0; i < message_count; i++) {
+	for (std::size_t i = 0; i < message_count; i++) {
 		EXPECT_EQ(handler_1->received.at(i), message_container("socket_1", "id1", {"socket_1"}));
 		EXPECT_EQ(handler_2a->received.at(i), message_container("socket_2", "id1", {"socket_2"}));
 		EXPECT_EQ(handler_2b->received.at(i), message_container("socket_2", "id1", {"socket_2"}));

@@ -1,6 +1,7 @@
 #ifndef RECODEX_NOTIFIER_CONFIG_H
 #define RECODEX_NOTIFIER_CONFIG_H
 
+#include <cstdint>
 #include <string>
 
 
@@ -16,7 +17,7 @@ public:
 	/**
 	 * Port on which frontend runs.
 	 */
-	uint16_t port;
+	std::uint16_t port;
 
 	/**
 	 * Username which is used in HTTP authentication.

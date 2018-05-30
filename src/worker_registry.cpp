@@ -3,10 +3,6 @@
 #include <algorithm>
 
 
-worker_registry::worker_registry()
-{
-}
-
 void worker_registry::add_worker(worker_ptr worker)
 {
 	workers_.push_back(worker);

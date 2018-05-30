@@ -68,7 +68,7 @@ void broker_core::load_config()
 	}
 }
 
-void broker_core::force_exit(std::string msg)
+void broker_core::force_exit(const std::string &msg)
 {
 	// write to log
 	if (msg != "") {
@@ -78,7 +78,7 @@ void broker_core::force_exit(std::string msg)
 		std::cerr << msg << std::endl;
 	}
 
-	exit(1);
+	std::exit(1);
 }
 
 void broker_core::log_init()

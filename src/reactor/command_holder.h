@@ -23,8 +23,8 @@ class command_holder
 {
 public:
 	/** Type of callback function for easier use. */
-	typedef std::function<void(const std::string &, const std::vector<std::string> &, handler_interface::response_cb)>
-		callback_fn;
+	using callback_fn =
+		std::function<void(const std::string &, const std::vector<std::string> &, handler_interface::response_cb)>;
 
 	/**
 	 * Invoke registered callback for given command (if any).

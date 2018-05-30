@@ -4,8 +4,8 @@
 #include "../worker.h"
 #include "../worker_registry.h"
 
-typedef worker_registry::worker_ptr worker_ptr;
-typedef worker::request_ptr request_ptr;
+using worker_ptr = worker_registry::worker_ptr;
+using request_ptr = worker::request_ptr;
 
 /**
  * Describes the result of an enqueue operation
@@ -25,6 +25,9 @@ struct enqueue_result {
 class queue_manager_interface
 {
 public:
+	/** Destructor */
+	virtual ~queue_manager_interface() = default;
+
 	/**
 	 * Register a new worker. This can result into a job being assigned to it right away.
 	 * Every worker used by the queue manager must be registered using this method.
@@ -61,7 +64,7 @@ public:
 	/**
 	 * Get the total amount of queued requests
 	 */
-	virtual size_t get_queued_request_count() = 0;
+	virtual std::size_t get_queued_request_count() = 0;
 
 	/**
 	 * Get the request currently being processed by given worker

@@ -1,6 +1,8 @@
 #include "broker_handler.h"
+
 #include "../broker_connect.h"
 #include "../notifier/reactor_status_notifier.h"
+#include <memory>
 
 broker_handler::broker_handler(std::shared_ptr<const broker_config> config,
 	std::shared_ptr<worker_registry> workers,
@@ -59,7 +61,7 @@ broker_handler::broker_handler(std::shared_ptr<const broker_config> config,
 		});
 }
 
-void broker_handler::on_request(const message_container &message, response_cb respond)
+void broker_handler::on_request(const message_container &message, const response_cb &respond)
 {
 	if (message.key == broker_connect::KEY_WORKERS) {
 		auto worker = workers_->find_worker_by_identity(message.identity);
@@ -82,7 +84,7 @@ void broker_handler::on_request(const message_container &message, response_cb re
 }
 
 void broker_handler::process_client_eval(
-	const std::string &identity, const std::vector<std::string> &message, response_cb respond)
+	const std::string &identity, const std::vector<std::string> &message, const response_cb &respond)
 {
 	// first let us know that message arrived (logging moved from main loop)
 	logger_->info("Received message 'eval' from clients");
@@ -111,8 +113,8 @@ void broker_handler::process_client_eval(
 		}
 
 		// Parse header, save it and continue
-		size_t pos = it->find('=');
-		size_t value_size = it->size() - (pos + 1);
+		std::size_t pos = it->find('=');
+		std::size_t value_size = it->size() - (pos + 1);
 
 		headers.emplace(it->substr(0, pos), it->substr(pos + 1, value_size));
 		++it;
@@ -157,7 +159,7 @@ void broker_handler::process_client_eval(
 }
 
 void broker_handler::process_worker_init(
-	const std::string &identity, const std::vector<std::string> &message, response_cb respond)
+	const std::string &identity, const std::vector<std::string> &message, const response_cb &respond)
 {
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
@@ -181,8 +183,8 @@ void broker_handler::process_worker_init(
 			break;
 		}
 
-		size_t pos = header.find('=');
-		size_t value_size = header.size() - (pos + 1);
+		std::size_t pos = header.find('=');
+		std::size_t value_size = header.size() - (pos + 1);
 
 		headers.emplace(header.substr(0, pos), header.substr(pos + 1, value_size));
 	}
@@ -202,22 +204,22 @@ void broker_handler::process_worker_init(
 
 
 	// Create a new worker with the basic information
-	auto new_worker = worker_registry::worker_ptr(new worker(identity, hwgroup, headers));
+	auto new_worker = std::make_shared<worker>(identity, hwgroup, headers);
 	std::shared_ptr<request> current_request = nullptr;
 
 	// Load additional information
 	for (; message_it != std::end(message); ++message_it) {
 		auto &header = *message_it;
 
-		size_t pos = header.find('=');
-		size_t value_size = header.size() - (pos + 1);
+		std::size_t pos = header.find('=');
+		std::size_t value_size = header.size() - (pos + 1);
 		auto key = header.substr(0, pos);
 		auto value = header.substr(pos + 1, value_size);
 
 		if (key == "description") {
 			new_worker->description = value;
 		} else if (key == "current_job") {
-			current_request = worker::request_ptr(new request(job_request_data(value)));
+			current_request = std::make_shared<request>(job_request_data(value));
 		}
 	}
 
@@ -241,7 +243,7 @@ void broker_handler::process_worker_init(
 }
 
 void broker_handler::process_worker_done(
-	const std::string &identity, const std::vector<std::string> &message, response_cb respond)
+	const std::string &identity, const std::vector<std::string> &message, const response_cb &respond)
 {
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 
@@ -334,7 +336,7 @@ void broker_handler::process_worker_done(
 }
 
 void broker_handler::process_worker_ping(
-	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
+	const std::string &identity, const std::vector<std::string> &message, const handler_interface::response_cb &respond)
 {
 	// first let us know that message arrived (logging moved from main loop)
 	// logger_->debug() << "Received message 'ping' from workers";
@@ -350,7 +352,7 @@ void broker_handler::process_worker_ping(
 }
 
 void broker_handler::process_worker_progress(
-	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
+	const std::string &identity, const std::vector<std::string> &message, const handler_interface::response_cb &respond)
 {
 	// first let us know that message arrived (logging moved from main loop)
 	// logger_->debug() << "Received message 'progress' from workers";
@@ -362,12 +364,12 @@ void broker_handler::process_worker_progress(
 	respond(message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, monitor_message));
 }
 
-void broker_handler::process_timer(const message_container &message, handler_interface::response_cb respond)
+void broker_handler::process_timer(const message_container &message, const handler_interface::response_cb &respond)
 {
 	std::chrono::milliseconds time(std::stoll(message.data.front()));
 	std::list<worker_registry::worker_ptr> to_remove;
 
-	for (auto worker : workers_->get_workers()) {
+	for (const auto &worker : workers_->get_workers()) {
 		if (worker_timers_.find(worker) == std::end(worker_timers_)) {
 			worker_timers_[worker] = std::chrono::milliseconds(0);
 		}
@@ -387,7 +389,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 	reactor_status_notifier status_notifier(respond, broker_connect::KEY_STATUS_NOTIFIER);
 	const static std::string failure_msg = "Worker timed out and its job cannot be reassigned";
 
-	for (auto worker : to_remove) {
+	for (const auto &worker : to_remove) {
 		logger_->info("Worker {} expired", worker->get_description());
 
 		workers_->remove_worker(worker);
@@ -398,7 +400,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 		auto requests = queue_->worker_terminated(worker);
 		std::vector<worker::request_ptr> unassigned_requests;
 
-		for (auto request : *requests) {
+		for (const auto &request : *requests) {
 			if (!request->data.is_complete()) {
 				status_notifier.rejected_job(request->data.get_job_id(), failure_msg);
 				notify_monitor(request, "FAILED", respond);
@@ -420,7 +422,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 		if (!unassigned_requests.empty()) {
 			std::string error_message = "Worker " + worker->get_description() + " dieded";
 
-			for (auto request : unassigned_requests) {
+			for (const auto &request : unassigned_requests) {
 				status_notifier.rejected_job(request->data.get_job_id(), error_message);
 			}
 		}
@@ -440,7 +442,7 @@ void broker_handler::process_timer(const message_container &message, handler_int
 		runtime_stats_[STATS_WORKER_COUNT] - runtime_stats_[STATS_IDLE_WORKER_COUNT];
 }
 
-bool broker_handler::reassign_request(worker::request_ptr request, handler_interface::response_cb respond)
+bool broker_handler::reassign_request(worker::request_ptr request, const handler_interface::response_cb &respond)
 {
 	logger_->debug(
 		" - reassigning job {} ({} attempts already failed)", request->data.get_job_id(), request->failure_count);
@@ -462,7 +464,7 @@ bool broker_handler::reassign_request(worker::request_ptr request, handler_inter
 	return true;
 }
 
-void broker_handler::send_request(worker_registry::worker_ptr worker, request_ptr request, response_cb respond)
+void broker_handler::send_request(worker_registry::worker_ptr worker, request_ptr request, const response_cb &respond)
 {
 	respond(message_container(broker_connect::KEY_WORKERS, worker->identity, request->data.get()));
 	logger_->debug(" - job {} sent to worker {}", request->data.get_job_id(), worker->get_description());
@@ -470,7 +472,7 @@ void broker_handler::send_request(worker_registry::worker_ptr worker, request_pt
 
 bool broker_handler::check_failure_count(worker::request_ptr request,
 	status_notifier_interface &status_notifier,
-	response_cb respond,
+	const response_cb &respond,
 	const std::string &failure_msg)
 {
 	if (request->failure_count >= config_->get_max_request_failures()) {
@@ -485,19 +487,19 @@ bool broker_handler::check_failure_count(worker::request_ptr request,
 }
 
 void broker_handler::notify_monitor(
-	worker::request_ptr request, const std::string &message, handler_interface::response_cb respond)
+	worker::request_ptr request, const std::string &message, const handler_interface::response_cb &respond)
 {
 	notify_monitor(request->data.get_job_id(), message, respond);
 }
 
 void broker_handler::notify_monitor(
-	const std::string &job_id, const std::string &message, handler_interface::response_cb respond)
+	const std::string &job_id, const std::string &message, const handler_interface::response_cb &respond)
 {
 	respond(message_container(broker_connect::KEY_MONITOR, broker_connect::MONITOR_IDENTITY, {job_id, message}));
 }
 
 void broker_handler::process_client_get_runtime_stats(
-	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
+	const std::string &identity, const std::vector<std::string> &message, const handler_interface::response_cb &respond)
 {
 	message_container response;
 	response.key = broker_connect::KEY_CLIENTS;
@@ -512,14 +514,14 @@ void broker_handler::process_client_get_runtime_stats(
 }
 
 void broker_handler::process_client_freeze(
-	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
+	const std::string &identity, const std::vector<std::string> &message, const handler_interface::response_cb &respond)
 {
 	is_frozen_ = true;
 	logger_->info("The broker was frozen and will not accept any requests until it is restarted or unfrozen");
 }
 
 void broker_handler::process_client_unfreeze(
-	const std::string &identity, const std::vector<std::string> &message, handler_interface::response_cb respond)
+	const std::string &identity, const std::vector<std::string> &message, const handler_interface::response_cb &respond)
 {
 	is_frozen_ = false;
 	logger_->info("The broker was unfrozen and will now accept requests again");

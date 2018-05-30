@@ -15,15 +15,15 @@ private:
 	std::list<worker_ptr> worker_queue_;
 
 public:
-	virtual ~multi_queue_manager();
-	virtual request_ptr add_worker(worker_ptr worker, request_ptr current_request = nullptr);
-	virtual request_ptr assign_request(worker_ptr worker);
-	virtual std::shared_ptr<std::vector<request_ptr>> worker_terminated(worker_ptr);
-	virtual enqueue_result enqueue_request(request_ptr request);
-	virtual size_t get_queued_request_count();
-	virtual request_ptr get_current_request(worker_ptr worker);
-	virtual request_ptr worker_finished(worker_ptr worker);
-	virtual request_ptr worker_cancelled(worker_ptr worker);
+	~multi_queue_manager() override = default;
+	request_ptr add_worker(worker_ptr worker, request_ptr current_request = nullptr) override;
+	request_ptr assign_request(worker_ptr worker) override;
+	std::shared_ptr<std::vector<request_ptr>> worker_terminated(worker_ptr) override;
+	enqueue_result enqueue_request(request_ptr request) override;
+	std::size_t get_queued_request_count() override;
+	request_ptr get_current_request(worker_ptr worker) override;
+	request_ptr worker_finished(worker_ptr worker) override;
+	request_ptr worker_cancelled(worker_ptr worker) override;
 };
 
 

@@ -30,7 +30,10 @@ public:
 	 */
 	status_notifier_handler(const notifier_config &config, std::shared_ptr<spdlog::logger> logger);
 
-	void on_request(const message_container &message, response_cb respond);
+	/** Destructor */
+	~status_notifier_handler() override = default;
+
+	void on_request(const message_container &message, const response_cb &respond) override;
 
 private:
 	/**

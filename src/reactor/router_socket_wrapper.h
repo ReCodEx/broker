@@ -18,9 +18,11 @@ public:
 	 */
 	router_socket_wrapper(std::shared_ptr<zmq::context_t> context, const std::string &addr, const bool bound);
 
-	bool send_message(const message_container &message);
+	~router_socket_wrapper() override = default;
 
-	bool receive_message(message_container &target);
+	bool send_message(const message_container &message) override;
+
+	bool receive_message(message_container &target) override;
 };
 
 #endif // RECODEX_BROKER_ROUTER_SOCKET_WRAPPER_H
