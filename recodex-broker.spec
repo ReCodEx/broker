@@ -1,7 +1,7 @@
 %define name recodex-broker
 %define short_name broker
-%define version 1.2.1
-%define unmangled_version 60d2a4ae569df9780f85446969718fa27193dd6c
+%define version 1.2.2
+%define unmangled_version aae209408c34eedcb7fe5345c0ed252526184183
 %define release 1
 
 %define spdlog_name spdlog
@@ -71,7 +71,7 @@ exit 0
 
 #%{_unitdir}/recodex-broker.service
 /lib/systemd/system/recodex-broker.service
-/etc/munin/plugins/munin-broker
+%attr(0755,root,root) /etc/munin/plugins/munin-broker
 
 %changelog
 
