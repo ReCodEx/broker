@@ -51,7 +51,6 @@ std::string helpers::curl_get(const std::string &url,
 	CURLcode res;
 
 	// get curl handle
-	// std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl = {curl_easy_init(), curl_easy_cleanup};
 	std::unique_ptr<CURL, decltype(&curl_easy_cleanup)> curl = {curl_easy_init(), curl_easy_cleanup};
 	if (curl.get()) {
 		// destination address
