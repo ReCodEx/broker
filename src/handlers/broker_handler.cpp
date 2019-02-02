@@ -510,6 +510,11 @@ void broker_handler::process_client_get_runtime_stats(
 		response.data.push_back(std::to_string(pair.second));
 	}
 
+	// additional statistics
+	response.data.push_back("is-frozen");
+	response.data.push_back(std::to_string(is_frozen_));
+
+	logger_->debug("Client requested runtime statistics");
 	respond(response);
 }
 
@@ -518,6 +523,9 @@ void broker_handler::process_client_freeze(
 {
 	is_frozen_ = true;
 	logger_->info("The broker was frozen and will not accept any requests until it is restarted or unfrozen");
+
+	// let client know that freeze was successful
+	respond(message_container(broker_connect::KEY_CLIENTS, identity, {"ack"}));
 }
 
 void broker_handler::process_client_unfreeze(
@@ -525,4 +533,7 @@ void broker_handler::process_client_unfreeze(
 {
 	is_frozen_ = false;
 	logger_->info("The broker was unfrozen and will now accept requests again");
+
+	// let client know that unfreeze was successful
+	respond(message_container(broker_connect::KEY_CLIENTS, identity, {"ack"}));
 }
