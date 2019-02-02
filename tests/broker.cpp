@@ -228,7 +228,9 @@ TEST(broker, freeze)
 
 	// The broker is frozen
 	handler.on_request(message_container(broker_connect::KEY_CLIENTS, client_id, {"freeze"}), respond);
-	ASSERT_EQ(0u, messages.size());
+	ASSERT_EQ(1u, messages.size());
+
+	messages.clear();
 
 	// The client requests another evaluation
 	handler.on_request(
