@@ -230,6 +230,9 @@ TEST(broker, freeze)
 	handler.on_request(message_container(broker_connect::KEY_CLIENTS, client_id, {"freeze"}), respond);
 	ASSERT_EQ(1u, messages.size());
 
+	// Freeze has to be acknowledged
+	ASSERT_THAT(messages, ElementsAre(message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"})));
+
 	messages.clear();
 
 	// The client requests another evaluation
