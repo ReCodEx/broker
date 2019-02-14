@@ -150,13 +150,15 @@ void broker_handler::process_client_eval(
 
 		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"accept"}));
 	} else {
-		std::string reject_message = "No worker available for given headers.";
-		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject", reject_message}));
-		notify_monitor(job_id, "FAILED", respond);
+		std::string reject_message = "No worker available for given headers: ";
 		logger_->error("Request '{}' rejected. No worker available for headers:", job_id);
 		for (auto &header : headers) {
+			reject_message += header.first + "=" + header.second + "; ";
 			logger_->error(" - {}: {}", header.first, header.second);
 		}
+
+		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject", reject_message}));
+		notify_monitor(job_id, "FAILED", respond);
 	}
 }
 
