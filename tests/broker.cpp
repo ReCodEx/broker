@@ -242,7 +242,7 @@ TEST(broker, freeze)
 	// The job should be rejected
 	ASSERT_THAT(messages,
 		ElementsAre(message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
-			message_container(broker_connect::KEY_CLIENTS, client_id, {"reject"})));
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"reject", "The broker is frozen."})));
 
 	messages.clear();
 }

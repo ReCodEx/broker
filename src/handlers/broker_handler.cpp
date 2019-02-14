@@ -122,8 +122,9 @@ void broker_handler::process_client_eval(
 
 	// If the broker is frozen, reject the request
 	if (is_frozen_) {
-		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject"}));
-		logger_->error("Request '{}' rejected. The broker is frozen.", job_id);
+		std::string reject_message = "The broker is frozen.";
+		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject", reject_message}));
+		logger_->error("Request '{}' rejected. {}", job_id, reject_message);
 		return;
 	}
 
@@ -149,7 +150,8 @@ void broker_handler::process_client_eval(
 
 		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"accept"}));
 	} else {
-		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject"}));
+		std::string reject_message = "No worker available for given headers.";
+		respond(message_container(broker_connect::KEY_CLIENTS, identity, {"reject", reject_message}));
 		notify_monitor(job_id, "FAILED", respond);
 		logger_->error("Request '{}' rejected. No worker available for headers:", job_id);
 		for (auto &header : headers) {
