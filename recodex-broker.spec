@@ -2,7 +2,7 @@
 %define short_name broker
 %define version 1.3.1
 %define unmangled_version 0edcf2bd83b651566a1bda4e17c9afa1ab7669df
-%define release 1
+%define release 2
 
 %define spdlog_name spdlog
 %define spdlog_version 0.13.0
@@ -17,7 +17,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Vendor: Petr Stefan <UNKNOWN>
 Url: https://github.com/ReCodEx/broker
-BuildRequires: systemd gcc-c++ cmake zeromq-devel cppzmq-devel yaml-cpp-devel libcurl-devel
+BuildRequires: systemd gcc-c++ cmake zeromq-devel cppzmq-devel yaml-cpp-devel libcurl-devel boost-devel
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd

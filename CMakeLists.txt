@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(recodex-broker)
-set(RECODEX_VERSION "1.0.0")
+set(RECODEX_VERSION "1.3.1")
 
 set(EXEC_NAME ${PROJECT_NAME})
 enable_testing()
