@@ -16,7 +16,7 @@ TEST(multi_queue_manager, add_worker)
 	multi_queue_manager manager;
 
 	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
-	auto request_1 = std::make_shared<request>(headers, data);
+	auto request_1 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
 
 	manager.add_worker(worker_1, request_1);
 	ASSERT_EQ(request_1, manager.get_current_request(worker_1));
@@ -30,8 +30,8 @@ TEST(multi_queue_manager, basic_queueing)
 	multi_queue_manager manager;
 
 	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
-	auto request_1 = std::make_shared<request>(headers, data);
-	auto request_2 = std::make_shared<request>(headers, data);
+	auto request_1 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
+	auto request_2 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
 
 	manager.add_worker(worker_1);
 
@@ -63,9 +63,9 @@ TEST(multi_queue_manager, terminate_basic)
 
 	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	manager.add_worker(worker_1);
-	auto request_1 = std::make_shared<request>(headers, data);
-	auto request_2 = std::make_shared<request>(headers, data);
-	auto request_3 = std::make_shared<request>(headers, data);
+	auto request_1 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
+	auto request_2 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
+	auto request_3 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
 
 	manager.enqueue_request(request_1);
 	manager.enqueue_request(request_2);
@@ -86,8 +86,8 @@ TEST(multi_queue_manager, terminate_no_current)
 
 	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	manager.add_worker(worker_1);
-	auto request_1 = std::make_shared<request>(headers, data);
-	auto request_2 = std::make_shared<request>(headers, data);
+	auto request_1 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
+	auto request_2 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
 
 	manager.enqueue_request(request_1);
 	manager.enqueue_request(request_2);
@@ -105,7 +105,7 @@ TEST(multi_queue_manager, terminate_empty)
 
 	auto worker_1 = std::make_shared<worker>("identity1", "group_1", headers);
 	manager.add_worker(worker_1);
-	auto request_1 = std::make_shared<request>(headers, data);
+	auto request_1 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
 
 	manager.enqueue_request(request_1);
 	manager.worker_finished(worker_1);
@@ -126,8 +126,8 @@ TEST(multi_queue_manager, load_balancing)
 
 	request::headers_t headers = {{"env", "c"}};
 	job_request_data data("", {});
-	auto request_1 = std::make_shared<request>(headers, data);
-	auto request_2 = std::make_shared<request>(headers, data);
+	auto request_1 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
+	auto request_2 = std::make_shared<request>(headers, request::metadata_t{{}}, data);
 
 	enqueue_result result_1 = manager.enqueue_request(request_1);
 	enqueue_result result_2 = manager.enqueue_request(request_2);

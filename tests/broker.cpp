@@ -193,6 +193,58 @@ TEST(broker, queuing)
 	messages.clear();
 }
 
+class spying_queue_manager : public multi_queue_manager
+{
+public:
+	std::vector<request_ptr> received_requests;
+
+	enqueue_result enqueue_request(request_ptr request) override
+	{
+		received_requests.push_back(request);
+		return multi_queue_manager::enqueue_request(request);
+	}
+};
+
+TEST(broker, request_metadata)
+{
+	auto config = std::make_shared<NiceMock<mock_broker_config>>();
+	auto workers = std::make_shared<worker_registry>();
+	auto queue = std::make_shared<spying_queue_manager>();
+
+	// There is already a worker in the registry
+	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
+	workers->add_worker(worker_1);
+	queue->add_worker(worker_1);
+
+	// Dummy response callback
+	std::vector<message_container> messages;
+	handler_interface::response_cb respond = [&messages](const message_container &msg) { messages.push_back(msg); };
+
+	// The test code
+	broker_handler handler(config, workers, queue, nullptr);
+
+	std::string client_id = "client_foo";
+
+	// A client requests an evaluation
+	handler.on_request(
+		message_container(broker_connect::KEY_CLIENTS,
+			client_id,
+			{"eval", "job1", "env=c", "meta.user_id=user_asdf", "meta.exercise_id=exercise_asdf", "", "1", "2"}),
+		respond);
+
+	// The job should be assigned to our worker immediately, metadata should not be passed
+	ASSERT_THAT(messages,
+		UnorderedElementsAre(
+			message_container(broker_connect::KEY_WORKERS, worker_1->identity, {"eval", "job1", "1", "2"}),
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"ack"}),
+			message_container(broker_connect::KEY_CLIENTS, client_id, {"accept"})));
+
+	ASSERT_THAT(queue->received_requests[0]->metadata,
+		UnorderedElementsAre(Pair("user_id", "user_asdf"), Pair("exercise_id", "exercise_asdf")));
+
+	messages.clear();
+}
+
 TEST(broker, freeze)
 {
 	auto config = std::make_shared<NiceMock<mock_broker_config>>();
@@ -306,7 +358,8 @@ TEST(broker, worker_expiration)
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
 	worker_1->liveness = 1;
-	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
+	auto request_1 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id", {}));
 	workers->add_worker(worker_1);
 	queue->add_worker(worker_1, request_1);
 
@@ -372,7 +425,8 @@ TEST(broker, worker_state_message)
 
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
+	auto request_1 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
 	workers->add_worker(worker_1);
 	queue->add_worker(worker_1, request_1);
@@ -401,7 +455,8 @@ TEST(broker, worker_job_failed)
 
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
+	auto request_1 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
 	workers->add_worker(worker_1);
 	queue->add_worker(worker_1, request_1);
@@ -436,8 +491,10 @@ TEST(broker, worker_job_failed_queueing)
 
 	// There is already a worker in the registry and it has two jobs
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id_1", {}));
-	auto request_2 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id_2", {}));
+	auto request_1 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id_1", {}));
+	auto request_2 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id_2", {}));
 	worker_1->liveness = 1;
 	workers->add_worker(worker_1);
 	queue->add_worker(worker_1);
@@ -484,7 +541,8 @@ TEST(broker, worker_job_done)
 
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
+	auto request_1 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
 	workers->add_worker(worker_1);
 	queue->add_worker(worker_1, request_1);
@@ -550,7 +608,8 @@ TEST(broker, worker_job_internal_failure)
 
 	// There is already a worker in the registry and it has a job
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 = std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {}));
+	auto request_1 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id", {}));
 	worker_1->liveness = 1;
 	workers->add_worker(worker_1);
 	queue->add_worker(worker_1, request_1);
@@ -632,8 +691,8 @@ TEST(broker, worker_expiration_reassign_job)
 
 	// There are two workers in the registry, one of them has a job and will die
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 =
-		std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {"whatever"}));
+	auto request_1 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id", {"whatever"}));
 	auto worker_2 = std::make_shared<worker>("identity_2", "group_1", worker_headers_t{{"env", "c"}});
 	worker_1->liveness = 1;
 	worker_2->liveness = 100;
@@ -720,8 +779,8 @@ TEST(broker, worker_expiration_cancel_job)
 
 	// There are two workers in the registry, one of them has a job that expired too many times
 	auto worker_1 = std::make_shared<worker>("identity_1", "group_1", worker_headers_t{{"env", "c"}});
-	auto request_1 =
-		std::make_shared<request>(request::headers_t{{"env", "c"}}, job_request_data("job_id", {"whatever"}));
+	auto request_1 = std::make_shared<request>(
+		request::headers_t{{"env", "c"}}, request::metadata_t{{}}, job_request_data("job_id", {"whatever"}));
 	request_1->failure_count = 1;
 	auto worker_2 = std::make_shared<worker>("identity_2", "group_1", worker_headers_t{{"env", "c"}});
 	worker_1->liveness = 1;

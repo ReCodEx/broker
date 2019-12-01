@@ -79,8 +79,14 @@ struct request {
 	/** Data structure type for holding all headers. */
 	using headers_t = std::multimap<std::string, std::string>;
 
+	/** Data structure for holding job metadata */
+	using metadata_t = std::map<std::string, std::string>;
+
 	/** Headers that specify requirements on the machine that processes the request. */
 	const headers_t headers;
+
+	/** Optional job metadata that can be used for job scheduling and routing */
+	const metadata_t metadata;
 
 	/** The data of the request. */
 	const job_request_data data;
@@ -93,7 +99,8 @@ struct request {
 	 * @param headers Request headers that specify requirements on workers.
 	 * @param data Body of the request.
 	 */
-	request(const headers_t &headers, const job_request_data &data) : headers(headers), data(data)
+	request(const headers_t &headers, const metadata_t &metadata, const job_request_data &data)
+		: headers(headers), metadata(metadata), data(data)
 	{
 	}
 

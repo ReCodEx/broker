@@ -96,12 +96,15 @@ void broker_handler::process_client_eval(
 	std::string job_id = message.at(1);
 	request::headers_t headers;
 
+	request::metadata_t metadata;
+	const static std::string metadata_key_prefix = "meta.";
+
 	// Load headers terminated by an empty frame
 	auto it = std::begin(message) + 2;
 
 	while (true) {
 		// End of headers
-		if (it->size() == 0) {
+		if (it->empty()) {
 			++it;
 			break;
 		}
@@ -116,7 +119,16 @@ void broker_handler::process_client_eval(
 		std::size_t pos = it->find('=');
 		std::size_t value_size = it->size() - (pos + 1);
 
-		headers.emplace(it->substr(0, pos), it->substr(pos + 1, value_size));
+		const auto &key = it->substr(0, pos);
+		const auto &value = it->substr(pos + 1, value_size);
+
+		// Headers that start with the metadata prefix get stored in the separate metadata field
+		if (key.substr(0, metadata_key_prefix.size()) == metadata_key_prefix) {
+			metadata.emplace(key.substr(metadata_key_prefix.size()), value);
+		} else {
+			headers.emplace(key, value);
+		}
+
 		++it;
 	}
 
@@ -138,7 +150,7 @@ void broker_handler::process_client_eval(
 	job_request_data request_data(job_id, additional_data);
 	logger_->debug(" - incoming job {}", job_id);
 
-	auto eval_request = std::make_shared<request>(headers, request_data);
+	auto eval_request = std::make_shared<request>(headers, metadata, request_data);
 	enqueue_result result = queue_->enqueue_request(eval_request);
 
 	if (result.enqueued) {
