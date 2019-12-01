@@ -1,7 +1,7 @@
 %define name recodex-broker
 %define short_name broker
-%define version 1.3.0
-%define unmangled_version 4baa6ade2d12151151a2865bb52ac4f118806d01
+%define version 1.3.1
+%define unmangled_version 0edcf2bd83b651566a1bda4e17c9afa1ab7669df
 %define release 1
 
 %define spdlog_name spdlog
