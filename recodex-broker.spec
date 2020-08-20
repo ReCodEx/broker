@@ -2,7 +2,7 @@
 %define short_name broker
 %define version 1.3.1
 %define unmangled_version 0edcf2bd83b651566a1bda4e17c9afa1ab7669df
-%define release 2
+%define release 3
 
 %define spdlog_name spdlog
 %define spdlog_version 0.13.0
@@ -27,7 +27,7 @@ Source0: https://github.com/ReCodEx/%{short_name}/archive/%{unmangled_version}.t
 Source1: https://github.com/gabime/%{spdlog_name}/archive/v%{spdlog_version}.tar.gz#/%{spdlog_name}-%{spdlog_version}.tar.gz
 
 %description
-Backend part of ReCodEx programmer testing solution.
+Middleware for ReCodEx code examiner, an educational application for evaluating programming assignments. The broker manages communication between frontend (core-api) and backend workers.
 
 %prep
 %setup -n %{short_name}-%{unmangled_version}
