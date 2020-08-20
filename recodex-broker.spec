@@ -71,7 +71,6 @@ exit 0
 
 #%{_unitdir}/recodex-broker.service
 /lib/systemd/system/recodex-broker.service
-%attr(0755,root,root) /etc/munin/plugins/munin-broker
 
 %changelog
 

@@ -1,4 +1,4 @@
-# Address and port for clients (frontend)
+# Address and port for clients (core API module)
 clients:
     address: "*"
     port: 9658
@@ -10,10 +10,10 @@ workers:
     ping_interval: 1000
 # Frontend address which will be used for notifying on certain events
 notifier:
-    address: "http://localhost/v1/broker-reports"
-    port: 4000
-    username: ""
-    password: ""
+    address: "https://your.recodex.domain/api/v1/broker-reports"
+    port: 443
+    username: "rebroker"                  # This must match the configuration of core API module
+    password: "generateSecretPasswdHere"  # see 'broker' > 'auth'
 monitor:
     address: "127.0.0.1"
     port: 7894
@@ -22,4 +22,3 @@ logger:
     level: "debug"  # level of logging
     max-size: 1048576  # 1 MB; max size of file before log rotation
     rotations: 3  # number of rotations kept
-
