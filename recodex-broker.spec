@@ -1,8 +1,8 @@
 %define name recodex-broker
 %define short_name broker
 %define version 1.3.1
-%define unmangled_version aa4c744cbbf3f4b69af37c5b121289b9bc9804b1
-%define release 4
+%define unmangled_version c662d9efa9056eb3108c7f50aa65b3b9fa1ecc64
+%define release 5
 
 %define spdlog_name spdlog
 %define spdlog_version 0.13.0
@@ -67,12 +67,11 @@ exit 0
 %dir %attr(-,recodex,recodex) /var/log/recodex
 
 %{_bindir}/recodex-broker
-%config(noreplace) %attr(-,recodex,recodex) %{_sysconfdir}/recodex/broker/config.yml
+%config(noreplace) %attr(0600,recodex,recodex) %{_sysconfdir}/recodex/broker/config.yml
 
 #%{_unitdir}/recodex-broker.service
 /lib/systemd/system/recodex-broker.service
 
 %changelog
-
 
 
