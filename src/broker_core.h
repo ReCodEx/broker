@@ -21,7 +21,6 @@ namespace fs = boost::filesystem;
 #include "broker_connect.h"
 #include "config/broker_config.h"
 #include "config/log_config.h"
-#include "notifier/http_status_notifier.h"
 #include "reactor/command_holder.h"
 
 
