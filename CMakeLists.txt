@@ -38,8 +38,6 @@ set(SOURCE_FILES
 	src/worker.h
 	src/worker.cpp
 	src/notifier/status_notifier.h
-	src/notifier/http_status_notifier.h
-	src/notifier/http_status_notifier.cpp
 	src/notifier/empty_status_notifier.h
 	src/reactor/reactor.h
 	src/reactor/reactor.cpp

@@ -1,8 +1,11 @@
-#include <map>
-#include <sstream>
-
 #include "../helpers/curl.h"
 #include "status_notifier_handler.h"
+
+#include <map>
+#include <sstream>
+#include <thread>
+#include <chrono>
+
 
 const std::string status_notifier_handler::TYPE_ERROR = "error";
 const std::string status_notifier_handler::TYPE_JOB_STATUS = "job-status";
@@ -47,9 +50,17 @@ void status_notifier_handler::on_request(
 		ss << "/" << id;
 	}
 
-	try {
-		helpers::curl_post(ss.str(), config_.port, params, config_.username, config_.password);
-	} catch (helpers::curl_exception &exception) {
-		logger_->critical("curl failed: {}", exception.what());
+	std::size_t retries = 4; // we come by this value using digital suction
+	auto delay = std::chrono::seconds(1);
+	while (retries > 0) {
+		--retries;
+		try {
+			helpers::curl_post(ss.str(), config_.port, params, config_.username, config_.password);
+			return; // success, nothing else to try
+		} catch (helpers::curl_exception &exception) {
+			logger_->critical("curl failed: {}", exception.what());
+			std::this_thread::sleep_for(delay);
+			delay *= 2; // exponentially growing waiting intervals are cool
+		}
 	}
 }
