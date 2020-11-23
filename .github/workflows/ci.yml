@@ -1,0 +1,32 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - run: g++ --version
+      - run: cmake --version
+
+      # before install
+      - run: sudo apt-get update -qq
+      - run: sudo apt-get install -y libzmq3-dev libzmq5
+      - run: sudo apt-get install -y libboost-all-dev
+      - run: sudo apt-get install -y libyaml-cpp0.6 libyaml-cpp-dev
+      - run: sudo apt-get install -y libcurl4-gnutls-dev
+
+      # script
+      - run: mkdir build
+      - run: cmake ..
+        working-directory: build
+      - run: make
+        working-directory: build
+      - run: ctest --output-on-failure
+        working-directory: build
+
+      # after success
+      - uses: codecov/codecov-action@v1

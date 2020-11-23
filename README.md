@@ -1,6 +1,6 @@
 # Broker
-[![Build Status](https://travis-ci.org/ReCodEx/broker.svg?branch=master)](https://travis-ci.org/ReCodEx/broker)
-[![Coverage](https://img.shields.io/coveralls/ReCodEx/broker.svg)](https://coveralls.io/github/ReCodEx/broker)
+[![Build Status](https://github.com/ReCodEx/broker/workflows/CI/badge.svg)](https://github.com/ReCodEx/broker/actions)
+[![codecov](https://codecov.io/gh/ReCodEx/broker/branch/master/graph/badge.svg?token=PWV4OZ75DI)](https://codecov.io/gh/ReCodEx/broker)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://badges.mit-license.org)
 [![Docs](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://recodex.github.io/broker/)
 [![Wiki](https://img.shields.io/badge/docs-wiki-orange.svg)](https://github.com/ReCodEx/wiki/wiki)
