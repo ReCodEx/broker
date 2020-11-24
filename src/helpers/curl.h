@@ -3,6 +3,7 @@
 
 #include <curl/curl.h>
 #include <map>
+#include <string>
 
 namespace helpers
 {
