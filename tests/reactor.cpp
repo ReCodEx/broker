@@ -251,7 +251,7 @@ TEST(reactor, multiple_asynchronous_handlers)
 		socket_2->send_message_local(message_container("", "id1", {"socket_2"}));
 	}
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(30));
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
 	ASSERT_EQ(message_count, handler_1->received.size());
 	ASSERT_EQ(message_count, handler_2a->received.size());

@@ -23,7 +23,7 @@ jobs:
       - run: mkdir build
       - run: cmake ..
         working-directory: build
-      - run: make
+      - run: make -j 4
         working-directory: build
       - run: ctest --output-on-failure
         working-directory: build
