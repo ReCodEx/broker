@@ -1,8 +1,8 @@
 %define name recodex-broker
 %define short_name broker
 %define version 1.3.1
-%define unmangled_version c662d9efa9056eb3108c7f50aa65b3b9fa1ecc64
-%define release 5
+%define unmangled_version 5786b0c161967a63089d9785321e8e883f2fa308
+%define release 7
 
 %define spdlog_name spdlog
 %define spdlog_version 0.13.0
@@ -38,10 +38,10 @@ mv -f %{spdlog_name}-%{spdlog_version} vendor/spdlog
 
 %build
 %cmake -DDISABLE_TESTS=true .
-make %{?_smp_mflags}
+%cmake_build
 
 %install
-make install DESTDIR=%{buildroot}
+%cmake_install --prefix %{buildroot}
 mkdir -p %{buildroot}/var/log/recodex
 
 %clean
