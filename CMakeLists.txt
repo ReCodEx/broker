@@ -15,7 +15,7 @@ include_directories(AFTER, vendor/spdlog/include)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall")
 
 set(SOURCE_FILES
 	src/main.cpp
@@ -59,6 +59,7 @@ set(SOURCE_FILES
 	src/queuing/queue_manager_interface.h
 	src/queuing/multi_queue_manager.cpp
 	src/queuing/multi_queue_manager.h
+	src/queuing/single_queue_manager.h
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})

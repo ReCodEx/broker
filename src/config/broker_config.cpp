@@ -8,6 +8,10 @@ broker_config::broker_config(const YAML::Node &config)
 			throw config_error("The configuration is not a YAML map");
 		}
 
+		if (config["queue_manager"] && config["queue_manager"].IsScalar()) {
+			queue_manager_ = config["queue_manager"].as<std::string>();
+		}
+
 		// load client address and port
 		if (config["clients"] && config["clients"].IsMap()) {
 			if (config["clients"]["address"] && config["clients"]["address"].IsScalar()) {
@@ -83,6 +87,11 @@ broker_config::broker_config(const YAML::Node &config)
 	} catch (YAML::Exception &ex) {
 		throw config_error("Default broker configuration was not loaded: " + std::string(ex.what()));
 	}
+}
+
+const std::string &broker_config::get_queue_manager() const
+{
+	return queue_manager_;
 }
 
 const std::string &broker_config::get_client_address() const
