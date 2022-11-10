@@ -47,6 +47,12 @@ add_test_suite(multi_queue_manager
     ${HELPERS_DIR}/string_to_hex.cpp
 )
 
+add_test_suite(single_queue_manager
+	single_queue_manager.cpp
+    ${SRC_DIR}/worker.cpp
+    ${HELPERS_DIR}/string_to_hex.cpp
+)
+
 add_test_suite(broker
 	mocks.h
 	broker.cpp
