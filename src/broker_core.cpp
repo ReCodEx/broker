@@ -1,4 +1,5 @@
 #include "broker_core.h"
+#include "queuing/single_queue_manager.h"
 #include "queuing/multi_queue_manager.h"
 
 broker_core::broker_core(std::vector<std::string> args)
@@ -127,7 +128,17 @@ void broker_core::broker_init()
 	logger_->info("Initializing broker connection...");
 	workers_ = std::make_shared<worker_registry>();
 	context_ = std::make_shared<zmq::context_t>(1);
-	queue_ = std::make_shared<multi_queue_manager>();
+
+	// Yes, this may be done better, but it will do for now.
+	auto queue_manager_id = config_->get_queue_manager();
+	if (queue_manager_id == "multi") {
+		queue_ = std::make_shared<multi_queue_manager>();
+	} else if (queue_manager_id == "single") {
+		queue_ = std::make_shared<single_queue_manager<>>();
+	} else {
+		force_exit("Unknown queue manager '" + queue_manager_id + "'. Available managers are 'single' and 'multi'.");
+	}
+
 	broker_ = std::make_shared<broker_connect>(config_, context_, workers_, queue_, logger_);
 	logger_->info("Broker connection initialized.");
 }

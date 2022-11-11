@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(recodex-broker)
-set(RECODEX_VERSION "1.3.1")
+set(RECODEX_VERSION "1.4.0")
 
 set(EXEC_NAME ${PROJECT_NAME})
 enable_testing()
@@ -15,7 +15,7 @@ include_directories(AFTER, vendor/spdlog/include)
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall")
 
 set(SOURCE_FILES
 	src/main.cpp
@@ -59,6 +59,7 @@ set(SOURCE_FILES
 	src/queuing/queue_manager_interface.h
 	src/queuing/multi_queue_manager.cpp
 	src/queuing/multi_queue_manager.h
+	src/queuing/single_queue_manager.h
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_FILES})

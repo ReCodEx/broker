@@ -144,6 +144,7 @@ The default location for broker configuration file is
 	  `err`, `warn`, `notice`, `info` and `debug`
 	- _max-size_ -- maximal size of log file before rotating
 	- _rotations_ -- number of rotation kept
+- _queue_manager_ -- selection of the queue manager implementation responsible for assigning jobs to workers. Currently only `single` (the default) and `multi` queue managers are in production version. Single-queue manager has one queue and dispatches jobs on demand as workers become available. Multi-queue manager has a queue for every worker, jobs are assigned immediately and cannot be re-assigned unless failure occurs. I.e., `single` provides better load balancing, `multi` has lower dispatching overhead.
 
 ### Example config file
 
@@ -172,6 +173,7 @@ logger:
     level: "debug"  # level of logging
     max-size: 1048576  # 1 MB; max size of file before log rotation
     rotations: 3  # number of rotations kept
+queue_manager: "single"  # name of the manager that handles job dispatching among queues (single is the default)
 ```
 
 ## Documentation

@@ -34,6 +34,11 @@ public:
 	 */
 	virtual ~broker_config() = default;
 	/**
+	 * Get the identifier of the queue manager.
+	 * @return String identifier which should be translated into known implementation of queue_manager_interface.
+	 */
+	virtual const std::string &get_queue_manager() const;
+	/**
 	 * Get IP address for client connections (from frontend).
 	 * @return Broker's IP address for client connections.
 	 */
@@ -90,6 +95,8 @@ public:
 	const notifier_config &get_notifier_config() const;
 
 private:
+	/** Identifier of the queue manager being used for job dispatching */
+	std::string queue_manager_ = "single";
 	/** Client socket address (from frontend) */
 	std::string client_address_ = "*"; // '*' is any address
 	/** Server socket address (to workers) */
