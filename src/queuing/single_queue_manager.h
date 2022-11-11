@@ -19,8 +19,6 @@ struct fcfs_job_comparator {
     {
         return a.arrived_at < b.arrived_at;
     }
-
-    void drop_caches() {}
 };
 
 
@@ -92,8 +90,6 @@ public:
     request_ptr assign_request(worker_ptr worker) override
     {
         worker_jobs_[worker] = nullptr;
-        comparator_->drop_caches();
-
         std::sort(jobs_.begin(), jobs_.end(), [this, worker] (const request_entry &a, const request_entry &b) {
             return comparator_->compare(a, b, worker);
         });
@@ -115,7 +111,9 @@ public:
     std::shared_ptr<std::vector<request_ptr>> worker_terminated(worker_ptr worker) override
     {
         auto result = std::make_shared<std::vector<request_ptr>>();
-        result->push_back(worker_jobs_[worker]);
+        if (worker_jobs_[worker] != nullptr) {
+            result->push_back(worker_jobs_[worker]); // currently running job (returned for possible reasignment)
+        }
         worker_jobs_.erase(worker);
         workers_.erase(std::remove(workers_.begin(), workers_.end(), worker), workers_.end());
 
