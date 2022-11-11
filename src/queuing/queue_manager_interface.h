@@ -80,7 +80,7 @@ public:
 	virtual request_ptr worker_finished(worker_ptr worker) = 0;
 
 	/**
-	 * Mark the current request of a worker as cancelled and do not assign it another request.
+	 * Mark the current request of a worker as cancelled and do not (re)assign it to another worker.
 	 * Called when the worker machine fails to process the request.
 	 * The caller can decide whether the request should be enqueued again or not.
 	 * @param worker the worker whose job was cancelled

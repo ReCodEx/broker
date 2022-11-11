@@ -47,6 +47,21 @@ private:
     std::map<worker_ptr, request_ptr> worker_jobs_;
     std::vector<worker_ptr> workers_;
 
+    /**
+     * Check whether a worker exists capable of processing given request (according to headers)
+     * @param request_ptr request to be tested
+     * @return true if some worker exists, false if the request cannot be accomodated with current workers
+     */
+    bool is_request_assignable(request_ptr request) const
+    {
+        for (auto &worker : workers_) {
+            if (worker->check_headers(request->headers)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 public:
     explicit single_queue_manager():
         comparator_(std::make_unique<JobComparator>()), selector_(std::make_unique<IdleWorkerSelector>())
@@ -103,7 +118,21 @@ public:
         result->push_back(worker_jobs_[worker]);
         worker_jobs_.erase(worker);
         workers_.erase(std::remove(workers_.begin(), workers_.end(), worker), workers_.end());
-        return result;
+
+        // filter jobs and remove those wich are no longer process-able (after worker removal)
+        for (auto &&job : jobs_) {
+            if (!is_request_assignable(job.request)) {
+                // the job cannot be accomodated anymore...
+                result->push_back(job.request);
+                job.request = nullptr; // mark the job for removal
+            }
+        }
+        jobs_.erase( // remove marked jobs
+            std::remove_if(jobs_.begin(), jobs_.end(), [](auto &job) { return job.request == nullptr; }),
+            jobs_.end()
+        );
+
+        return result; // return removed requests
     }
 
     enqueue_result enqueue_request(request_ptr request) override
@@ -119,31 +148,20 @@ public:
             };
         }
 
-        // If no worker able to process the job exists, reject it
-        for (auto it = std::begin(worker_jobs_); it != std::end(worker_jobs_); ++it) {
-            if (it->first->check_headers(request->headers)) {
-                break;
-            }
-
-            if (std::next(it) == std::end(worker_jobs_)) {
-                return enqueue_result{
-                    .assigned_to = nullptr,
-                    .enqueued = false,
-                };
-            }
+        bool assignable = is_request_assignable(request);
+        if (assignable) {
+            // Enqueue the job
+            jobs_.push_back(request_entry{
+                .request = request,
+                .arrived_at = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now().time_since_epoch()
+                ),
+            });
         }
-
-        // Enqueue the job
-        jobs_.push_back(request_entry{
-            .request = request,
-            .arrived_at = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now().time_since_epoch()
-            ),
-        });
 
         return enqueue_result{
             .assigned_to = nullptr,
-            .enqueued = true,
+            .enqueued = assignable,
         };
     }
 
