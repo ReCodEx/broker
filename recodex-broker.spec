@@ -2,7 +2,7 @@
 %define short_name broker
 %define version 1.4.0
 %define unmangled_version f9710b51e97931696c92a2beb6e8f30a037b07b0
-%define release 1
+%define release 2
 
 %define spdlog_name spdlog
 %define spdlog_version 0.13.0
